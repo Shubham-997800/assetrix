@@ -52,11 +52,12 @@ export function CustomerStories() {
               <Quote className="h-8 w-8 text-primary/20" />
 
               {/* Stars */}
-              <div className="mt-3 flex gap-0.5">
+              <div className="mt-3 flex gap-0.5" role="img" aria-label="5 out of 5 stars">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
                     className="h-3.5 w-3.5 fill-primary text-primary"
+                    aria-hidden="true"
                   />
                 ))}
               </div>

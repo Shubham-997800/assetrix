@@ -8,7 +8,7 @@ import { AuthInput } from "@/components/auth/auth-input";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { Button } from "@/components/ui/button";
-import { Loader2, Mail, Lock } from "lucide-react";
+import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 interface FormErrors {
   email?: string;
@@ -22,6 +22,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -122,7 +123,7 @@ export default function LoginPage() {
               </div>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 className={`input-focus-glow w-full rounded-xl border bg-card py-2.5 pl-10 pr-10 text-sm text-foreground outline-none transition-all duration-150 placeholder:text-muted-foreground ${
                   errors.password
@@ -135,21 +136,24 @@ export default function LoginPage() {
                   if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
                 }}
                 autoComplete="current-password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-                tabIndex={-1}
-                aria-label="Show password"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
             {errors.password && (
-              <p className="mt-1.5 text-xs text-destructive" role="alert">
+              <p id="password-error" className="mt-1.5 text-xs text-destructive" role="alert">
                 {errors.password}
               </p>
             )}

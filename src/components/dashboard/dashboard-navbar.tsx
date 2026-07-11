@@ -39,7 +39,7 @@ const notifications = [
 const unreadCount = notifications.filter((n) => n.unread).length;
 
 export function DashboardNavbar() {
-  const { toggleSidebar, setMobileDrawerOpen, commandOpen, setCommandOpen } = useDashboard();
+  const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, commandOpen, setCommandOpen } = useDashboard();
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notifOpen, setNotifOpen] = useState(false);
@@ -87,8 +87,9 @@ export function DashboardNavbar() {
           {/* Mobile Menu */}
           <button
             onClick={() => setMobileDrawerOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
             aria-label="Open navigation"
+            aria-expanded={mobileDrawerOpen}
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -96,8 +97,9 @@ export function DashboardNavbar() {
           {/* Desktop Sidebar Toggle */}
           <button
             onClick={toggleSidebar}
-            className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:flex"
+            className="hidden h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:flex"
             aria-label="Toggle sidebar"
+            aria-expanded={!sidebarCollapsed}
           >
             <Menu className="h-4 w-4" />
           </button>

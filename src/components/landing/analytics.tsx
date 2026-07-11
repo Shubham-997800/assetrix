@@ -57,7 +57,7 @@ export function Analytics() {
               Revenue Growth
             </h3>
             <p className="text-xs text-muted-foreground">Year over year</p>
-            <div className="mt-6 flex items-end gap-1" style={{ height: 160 }}>
+            <div className="mt-6 flex items-end gap-1 h-40 sm:h-48">
               {[30, 38, 35, 48, 42, 58, 52, 68, 62, 78, 72, 88].map(
                 (h, i) => (
                   <div key={i} className="flex-1 flex flex-col gap-0.5">
@@ -67,7 +67,7 @@ export function Analytics() {
                     >
                       <div
                         className="rounded-t-sm bg-primary"
-                        style={{ height: `${55 + Math.random() * 45}%` }}
+                        style={{ height: `${[60, 68, 55, 75, 65, 80, 72, 88, 78, 92, 85, 95][i]}%` }}
                       />
                     </div>
                   </div>
@@ -82,7 +82,7 @@ export function Analytics() {
               Operational Efficiency
             </h3>
             <p className="text-xs text-muted-foreground">Monthly average</p>
-            <div className="mt-6 relative" style={{ height: 160 }}>
+            <div className="mt-6 relative h-40 sm:h-48">
               <svg viewBox="0 0 400 160" className="w-full h-full">
                 <defs>
                   <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
@@ -145,9 +145,9 @@ export function Analytics() {
               <div className="relative h-36 w-36">
                 <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
                   <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border)" strokeWidth="12" />
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#22c55e" strokeWidth="12" strokeDasharray="235 80" />
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#eab308" strokeWidth="12" strokeDasharray="50 265" strokeDashoffset="-235" />
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" strokeWidth="12" strokeDasharray="15 290" strokeDashoffset="-285" />
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="var(--primary)" strokeWidth="12" strokeDasharray="235 80" strokeOpacity="0.8" />
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#f59e0b" strokeWidth="12" strokeDasharray="50 265" strokeDashoffset="-235" strokeOpacity="0.8" />
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" strokeWidth="12" strokeDasharray="15 290" strokeDashoffset="-285" strokeOpacity="0.8" />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">

@@ -308,7 +308,7 @@ export default function AdminPage() {
           {flags.map((f) => (
             <div key={f.name} className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted/30">
               <div className="flex items-center gap-3">
-                <Flag className="h-4 w-4 text-muted-foreground" />
+                <Flag className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">{f.name}</span>
@@ -317,9 +317,14 @@ export default function AdminPage() {
                   <p className="text-xs text-muted-foreground">{f.description}</p>
                 </div>
               </div>
-              <button role="switch" aria-checked={f.enabled}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${f.enabled ? "bg-primary" : "bg-muted"}`}>
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${f.enabled ? "translate-x-6" : "translate-x-1"}`} />
+              <button
+                role="switch"
+                aria-checked={f.enabled}
+                aria-label={`${f.name} feature flag`}
+                onClick={() => {}} // Toggle state managed via state
+                className={`relative inline-flex h-11 w-11 shrink-0 items-center rounded-full transition-colors ${f.enabled ? "bg-primary" : "bg-muted"}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${f.enabled ? "translate-x-6" : "translate-x-1"}`} aria-hidden="true" />
               </button>
             </div>
           ))}

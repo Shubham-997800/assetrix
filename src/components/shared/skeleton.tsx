@@ -45,8 +45,9 @@ export function SkeletonTable({ rows = 5 }: { rows?: number }) {
 
 export function SkeletonDashboard() {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-4 gap-4">
+    <div className="space-y-6" role="status" aria-label="Loading dashboard">
+      <span className="sr-only">Loading...</span>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="rounded-2xl border border-border bg-card p-5">
             <Skeleton className="h-3 w-24" />
@@ -55,8 +56,8 @@ export function SkeletonDashboard() {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="col-span-2 rounded-2xl border border-border bg-card p-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="col-span-1 rounded-2xl border border-border bg-card p-6 lg:col-span-2">
           <Skeleton className="mb-4 h-5 w-32" />
           <Skeleton className="h-48 w-full" />
         </div>

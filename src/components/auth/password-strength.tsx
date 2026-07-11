@@ -49,13 +49,21 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
             {strength.label}
           </span>
         </div>
-        <div className="flex gap-1">
+        <div
+          className="flex gap-1"
+          role="meter"
+          aria-label={`Password strength: ${strength.label}`}
+          aria-valuenow={strength.score}
+          aria-valuemin={0}
+          aria-valuemax={4}
+        >
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
               className={`h-1 flex-1 rounded-full transition-all duration-300 ${
                 i <= strength.score ? strength.color : "bg-muted"
               }`}
+              aria-hidden="true"
             />
           ))}
         </div>

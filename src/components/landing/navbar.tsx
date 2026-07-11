@@ -72,7 +72,7 @@ export function Navbar() {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
               render={
-                <Button variant="ghost" size="icon" className="h-9 w-9 md:hidden">
+                <Button variant="ghost" size="icon" className="h-11 w-11 md:hidden" aria-label="Toggle navigation menu" aria-expanded={open}>
                   <Menu className="h-5 w-5" />
                 </Button>
               }

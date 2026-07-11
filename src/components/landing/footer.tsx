@@ -18,16 +18,22 @@ const footerSections = [
   },
 ];
 
+const socialLinks = [
+  { label: "X (Twitter)", abbr: "X", href: "#" },
+  { label: "LinkedIn", abbr: "Li", href: "#" },
+  { label: "GitHub", abbr: "Gh", href: "#" },
+];
+
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="border-t border-border bg-background" role="contentinfo">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5">
+            <Link href="/" className="flex items-center gap-2.5" aria-label="Nexus homepage">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Zap className="h-4 w-4 text-primary-foreground" />
+                <Zap className="h-4 w-4 text-primary-foreground" aria-hidden="true" />
               </div>
               <span className="text-lg font-semibold tracking-tight text-foreground">
                 Nexus
@@ -38,13 +44,15 @@ export function Footer() {
               insights, and real-time analytics.
             </p>
             <div className="mt-6 flex gap-3">
-              {["X", "Li", "Gh"].map((icon) => (
-                <span
-                  key={icon}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
+              {socialLinks.map((social) => (
+                <a
+                  key={social.abbr}
+                  href={social.href}
+                  aria-label={social.label}
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border border-border text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  {icon}
-                </span>
+                  {social.abbr}
+                </a>
               ))}
             </div>
           </div>
@@ -60,7 +68,7 @@ export function Footer() {
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
                     >
                       {link}
                     </a>

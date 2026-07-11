@@ -84,7 +84,7 @@ function RevenueChart() {
           <div key={i} className="group relative flex-1">
             <div className="flex items-end" style={{ height: 180 }}>
               <div className="w-full rounded-t-sm bg-primary/20 transition-colors group-hover:bg-primary/30" style={{ height: `${h}%` }}>
-                <div className="rounded-t-sm bg-primary/70 transition-colors group-hover:bg-primary" style={{ height: `${60 + Math.random() * 40}%` }} />
+                <div className="rounded-t-sm bg-primary/70 transition-colors group-hover:bg-primary" style={{ height: `${[65, 72, 58, 80, 68, 85, 75, 90, 82, 95, 88, 92][i]}%` }} />
               </div>
             </div>
             <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[10px] font-medium text-background opacity-0 transition-opacity group-hover:opacity-100">
@@ -129,7 +129,7 @@ function WorkflowStatusChart() {
                   cy="18"
                   r="15.915"
                   fill="none"
-                  className={s.color}
+                  stroke={s.label === "Completed" ? "#10b981" : s.label === "In Progress" ? "#0891b2" : s.label === "Pending" ? "#f59e0b" : "#ef4444"}
                   strokeOpacity="0.8"
                   strokeWidth="3.5"
                   strokeDasharray={`${dash} ${100 - dash}`}

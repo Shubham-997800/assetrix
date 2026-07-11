@@ -118,12 +118,12 @@ export function Hero() {
             </div>
 
             {/* Dashboard */}
-            <div className="rounded-2xl border border-border bg-card shadow-lg">
+            <div className="rounded-2xl border border-border bg-card shadow-lg" role="img" aria-label="Nexus dashboard preview showing revenue metrics, charts, and activity feed">
               <div className="rounded-t-2xl border-b border-border bg-muted/30 px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-green-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-red-400" aria-hidden="true" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" aria-hidden="true" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-green-400" aria-hidden="true" />
                   <span className="ml-2 text-xs text-muted-foreground">nexus.platform/dashboard</span>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export function Hero() {
                   <div className="flex items-end gap-1" style={{ height: 100 }}>
                     {[35, 48, 42, 60, 52, 72, 65, 82, 78, 90, 85, 95].map((h, i) => (
                       <div key={i} className="flex-1 rounded-t-sm bg-primary/20" style={{ height: `${h}%` }}>
-                        <div className="rounded-t-sm bg-primary" style={{ height: `${50 + Math.random() * 50}%` }} />
+                        <div className="rounded-t-sm bg-primary" style={{ height: `${[65, 72, 58, 80, 68, 85, 75, 90, 82, 95, 88, 92][i]}%` }} />
                       </div>
                     ))}
                   </div>

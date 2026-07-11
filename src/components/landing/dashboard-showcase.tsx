@@ -96,7 +96,7 @@ export function DashboardShowcase() {
                         >
                           <div
                             className="rounded-t-sm bg-primary"
-                            style={{ height: `${50 + Math.random() * 50}%` }}
+                            style={{ height: `${[62, 70, 55, 78, 65, 82, 72, 88, 80, 92, 85, 95][i]}%` }}
                           />
                         </div>
                       </div>

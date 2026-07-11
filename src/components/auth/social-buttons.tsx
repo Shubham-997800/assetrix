@@ -61,7 +61,7 @@ export function SocialButtons() {
           className="gap-2 btn-enterprise"
           aria-label={`Continue with ${provider.name}`}
         >
-          <provider.icon />
+          <provider.icon aria-hidden="true" />
           <span className="hidden sm:inline">{provider.name}</span>
         </Button>
       ))}
