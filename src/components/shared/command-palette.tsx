@@ -89,7 +89,7 @@ export function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[20vh]"
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] sm:pt-[20vh]"
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
@@ -120,7 +120,7 @@ export function CommandPalette() {
             ESC
           </kbd>
         </div>
-        <div id="command-list" ref={listRef} role="listbox" aria-label="Commands" className="max-h-72 overflow-y-auto p-2">
+        <div id="command-list" ref={listRef} role="listbox" aria-label="Commands" className="max-h-[50vh] overflow-y-auto p-2 sm:max-h-72">
           {filtered.map((cmd, i) => (
             <button
               key={cmd.label}

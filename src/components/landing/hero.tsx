@@ -37,7 +37,7 @@ export function Hero() {
               faster business decisions using AI powered workflows.
             </p>
 
-            <div className="mt-8 flex items-center gap-4 animate-fade-in-up delay-200">
+            <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4 animate-fade-in-up delay-200">
               <Link href="/register">
                 <Button size="lg" className="gap-2 px-6 btn-enterprise">
                   Start Building

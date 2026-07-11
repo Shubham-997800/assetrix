@@ -315,7 +315,7 @@ function QuickActions() {
         <h3 className="text-sm font-semibold text-foreground">Quick Actions</h3>
         <p className="text-xs text-muted-foreground">Common operations</p>
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {actions.map((a) => (
           <button
             key={a.label}

@@ -157,7 +157,7 @@ export default function AdminPage() {
       {/* ── Users Tab ── */}
       {activeTab === "users" && (
         <div className="space-y-6">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input type="text" placeholder="Search users..." className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary" />
@@ -170,34 +170,41 @@ export default function AdminPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    {["User", "Role", "Department", "Status", "Last Login", "Actions"].map((h) => (
-                      <th key={h} className="px-6 py-3 text-xs font-medium text-muted-foreground">{h}</th>
+                    {[
+                      { label: "User" },
+                      { label: "Role" },
+                      { label: "Department", hide: true },
+                      { label: "Status" },
+                      { label: "Last Login", hide: true },
+                      { label: "Actions" },
+                    ].map((h) => (
+                      <th key={h.label} className={`px-3 py-3 text-xs font-medium text-muted-foreground sm:px-6 ${h.hide ? "hidden md:table-cell" : ""}`}>{h.label}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((u) => (
                     <tr key={u.email} className="border-b border-border last:border-0 hover:bg-muted/30">
-                      <td className="px-6 py-3">
+                      <td className="px-3 py-3 sm:px-6">
                         <div className="flex items-center gap-3">
                           <div className={`flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold text-white ${u.color}`}>{u.initials}</div>
-                          <div>
-                            <p className="font-medium text-foreground">{u.name}</p>
-                            <p className="text-xs text-muted-foreground">{u.email}</p>
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground truncate">{u.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{u.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-3 text-muted-foreground">{u.role}</td>
-                      <td className="px-6 py-3 text-muted-foreground">{u.dept}</td>
-                      <td className="px-6 py-3">
+                      <td className="px-3 py-3 text-muted-foreground sm:px-6">{u.role}</td>
+                      <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{u.dept}</td>
+                      <td className="px-3 py-3 sm:px-6">
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[u.status]}`}>{u.status}</span>
                       </td>
-                      <td className="px-6 py-3 text-muted-foreground">{u.lastLogin}</td>
-                      <td className="px-6 py-3">
+                      <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{u.lastLogin}</td>
+                      <td className="px-3 py-3 sm:px-6">
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit"><Edit className="h-3.5 w-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Suspend"><Ban className="h-3.5 w-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-9 w-9" title="Edit" aria-label="Edit user"><Edit className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="hidden h-9 w-9 sm:inline-flex" title="Suspend" aria-label="Suspend user"><Ban className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:text-destructive" title="Delete" aria-label="Delete user"><Trash2 className="h-3.5 w-3.5" /></Button>
                         </div>
                       </td>
                     </tr>
@@ -364,21 +371,27 @@ export default function AdminPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  {["Job", "Status", "Duration", "Started By", "Retries"].map((h) => (
-                    <th key={h} className="px-6 py-3 text-xs font-medium text-muted-foreground">{h}</th>
+                  {[
+                    { label: "Job" },
+                    { label: "Status" },
+                    { label: "Duration" },
+                    { label: "Started By", hide: true },
+                    { label: "Retries", hide: true },
+                  ].map((h) => (
+                    <th key={h.label} className={`px-3 py-3 text-xs font-medium text-muted-foreground sm:px-6 ${h.hide ? "hidden md:table-cell" : ""}`}>{h.label}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {jobs.map((j, i) => (
                   <tr key={i} className="border-b border-border last:border-0 hover:bg-muted/30">
-                    <td className="px-6 py-3 font-medium text-foreground">{j.name}</td>
-                    <td className="px-6 py-3">
+                    <td className="px-3 py-3 font-medium text-foreground sm:px-6">{j.name}</td>
+                    <td className="px-3 py-3 sm:px-6">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${jobStatusStyles[j.status]}`}>{j.status}</span>
                     </td>
-                    <td className="px-6 py-3 text-muted-foreground">{j.duration}</td>
-                    <td className="px-6 py-3 text-muted-foreground">{j.by}</td>
-                    <td className="px-6 py-3 text-muted-foreground">{j.retries}</td>
+                    <td className="px-3 py-3 text-muted-foreground sm:px-6">{j.duration}</td>
+                    <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{j.by}</td>
+                    <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{j.retries}</td>
                   </tr>
                 ))}
               </tbody>

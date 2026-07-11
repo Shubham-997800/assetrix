@@ -169,7 +169,7 @@ export function DashboardNavbar() {
           {/* Command Palette Button */}
           <button
             onClick={() => setCommandOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Command palette"
           >
             <Command className="h-4 w-4" />
@@ -177,7 +177,7 @@ export function DashboardNavbar() {
 
           {/* Help */}
           <button
-            className="hidden h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+            className="hidden h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
             aria-label="Help center"
           >
             <HelpCircle className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function DashboardNavbar() {
           <div ref={notifRef} className="relative">
             <button
               onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
-              className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="relative flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               aria-label="Notifications"
             >
               <Bell className="h-4 w-4" />
@@ -198,10 +198,10 @@ export function DashboardNavbar() {
               )}
             </button>
             {notifOpen && (
-              <div className="absolute right-0 top-full mt-1 w-80 rounded-xl border border-border bg-card shadow-lg animate-slide-down">
+              <div className="absolute right-0 top-full mt-1 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-lg animate-slide-down">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
                   <span className="text-sm font-semibold text-foreground">Notifications</span>
-                  <span className="text-xs text-primary cursor-pointer">Mark all read</span>
+                  <span className="text-xs text-primary cursor-pointer hover:underline" role="button" tabIndex={0}>Mark all read</span>
                 </div>
                 <div className="max-h-80 overflow-y-auto p-2">
                   {notifications.map((n) => (
@@ -237,10 +237,10 @@ export function DashboardNavbar() {
 
           {/* Profile */}
           <div ref={profileRef} className="relative">
-            <button
-              onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
-              className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
-            >
+              <button
+                onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
+                className="flex min-h-[44px] items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
+              >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                 JD
               </div>
@@ -251,7 +251,7 @@ export function DashboardNavbar() {
               <ChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
             </button>
             {profileOpen && (
-              <div className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-border bg-card shadow-lg animate-slide-down">
+              <div className="absolute right-0 top-full mt-1 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-lg animate-slide-down">
                 <div className="border-b border-border px-4 py-3">
                   <p className="text-sm font-medium text-foreground">John Doe</p>
                   <p className="text-xs text-muted-foreground">john@company.com</p>

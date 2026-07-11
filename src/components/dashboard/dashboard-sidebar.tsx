@@ -64,6 +64,16 @@ export function DashboardSidebar() {
     return () => document.removeEventListener("keydown", handler);
   }, [mobileDrawerOpen, setMobileDrawerOpen]);
 
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileDrawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileDrawerOpen]);
+
   // Close mobile drawer on resize to desktop
   useEffect(() => {
     const handler = () => {

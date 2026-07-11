@@ -26,7 +26,7 @@
 <br />
 <br />
 
-[**Live Demo**](http://localhost:5173) · [**Documentation**](#-documentation) · [**Quick Start**](#-quick-start) · [**Features**](#-features) · [**Architecture**](#-architecture)
+[**Live Demo**](https://demo-opal-kappa.vercel.app) · [**Quick Start**](#-quick-start) · [**Features**](#-features) · [**Architecture**](#-architecture)
 
 </div>
 
@@ -711,6 +711,8 @@ MIT License — Built for ODOO Hackathon 2026
 
 Full enterprise audit performed across all 16 routes:
 
+### Accessibility Audit
+
 | Category | Issues Found | Fixed |
 |----------|-------------|-------|
 | Hydration (Math.random) | 4 Critical | All fixed |
@@ -723,6 +725,30 @@ Full enterprise audit performed across all 16 routes:
 | Skeleton accessibility | 3 Medium | Fixed |
 | Shimmer colors (dark mode) | 2 Medium | Fixed |
 | Reduced motion (0s) | 1 Low | Fixed |
+
+### Responsiveness Audit
+
+| Category | Issues Found | Fixed |
+|----------|-------------|-------|
+| Body scroll lock (mobile drawer) | 1 High | Fixed |
+| Navbar touch targets (36→44px) | 3 High | Fixed |
+| Notification dropdown overflow (320px) | 1 High | Fixed |
+| Hero CTA wrap on mobile | 1 High | Fixed |
+| QuickActions grid 3→2 col on mobile | 1 High | Fixed |
+| Reports table column hiding | 1 High | Fixed |
+| Admin table column hiding | 1 High | Fixed |
+| Command palette mobile keyboard | 2 High | Fixed |
+| Profile/device touch targets | 3 High | Fixed |
+| Chart heights responsive | 4 Medium | Fixed |
+| Page header stacking on mobile | 2 Medium | Fixed |
+| Dashboard showcase touch targets | 2 Medium | Fixed |
+
+### Deployment
+
+| Platform | URL |
+|----------|-----|
+| **Vercel (Production)** | https://demo-opal-kappa.vercel.app |
+| **GitHub** | https://github.com/Shubham-997800/demo- |
 
 <br />
 

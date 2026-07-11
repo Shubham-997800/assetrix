@@ -76,10 +76,10 @@ function RevenueTrendChart() {
         </div>
         <Button variant="outline" size="sm" className="btn-enterprise"><Download className="h-3.5 w-3.5" /> Export</Button>
       </div>
-      <div className="mt-5 flex items-end gap-1.5" style={{ height: 180 }}>
+      <div className="mt-5 flex items-end gap-1.5 h-40 sm:h-48">
         {data.map((h, i) => (
           <div key={i} className="group relative flex-1">
-            <div className="flex items-end" style={{ height: 180 }}>
+            <div className="flex items-end h-40 sm:h-48">
               <div className="w-full rounded-t-sm bg-primary/20 transition-colors group-hover:bg-primary/30" style={{ height: `${h}%` }}>
                 <div className="rounded-t-sm bg-primary/70 transition-colors group-hover:bg-primary" style={{ height: `${60 + Math.random() * 40}%` }} />
               </div>
@@ -150,7 +150,7 @@ function ApprovalTimelineChart() {
         <h3 className="text-sm font-semibold text-foreground">Approval Timeline</h3>
         <p className="text-xs text-muted-foreground">Monthly approvals processed</p>
       </div>
-      <div className="mt-5 relative" style={{ height: 160 }}>
+      <div className="mt-5 relative h-40 sm:h-48">
         <svg viewBox="0 0 120 80" className="h-full w-full" preserveAspectRatio="none">
           <defs>
             <linearGradient id="areaGrad2" x1="0" y1="0" x2="0" y2="1">
@@ -177,7 +177,7 @@ function UserGrowthChart() {
         <h3 className="text-sm font-semibold text-foreground">User Growth</h3>
         <p className="text-xs text-muted-foreground">Monthly active users</p>
       </div>
-      <div className="mt-5 flex items-end gap-1.5" style={{ height: 160 }}>
+      <div className="mt-5 flex items-end gap-1.5 h-40 sm:h-48">
         {data.map((h, i) => (
           <div key={i} className="flex-1 rounded-t-sm bg-emerald-500/20 transition-colors hover:bg-emerald-500/30" style={{ height: `${h}%` }}>
             <div className="rounded-t-sm bg-emerald-500/70 transition-colors hover:bg-emerald-500" style={{ height: `${50 + Math.random() * 50}%` }} />
@@ -226,27 +226,27 @@ function DataTable() {
 
   return (
     <div className="rounded-xl border border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border px-6 py-4">
+      <div className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Reports</h3>
           <p className="text-xs text-muted-foreground">{filtered.length} reports found</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-initial">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input type="text" placeholder="Search reports..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="h-8 w-48 rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary" />
+              className="h-8 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary sm:w-48" />
           </div>
-          <Button variant="outline" size="sm" className="btn-enterprise"><Filter className="h-3.5 w-3.5" /> Filter</Button>
-          <Button variant="outline" size="sm" className="btn-enterprise"><Download className="h-3.5 w-3.5" /> Export</Button>
+          <Button variant="outline" size="sm" className="btn-enterprise"><Filter className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Filter</span></Button>
+          <Button variant="outline" size="sm" className="btn-enterprise"><Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Export</span></Button>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-border">
-              {[{ key: "id", label: "ID" }, { key: "name", label: "Report" }, { key: "dept", label: "Department" }, { key: "type", label: "Format" }, { key: "rows", label: "Rows" }, { key: "date", label: "Date" }, { key: "status", label: "Status" }].map((col) => (
-                <th key={col.key} className="cursor-pointer px-6 py-3 text-xs font-medium text-muted-foreground hover:text-foreground select-none" onClick={() => sort(col.key)}>
+              {[{ key: "id", label: "ID" }, { key: "name", label: "Report" }, { key: "dept", label: "Department", hide: true }, { key: "type", label: "Format", hide: true }, { key: "rows", label: "Rows", hide: true }, { key: "date", label: "Date" }, { key: "status", label: "Status" }].map((col) => (
+                <th key={col.key} className={`cursor-pointer px-3 py-3 text-xs font-medium text-muted-foreground hover:text-foreground select-none sm:px-6 ${col.hide ? "hidden md:table-cell" : ""}`} onClick={() => sort(col.key)}>
                   {col.label} {sortKey === col.key ? (sortDir === "asc" ? "↑" : "↓") : ""}
                 </th>
               ))}
@@ -255,13 +255,13 @@ function DataTable() {
           <tbody>
             {paged.map((row) => (
               <tr key={row.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
-                <td className="px-6 py-3 font-medium text-foreground">{row.id}</td>
-                <td className="px-6 py-3 text-foreground">{row.name}</td>
-                <td className="px-6 py-3 text-muted-foreground">{row.dept}</td>
-                <td className="px-6 py-3"><span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">{row.type}</span></td>
-                <td className="px-6 py-3 text-muted-foreground">{row.rows}</td>
-                <td className="px-6 py-3 text-muted-foreground">{row.date}</td>
-                <td className="px-6 py-3">
+                <td className="px-3 py-3 font-medium text-foreground sm:px-6">{row.id}</td>
+                <td className="px-3 py-3 text-foreground sm:px-6">{row.name}</td>
+                <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{row.dept}</td>
+                <td className="hidden px-3 py-3 md:table-cell sm:px-6"><span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">{row.type}</span></td>
+                <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{row.rows}</td>
+                <td className="px-3 py-3 text-muted-foreground sm:px-6">{row.date}</td>
+                <td className="px-3 py-3 sm:px-6">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${row.status === "Ready" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"}`}>
                     {row.status}
                   </span>
@@ -303,7 +303,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Reports & Analytics</h1>
           <p className="mt-1 text-sm text-muted-foreground">Business intelligence and data insights</p>
