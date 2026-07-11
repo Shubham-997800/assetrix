@@ -20,7 +20,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-![shadcn/ui](https://img.shields.io/badge/shadcn-ui-4-FFFFFF?style=flat-square&labelColor=0F172A)
+![shadcn/ui](https://img.shields.io/badge/shadcn/ui-4-FFFFFF?style=flat-square&labelColor=0F172A)
 ![License](https://img.shields.io/badge/License-MIT-10B981?style=flat-square)
 
 <br />
@@ -89,11 +89,13 @@ open http://localhost:5173
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | **Landing Page** | 17-section enterprise SaaS landing page |
-| `/login` | **Login** | Email/password authentication with show/hide toggle |
-| `/register` | **Register** | Account creation with company details |
-| `/forgot-password` | **Forgot Password** | Password reset flow |
-| `/dashboard` | **Dashboard** | Full enterprise dashboard with sidebar |
+| `/` | **Landing Page** | 17-section enterprise SaaS landing page with animations |
+| `/login` | **Login** | Social login (Google/GitHub/Microsoft) + email/password + validation |
+| `/register` | **Register** | Full registration with password strength meter + terms |
+| `/forgot-password` | **Forgot Password** | Email input → success state with resend option |
+| `/reset-password` | **Reset Password** | New password with strength meter → auto-redirect |
+| `/verify-email` | **Verify Email** | Verification instructions + resend email |
+| `/dashboard` | **Dashboard** | Full enterprise shell: sidebar, navbar, KPIs, charts, activity |
 | `*` | **404** | Custom error page with navigation |
 
 <br />
@@ -154,81 +156,53 @@ open http://localhost:5173
 ┌─────────────────────────────────────────────────────────┐
 │                    NAVBAR (64px)                         │
 │  Logo · Features · Solutions · Integrations · Docs       │
-│                        Theme Toggle · Login · Start Free  │
+│              Theme Toggle · Login · Start Free           │
+│              Scroll Shadow on Scroll                     │
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
 │   ╔═══════════════════╗    ╔══════════════════════╗     │
 │   ║                   ║    ║  ┌──────────────────┐║     │
 │   ║   Hero Section    ║    ║  │  Dashboard Mockup │║     │
-│   ║                   ║    ║  │  KPI · Charts     │║     │
-│   ║   Headline        ║    ║  │  Activity · Table  │║     │
-│   ║   Description     ║    ║  └──────────────────┘║     │
-│   ║   [Start Building]║    ║  ┌────┐  ┌────┐      ║     │
-│   ║   [Book Demo]     ║    ║  │+24%│  │92% │      ║     │
-│   ║                   ║    ║  └────┘  └────┘      ║     │
+│   ║   Staggered Fade  ║    ║  │  KPI · Charts     │║     │
+│   ║   0ms → 100ms     ║    ║  │  Activity · Table  │║     │
+│   ║   → 200ms → 500ms ║    ║  └──────────────────┘║     │
+│   ║                   ║    ║  ┌────┐  ┌────┐      ║     │
+│   ║   [Start Building]║    ║  │+24%│  │92% │      ║     │
+│   ║   [Book Demo]     ║    ║  └────┘  └────┘      ║     │
 │   ╚═══════════════════╝    ╚══════════════════════╝     │
-│                                                          │
 ├─────────────────────────────────────────────────────────┤
-│              TRUST BAR · 5 Companies · 4 Metrics        │
+│   TRUST BAR · Counter Animations                         │
+│   250K+ Users · 5M+ Transactions · 99.99% · 42 Countries│
 ├─────────────────────────────────────────────────────────┤
-│                                                          │
-│   ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐                  │
-│   │Work  │ │AI    │ │Analy-│ │Audit │  × 4 rows        │
-│   │flow  │ │Insight│ │tics  │ │Logs  │  = 8 cards      │
-│   └──────┘ └──────┘ └──────┘ └──────┘                  │
-│   ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐                  │
-│   │Secur-│ │Collab│ │Integ │ │Approv│                   │
-│   │ity   │ │      │ │      │ │      │                   │
-│   └──────┘ └──────┘ └──────┘ └──────┘                  │
-│                                                          │
+│   8 FEATURE CARDS · Scroll Reveal + 60ms Stagger         │
+│   Workflow · AI · Analytics · Approvals                   │
+│   Security · Collab · Integrations · Audit               │
 ├─────────────────────────────────────────────────────────┤
-│         PLATFORM ARCHITECTURE · 7-Step Pipeline          │
-│                                                          │
-│   Users → Platform → Workflow → AI → Decisions → Analytics│
+│   PLATFORM ARCHITECTURE · 7-Step Pipeline                │
 ├─────────────────────────────────────────────────────────┤
-│                                                          │
-│   AI INTELLIGENCE · Left: Pipeline · Right: AI Card      │
-│   ┌─────────────────┐  ┌───────────────────────────┐    │
-│   │ Data Sources     │  │ Recommendation: Vendor C   │    │
-│   │ AI Engine        │  │ Confidence: 93%            │    │
-│   │ Prediction       │  │ Risk: Low                  │    │
-│   │ Recommendation   │  │ • 18% faster delivery      │    │
-│   │ Decision Support │  │ • 31% lower risk           │    │
-│   └─────────────────┘  └───────────────────────────┘    │
-│                                                          │
+│   AI INTELLIGENCE · Pipeline + AI Card                   │
 ├─────────────────────────────────────────────────────────┤
-│              DASHBOARD SHOWCASE · Full Preview            │
-│   ┌─────────────────────────────────────────────────┐   │
-│   │ KPI Cards · Revenue Chart · Notifications       │   │
-│   │ Activity Feed · Data Table · Export CSV          │   │
-│   └─────────────────────────────────────────────────┘   │
+│   DASHBOARD SHOWCASE · Full Preview                      │
 ├─────────────────────────────────────────────────────────┤
-│         WORKFLOW · 5-Step Timeline                       │
-│   Request → Approval → AI Analysis → Execution → Report  │
+│   WORKFLOW · 5-Step Timeline + Progressive Line Draw     │
 ├─────────────────────────────────────────────────────────┤
-│         SECURITY · 6 Cards + 4 Metrics                   │
-│   RBAC · Encryption · Audit · Compliance · Access · Session│
+│   SECURITY · 6 Cards + 4 Metrics · Hover Effects        │
 ├─────────────────────────────────────────────────────────┤
-│         DEVELOPER EXPERIENCE · Code Preview + 5 Cards    │
-│   REST APIs · Webhooks · SDK · Docs · Integrations       │
+│   DEVELOPER EXPERIENCE · Code Preview + 5 Cards          │
 ├─────────────────────────────────────────────────────────┤
-│         PERFORMANCE · 5 Cards + 4 Stats                  │
-│   Edge · Query · Caching · Background · Real-Time        │
+│   PERFORMANCE · 5 Cards + 4 Stats                        │
 ├─────────────────────────────────────────────────────────┤
-│         ACCESSIBILITY · 5 Commitment Cards               │
-│   Keyboard · Screen Readers · Contrast · Semantic · WCAG │
+│   ACCESSIBILITY · 5 Commitment Cards                     │
 ├─────────────────────────────────────────────────────────┤
-│         ANALYTICS · 5 Metrics + 4 Charts                 │
-│   Line · Area · Bar · Donut                               │
+│   ANALYTICS · 5 Metrics + 4 Charts                       │
 ├─────────────────────────────────────────────────────────┤
-│         CUSTOMER STORIES · 3 Testimonial Cards           │
+│   CUSTOMER STORIES · 3 Testimonial Cards                 │
 ├─────────────────────────────────────────────────────────┤
-│         FAQ · 6 Accordion Items                          │
+│   FAQ · 6 Accordion Items                                │
 ├─────────────────────────────────────────────────────────┤
-│         FINAL CTA · Start Building + Contact Sales       │
+│   FINAL CTA · Start Building + Contact Sales             │
 ├─────────────────────────────────────────────────────────┤
-│                    FOOTER                                 │
-│   Product · Company · Legal · Social Links               │
+│   FOOTER · Product · Company · Legal · Social            │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -238,56 +212,172 @@ open http://localhost:5173
 
 <br />
 
-## Features
+## Authentication System
 
-### Authentication System
+### 50/50 Split Layout
 
-| Feature | Status |
-|---------|--------|
-| Login with email/password | Implemented |
-| Register with company details | Implemented |
-| Forgot password flow | Implemented |
-| Show/hide password toggle | Implemented |
-| Form validation | Implemented |
-| Auth layout with brand panel | Implemented |
+```
+╔════════════════════════╦══════════════════════════════╗
+║                        ║                              ║
+║   Left Panel           ║   Right Panel                ║
+║   (Branding)           ║   (Auth Form)                ║
+║                        ║                              ║
+║   Nexus Logo           ║   max-width: 480px           ║
+║   Tagline              ║   padding: 40px              ║
+║   5 Feature Icons      ║   vertical-center            ║
+║   4 Metrics            ║                              ║
+║                        ║                              ║
+╚════════════════════════╩══════════════════════════════╝
+        Desktop: 50/50 split
+        Tablet: 55% / 45%
+        Mobile: Single column + logo
+```
 
-### Enterprise Dashboard
+### Auth Components
 
-| Feature | Status |
-|---------|--------|
-| Sidebar navigation (280px) | Implemented |
-| KPI cards with ₹ metrics | Implemented |
-| Revenue chart (12 months) | Implemented |
-| Activity feed | Implemented |
-| Notification center | Implemented |
-| Data table with status badges | Implemented |
-| Export CSV action | Implemented |
-| Mobile responsive sidebar | Implemented |
+| Component | Features |
+|-----------|----------|
+| `AuthInput` | Reusable field with label, error, hint, icon, show/hide password |
+| `SocialButtons` | Google (OAuth colors), GitHub, Microsoft with SVG icons |
+| `PasswordStrength` | 4-level bar (Weak/Medium/Strong/Very Strong) + 5-rule checklist |
+| `AuthDivider` | Centered "or continue with" separator |
 
-### Productivity Tools
+### Auth Pages
 
-| Feature | Status |
-|---------|--------|
-| Command Palette (Ctrl+K) | Implemented |
-| Dark/Light theme toggle | Implemented |
-| Skeleton loading states | Implemented |
-| Empty state components | Implemented |
-| 404 error page | Implemented |
+| Page | Features |
+|------|----------|
+| `/login` | Social login, email+password, remember me, error handling, loading state |
+| `/register` | Full name, email, password+confirm, strength meter, terms, marketing opt-in |
+| `/forgot-password` | Email input → success state with "try different email" |
+| `/reset-password` | New password+confirm, strength meter, auto-redirect success |
+| `/verify-email` | Mail illustration, instructions, resend with loading/success |
 
-### Animation System
+<br />
 
-| Animation | Duration | Trigger |
-|-----------|----------|---------|
-| Hero fade + slide up | 400ms | Page load |
-| Dashboard scale in | 500ms | Page load |
-| Feature card hover | 200ms | Mouse hover |
-| FAQ accordion | 200ms | Click |
-| Sidebar expand | 200ms | Toggle |
-| Button press | 100ms | Click |
-| Input focus glow | 150ms | Focus |
-| Modal open | 180ms | Trigger |
-| Toast slide in | 200ms | Event |
-| Skeleton shimmer | 1.5s | Loading |
+---
+
+<br />
+
+## Enterprise Dashboard
+
+### Application Shell
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Top Navbar (64px)                                        │
+│ ┌──────┬─────────────────┬─────────────────────────────┐│
+│ │Toggle│ Nexus / Overview│ 🔍 Search  🔔 👤 ☀️          ││
+│ │      │                 │    Ctrl+K    2   Theme  Menu ││
+│ └──────┴─────────────────┴─────────────────────────────┘│
+├────────┬────────────────────────────────────────────────┤
+│        │                                                 │
+│ Side-  │  Dashboard Workspace                            │
+│ bar    │                                                 │
+│        │  ┌────────┐┌────────┐┌────────┐┌────────┐      │
+│ 280px  │  │Revenue ││ Users  ││ Tasks  ││ AI Recs│      │
+│        │  │₹4.2Cr  ││24,589  ││1,482   ││ 342    │      │
+│ □ Dash │  └────────┘└────────┘└────────┘└────────┘      │
+│ □ Anal │                                                 │
+│ □ Repo │  ┌──────────────────┐┌──────────────────┐      │
+│ □ Noti │  │ Revenue Trend    ││ Workflow Status   │      │
+│ □ Work │  │ (Bar Chart)      ││ (Donut Chart)     │      │
+│ □ Audi │  └──────────────────┘└──────────────────┘      │
+│ □ Inte │                                                 │
+│ □ Sett │  ┌──────────────────┐┌──────────────────┐      │
+│ □ Prof │  │ Performance      ││ Distribution      │      │
+│        │  │ (Area Chart)     ││ (Bar Chart)       │      │
+│ ────── │  └──────────────────┘└──────────────────┘      │
+│ JD     │                                                 │
+│ john@. │  ┌──────────────────┐┌─────┐┌─────────┐       │
+│        │  │ Activity Timeline││Quick││ System  │       │
+│        │  │ (6 items)        ││Actns││ Status  │       │
+│        │  └──────────────────┘└─────┘└─────────┘       │
+│        │                                                 │
+│        │  ┌─────────────────────────────────────────┐   │
+│        │  │ Recent Orders Table                      │   │
+│        │  │ ORD-8241 │ Procurement │ ₹12,45,000 │ ✓ │   │
+│        │  └─────────────────────────────────────────┘   │
+└────────┴────────────────────────────────────────────────┘
+```
+
+### Navbar Features
+
+| Feature | Implementation |
+|---------|---------------|
+| Global Search | `Ctrl+K` shortcut, dropdown with suggestions (pages, records, users, workflows) |
+| Notifications | Dropdown with 5 items, unread badge, mark all read |
+| Theme Toggle | Light/Dark/System with persistence |
+| Profile Menu | Profile, Settings, Security, Activity Log, Logout |
+| Breadcrumb | Nexus / Current Page |
+| Mobile Menu | Hamburger → Drawer overlay |
+
+### Sidebar Features
+
+| Feature | Implementation |
+|---------|---------------|
+| Collapse | 280px → 72px with animated toggle button |
+| Nav Groups | Main, Operations, System (9 items) |
+| Active State | Cyan background + dot indicator |
+| Tooltips | `title` attribute when collapsed |
+| Mobile | Drawer with backdrop blur overlay |
+| User Section | Avatar, name, email at bottom |
+
+### Dashboard Sections
+
+| Section | Description |
+|---------|-------------|
+| **KPI Cards** | 6 cards with animated counters (₹4.2Cr, 24,589, 1,482, 342, 18, 99.99%) |
+| **Revenue Trend** | 12-month bar chart with hover tooltips |
+| **Workflow Status** | SVG donut chart (Completed/In Progress/Pending/Failed) |
+| **Performance** | SVG area chart with gradient fill |
+| **Category Distribution** | Horizontal bar chart (5 departments) |
+| **Activity Timeline** | 6 items with colored avatars, timestamps |
+| **Quick Actions** | 6 compact cards (Create Report, New Workflow, etc.) |
+| **System Status** | 5-item health list (API, Database, Workers, Queue, Cache) |
+| **Orders Table** | 5 rows with status badges, hover highlight |
+
+<br />
+
+---
+
+<br />
+
+## Animation System
+
+### Custom Hooks
+
+| Hook | Purpose |
+|------|---------|
+| `useInView` | IntersectionObserver for scroll-triggered animations |
+| `useCountUp` | Eased counter animation (cubic ease-out) |
+| `useScrollShadow` | Navbar shadow on scroll |
+
+### CSS Utilities
+
+| Class | Effect |
+|-------|--------|
+| `animate-fade-in-up` | Fade + slide up 16px |
+| `animate-scale-in` | Scale from 0.98 + fade |
+| `animate-slide-down` | Slide down 8px + fade |
+| `animate-shimmer` | Skeleton loading shimmer |
+| `animate-draw-line` | Progressive line width |
+| `card-hover` | translateY(-4px) + border highlight |
+| `btn-enterprise` | translateY(-1px) hover, scale(0.98) press |
+| `input-focus-glow` | Cyan focus ring (4px) |
+| `skeleton-shimmer` | Gradient shimmer animation |
+
+### Stagger Delays
+
+```
+.delay-0    → 0ms      .delay-200  → 200ms
+.delay-50   → 50ms     .delay-300  → 300ms
+.delay-100  → 100ms    .delay-500  → 500ms
+.delay-150  → 150ms    .delay-700  → 700ms
+```
+
+### Reduced Motion
+
+All animations respect `prefers-reduced-motion: reduce` — disables all animations and transitions for users who prefer reduced motion.
 
 <br />
 
@@ -300,80 +390,91 @@ open http://localhost:5173
 ```
 demo-/
 ├── public/                          # Static assets
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── next.svg
-│   ├── vercel.svg
-│   └── window.svg
 │
 ├── src/
 │   ├── app/                         # Next.js App Router
-│   │   ├── globals.css              # Aura Cyan Theme Variables
+│   │   ├── globals.css              # Aura Cyan Theme + Animation System
 │   │   ├── layout.tsx               # Root Layout + Providers
 │   │   ├── page.tsx                 # Landing Page (17 sections)
 │   │   ├── not-found.tsx            # 404 Handler
 │   │   │
-│   │   ├── login/
-│   │   │   └── page.tsx             # Login Page
-│   │   │
-│   │   ├── register/
-│   │   │   └── page.tsx             # Register Page
-│   │   │
-│   │   ├── forgot-password/
-│   │   │   └── page.tsx             # Forgot Password Page
+│   │   ├── login/page.tsx           # Login (social + email/password)
+│   │   ├── register/page.tsx        # Register (strength meter + terms)
+│   │   ├── forgot-password/page.tsx # Forgot Password (success state)
+│   │   ├── reset-password/page.tsx  # Reset Password (strength meter)
+│   │   ├── verify-email/page.tsx    # Verify Email (resend + instructions)
 │   │   │
 │   │   ├── dashboard/
-│   │   │   └── page.tsx             # Dashboard Page
+│   │   │   ├── layout.tsx           # Dashboard Shell Layout
+│   │   │   └── page.tsx             # Dashboard (KPIs, Charts, Activity)
 │   │   │
-│   │   └── not-found/
-│   │       └── page.tsx             # 404 Page
+│   │   └── not-found/page.tsx       # 404 Page
 │   │
 │   ├── components/
 │   │   ├── ui/                      # shadcn/ui Components
-│   │   │   ├── accordion.tsx        # FAQ Accordion
-│   │   │   ├── avatar.tsx           # User Avatar
-│   │   │   ├── badge.tsx            # Status Badges
-│   │   │   ├── button.tsx           # Button System
-│   │   │   ├── card.tsx             # Card Component
-│   │   │   ├── separator.tsx        # Visual Separator
-│   │   │   └── sheet.tsx            # Mobile Navigation
+│   │   │   ├── accordion.tsx
+│   │   │   ├── avatar.tsx
+│   │   │   ├── badge.tsx
+│   │   │   ├── button.tsx           # + btn-enterprise class
+│   │   │   ├── card.tsx
+│   │   │   ├── separator.tsx
+│   │   │   └── sheet.tsx
 │   │   │
-│   │   ├── landing/                 # Landing Page Sections
-│   │   │   ├── navbar.tsx           # Navigation Bar
-│   │   │   ├── hero.tsx             # Hero + Dashboard Preview
-│   │   │   ├── trusted-by.tsx       # Enterprise Trust Bar
-│   │   │   ├── features.tsx         # 8-Card Feature Grid
-│   │   │   ├── architecture.tsx     # Platform Pipeline
-│   │   │   ├── ai-intelligence.tsx  # AI Showcase
-│   │   │   ├── dashboard-showcase.tsx # Dashboard Preview
-│   │   │   ├── workflow.tsx         # 5-Step Timeline
-│   │   │   ├── security.tsx         # Security Cards
-│   │   │   ├── developer-experience.tsx # Dev Tools
-│   │   │   ├── performance.tsx      # Performance Stats
-│   │   │   ├── accessibility.tsx    # A11y Commitment
-│   │   │   ├── analytics.tsx        # Charts Preview
-│   │   │   ├── customer-stories.tsx # Testimonials
-│   │   │   ├── faq.tsx              # FAQ Section
-│   │   │   ├── cta-banner.tsx       # Final CTA
-│   │   │   └── footer.tsx           # Footer
+│   │   ├── auth/                    # Auth Components
+│   │   │   ├── auth-input.tsx       # Reusable input with validation
+│   │   │   ├── social-buttons.tsx   # Google/GitHub/Microsoft
+│   │   │   ├── password-strength.tsx # Strength meter + checklist
+│   │   │   └── auth-divider.tsx     # "or continue with"
+│   │   │
+│   │   ├── dashboard/               # Dashboard Shell
+│   │   │   ├── dashboard-shell.tsx  # Layout wrapper
+│   │   │   ├── dashboard-navbar.tsx # Search, notifications, profile
+│   │   │   └── dashboard-sidebar.tsx # Collapsible nav sidebar
+│   │   │
+│   │   ├── landing/                 # 17 Landing Page Sections
+│   │   │   ├── navbar.tsx           # + scroll shadow
+│   │   │   ├── hero.tsx             # + stagger animations
+│   │   │   ├── trusted-by.tsx       # + counter animations
+│   │   │   ├── features.tsx         # + scroll reveal
+│   │   │   ├── architecture.tsx
+│   │   │   ├── ai-intelligence.tsx
+│   │   │   ├── dashboard-showcase.tsx
+│   │   │   ├── workflow.tsx         # + progressive line draw
+│   │   │   ├── security.tsx         # + hover effects
+│   │   │   ├── developer-experience.tsx
+│   │   │   ├── performance.tsx
+│   │   │   ├── accessibility.tsx
+│   │   │   ├── analytics.tsx
+│   │   │   ├── customer-stories.tsx
+│   │   │   ├── faq.tsx
+│   │   │   ├── cta-banner.tsx
+│   │   │   └── footer.tsx
 │   │   │
 │   │   └── shared/                  # Shared Components
-│   │       ├── skeleton.tsx         # Loading Skeletons
-│   │       ├── empty-state.tsx      # Empty States
-│   │       ├── command-palette.tsx  # Ctrl+K Palette
-│   │       └── auth-layout.tsx      # Auth Page Layout
+│   │       ├── skeleton.tsx
+│   │       ├── empty-state.tsx
+│   │       └── command-palette.tsx
+│   │
+│   ├── contexts/
+│   │   └── dashboard-context.tsx    # Sidebar + drawer state
+│   │
+│   ├── hooks/
+│   │   ├── use-in-view.ts           # IntersectionObserver
+│   │   ├── use-count-up.ts          # Counter animation
+│   │   └── use-scroll-shadow.ts     # Scroll detection
 │   │
 │   └── lib/
 │       └── utils.ts                 # cn() Utility
 │
 ├── .gitignore
 ├── components.json                  # shadcn/ui Config
-├── eslint.config.mjs                # ESLint Config
-├── next.config.ts                   # Next.js Config
-├── package.json                     # Dependencies
-├── postcss.config.mjs               # PostCSS Config
+├── eslint.config.mjs
+├── next.config.ts
+├── package.json
+├── postcss.config.mjs
 ├── README.md                        # This File
-└── tsconfig.json                    # TypeScript Config
+├── start-dev.bat                    # Dev server launcher
+└── tsconfig.json
 ```
 
 <br />
@@ -409,7 +510,6 @@ demo-/
 | next-themes | Dark/Light mode with system detection |
 | class-variance-authority | Component variant management |
 | clsx + tailwind-merge | Conditional class merging |
-| Recharts | Chart library (ready for dashboard) |
 
 <br />
 
@@ -464,54 +564,19 @@ npm run lint         # Run ESLint
 
 <br />
 
-## Animation Guidelines
-
-### Allowed
-
-| Animation | Duration | Easing |
-|-----------|----------|--------|
-| Fade + Slide Up | 400ms | ease-out |
-| Scale In | 500ms | cubic-bezier(0.16,1,0.3,1) |
-| Hover Translate Y | 200ms | ease-out |
-| Button Press | 100ms | ease-out |
-| Input Focus | 150ms | ease-out |
-| Modal Open | 180ms | ease-out |
-| Accordion | 200ms | ease-out |
-| Toast Slide | 200ms | ease-out |
-| Skeleton Shimmer | 1.5s | infinite |
-
-### Forbidden
-
-```
-❌ Floating particles
-❌ Background videos
-❌ Continuous looping
-❌ Rotating cards
-❌ 3D transforms
-❌ Parallax everywhere
-❌ Neon glows
-❌ Bounce effects
-❌ Cursor trails
-❌ Auto-playing carousels
-```
-
-<br />
-
----
-
-<br />
-
 ## Accessibility
 
 | Feature | Status |
 |---------|--------|
 | Keyboard Navigation | Supported |
-| Focus States | Visible |
+| Focus States | Visible (Cyan ring) |
 | ARIA Labels | Implemented |
 | Semantic HTML | Used |
 | Color Contrast | WCAG 2.1 AA |
 | Screen Reader Support | Compatible |
 | Reduced Motion | Respected |
+| Error Messages | `role="alert"` |
+| Password Toggle | `aria-label` |
 
 <br />
 
@@ -544,37 +609,41 @@ All monetary values use **Indian Rupees (₹)** with Indian number formatting:
 ║              ↓                                           ║
 ║   README Looks Impressive                                ║
 ║              ↓                                           ║
-║   README Shows Technical Depth                           ║
-║              ↓                                           ║
-║   Repository Structure Looks Clean                       ║
-║              ↓                                           ║
 ║   npm install → npm run dev                              ║
 ║              ↓                                           ║
-║   Landing Page Loads (17 sections)                       ║
+║   Landing Page Loads (17 sections + animations)          ║
 ║              ↓                                           ║
-║   Feels Premium + Enterprise                             ║
+║   Scroll Animations Trigger (fade, counters, hovers)     ║
 ║              ↓                                           ║
 ║   Theme Toggle Works (Dark ↔ Light)                      ║
 ║              ↓                                           ║
-║   Navigation Smooth (scroll + page links)                ║
+║   Click "Start Free" → Register Page                     ║
 ║              ↓                                           ║
-║   Login Page Works                                       ║
+║   50/50 Auth Layout · Password Strength Meter            ║
 ║              ↓                                           ║
-║   Register Page Works                                    ║
+║   Social Login Buttons (Google/GitHub/Microsoft)         ║
 ║              ↓                                           ║
-║   Dashboard Loads with Sidebar                           ║
+║   Navigate to Login → Forgot Password → Reset            ║
 ║              ↓                                           ║
-║   KPI Cards + Charts + Table Visible                     ║
+║   Login → Dashboard Loads                                ║
 ║              ↓                                           ║
-║   Command Palette (Ctrl+K) Works                         ║
+║   Collapsible Sidebar (280px → 72px)                     ║
 ║              ↓                                           ║
-║   Indian Currency (₹) Used Throughout                    ║
+║   Global Search (Ctrl+K)                                 ║
+║              ↓                                           ║
+║   6 KPI Cards with Animated Counters                     ║
+║              ↓                                           ║
+║   4 Charts (Bar, Donut, Area, Horizontal)                ║
+║              ↓                                           ║
+║   Activity Timeline + Quick Actions + System Status      ║
+║              ↓                                           ║
+║   Orders Table with Status Badges                        ║
+║              ↓                                           ║
+║   Notifications Dropdown · Profile Menu                  ║
+║              ↓                                           ║
+║   Mobile Responsive (drawer navigation)                  ║
 ║              ↓                                           ║
 ║   404 Page Works                                         ║
-║              ↓                                           ║
-║   Mobile Responsive                                      ║
-║              ↓                                           ║
-║   Everything Feels Consistent                            ║
 ║              ↓                                           ║
 ║   ╔══════════════════════════════════════════════════╗   ║
 ║   ║                                                  ║   ║
