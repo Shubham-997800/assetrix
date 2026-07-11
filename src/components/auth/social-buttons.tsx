@@ -58,7 +58,7 @@ export function SocialButtons() {
           key={provider.name}
           variant="outline"
           size="lg"
-          className="gap-2 btn-enterprise"
+          className="h-11 gap-2 btn-enterprise"
           aria-label={`Continue with ${provider.name}`}
         >
           <provider.icon aria-hidden="true" />

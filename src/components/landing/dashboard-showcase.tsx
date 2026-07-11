@@ -12,7 +12,7 @@ import {
 
 export function DashboardShowcase() {
   return (
-    <section className="border-b border-border bg-muted/30 py-24">
+    <section className="border-b border-border bg-muted/30 py-12 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
@@ -28,7 +28,7 @@ export function DashboardShowcase() {
         </div>
 
         {/* Full Dashboard */}
-        <div className="mt-16 rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
+        <div className="mt-8 sm:mt-12 md:mt-16 rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
           {/* Browser Bar */}
           <div className="border-b border-border bg-muted/50 px-4 py-3">
             <div className="flex items-center gap-2">

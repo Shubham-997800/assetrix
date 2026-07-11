@@ -202,9 +202,9 @@ export default function AdminPage() {
                       <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{u.lastLogin}</td>
                       <td className="px-3 py-3 sm:px-6">
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" className="h-9 w-9" title="Edit" aria-label="Edit user"><Edit className="h-3.5 w-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="hidden h-9 w-9 sm:inline-flex" title="Suspend" aria-label="Suspend user"><Ban className="h-3.5 w-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:text-destructive" title="Delete" aria-label="Delete user"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-11 w-11" title="Edit" aria-label="Edit user"><Edit className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="hidden h-11 w-11 sm:inline-flex" title="Suspend" aria-label="Suspend user"><Ban className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-11 w-11 text-destructive hover:text-destructive" title="Delete" aria-label="Delete user"><Trash2 className="h-3.5 w-3.5" /></Button>
                         </div>
                       </td>
                     </tr>
@@ -238,8 +238,8 @@ export default function AdminPage() {
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground/60">Created {r.created}</p>
                 <div className="mt-3 flex gap-1">
-                  <Button variant="ghost" size="sm" className="flex-1 btn-enterprise"><Edit className="h-3 w-3" /> Edit</Button>
-                  <Button variant="ghost" size="sm" className="btn-enterprise"><Copy className="h-3 w-3" /></Button>
+                  <Button variant="ghost" size="default" className="flex-1 btn-enterprise"><Edit className="h-3 w-3" /> Edit</Button>
+                  <Button variant="ghost" size="icon" className="h-11 w-11 btn-enterprise" aria-label="Duplicate role"><Copy className="h-3 w-3" /></Button>
                 </div>
               </div>
             ))}

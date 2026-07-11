@@ -69,7 +69,7 @@ export function Features() {
   const { ref: gridRef, isInView: gridVisible } = useInView();
 
   return (
-    <section id="features" className="border-b border-border bg-background py-24">
+    <section id="features" className="border-b border-border bg-background py-12 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div
           ref={headerRef}
@@ -91,7 +91,7 @@ export function Features() {
 
         <div
           ref={gridRef}
-          className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-8 sm:mt-12 md:mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
         >
           {features.map((f, i) => (
             <div

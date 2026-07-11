@@ -42,7 +42,7 @@ const tableData = [
 
 export function AnalyticsPreview() {
   return (
-    <section className="border-b border-border bg-background py-24">
+    <section className="border-b border-border bg-background py-12 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
@@ -96,7 +96,7 @@ export function AnalyticsPreview() {
                     Monthly recurring revenue
                   </p>
                 </div>
-                <button className="text-muted-foreground hover:text-foreground">
+                <button className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
                   <MoreHorizontal className="h-4 w-4" />
                 </button>
               </div>

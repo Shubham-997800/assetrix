@@ -22,7 +22,7 @@ const steps = [
 
 export function PlatformArchitecture() {
   return (
-    <section id="architecture" className="border-b border-border bg-muted/30 py-24">
+    <section id="architecture" className="border-b border-border bg-muted/30 py-12 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
@@ -38,11 +38,11 @@ export function PlatformArchitecture() {
         </div>
 
         {/* Vertical Pipeline - Mobile/Tablet */}
-        <div className="mt-16 flex flex-col items-center gap-0 lg:hidden">
+        <div className="mt-8 sm:mt-12 md:mt-16 flex flex-col items-center gap-0 lg:hidden">
           {steps.map((step, i) => (
             <div key={step.label} className="flex flex-col items-center">
               <div
-                className={`flex h-16 w-64 items-center gap-3 rounded-xl border border-border bg-card px-5 shadow-sm`}
+                className={`flex h-16 w-full max-w-64 items-center gap-3 rounded-xl border border-border bg-card px-5 shadow-sm`}
               >
                 <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${step.color}`}>
                   <step.icon className="h-4 w-4" aria-hidden="true" />
@@ -62,7 +62,7 @@ export function PlatformArchitecture() {
         </div>
 
         {/* Horizontal Pipeline - Desktop */}
-        <div className="mt-16 hidden lg:block">
+        <div className="mt-8 sm:mt-12 md:mt-16 hidden lg:block">
           <div className="relative flex items-start justify-between">
             {steps.map((step, i) => (
               <div key={step.label} className="relative flex flex-1 flex-col items-center z-10">

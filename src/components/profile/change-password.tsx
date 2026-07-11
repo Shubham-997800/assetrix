@@ -115,7 +115,7 @@ export function ChangePassword() {
           {errors.confirm && <p className="mt-1 text-xs text-destructive">{errors.confirm}</p>}
         </div>
 
-        <Button type="submit" size="sm" className="btn-enterprise" disabled={loading}>
+        <Button type="submit" size="default" className="btn-enterprise w-full" disabled={loading}>
           {loading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating...</> : "Update Password"}
         </Button>
       </form>

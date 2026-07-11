@@ -123,10 +123,10 @@ export function ContactInfo({ editMode }: ContactInfoProps) {
 
       {editMode && (
         <div className="mt-5 flex items-center gap-2 border-t border-border pt-5 animate-fade-in">
-          <Button size="sm" className="btn-enterprise" onClick={handleSave}>
+          <Button size="default" className="btn-enterprise" onClick={handleSave}>
             <Save className="h-3.5 w-3.5" /> Save Changes
           </Button>
-          <Button variant="outline" size="sm" className="btn-enterprise">Cancel</Button>
+          <Button variant="outline" size="default" className="btn-enterprise">Cancel</Button>
         </div>
       )}
     </div>

@@ -79,10 +79,10 @@ function RevenueChart() {
         </div>
         <span className="text-xs text-muted-foreground">FY 2026</span>
       </div>
-      <div className="mt-6 flex items-end gap-1.5" style={{ height: 180 }}>
+      <div className="mt-6 flex items-end gap-1.5 h-32 sm:h-44">
         {data.map((h, i) => (
           <div key={i} className="group relative flex-1">
-            <div className="flex items-end" style={{ height: 180 }}>
+            <div className="flex items-end h-32 sm:h-44">
               <div className="w-full rounded-t-sm bg-primary/20 transition-colors group-hover:bg-primary/30" style={{ height: `${h}%` }}>
                 <div className="rounded-t-sm bg-primary/70 transition-colors group-hover:bg-primary" style={{ height: `${[65, 72, 58, 80, 68, 85, 75, 90, 82, 95, 88, 92][i]}%` }} />
               </div>
@@ -377,7 +377,7 @@ const orders = [
 function OrdersTable() {
   return (
     <div className="rounded-xl border border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border px-6 py-4">
+      <div className="flex items-center justify-between border-b border-border px-3 py-3 sm:px-6 sm:py-4">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Recent Orders</h3>
           <p className="text-xs text-muted-foreground">Latest procurement activity</p>
@@ -389,24 +389,24 @@ function OrdersTable() {
           <thead>
             <tr className="border-b border-border">
               {["ID", "Department", "Amount", "Status", "Assignee"].map((h) => (
-                <th key={h} className="px-6 py-3 text-xs font-medium text-muted-foreground">{h}</th>
+                <th key={h} className={`px-3 py-3 text-xs font-medium text-muted-foreground sm:px-6 ${h === "Department" || h === "Assignee" ? "hidden sm:table-cell" : ""}`}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {orders.map((row) => (
               <tr key={row.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
-                <td className="px-6 py-3.5 font-medium text-foreground">{row.id}</td>
-                <td className="px-6 py-3.5 text-muted-foreground">{row.dept}</td>
-                <td className="px-6 py-3.5 font-medium text-foreground">{row.amount}</td>
-                <td className="px-6 py-3.5">
+                <td className="px-3 py-3.5 font-medium text-foreground sm:px-6">{row.id}</td>
+                <td className="hidden px-3 py-3.5 text-muted-foreground sm:table-cell sm:px-6">{row.dept}</td>
+                <td className="px-3 py-3.5 font-medium text-foreground sm:px-6">{row.amount}</td>
+                <td className="px-3 py-3.5 sm:px-6">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     row.status === "Approved" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                     : row.status === "Pending" ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                     : "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                   }`}>{row.status}</span>
                 </td>
-                <td className="px-6 py-3.5 text-muted-foreground">{row.assignee}</td>
+                <td className="hidden px-3 py-3.5 text-muted-foreground sm:table-cell sm:px-6">{row.assignee}</td>
               </tr>
             ))}
           </tbody>

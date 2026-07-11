@@ -12,9 +12,9 @@ const pipelineSteps = [
 
 export function AIIntelligence() {
   return (
-    <section id="ai" className="border-b border-border bg-background py-24">
+    <section id="ai" className="border-b border-border bg-background py-12 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-16 lg:grid-cols-2">
+        <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left Side - Pipeline */}
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-primary">

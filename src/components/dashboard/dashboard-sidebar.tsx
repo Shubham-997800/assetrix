@@ -102,11 +102,11 @@ export function DashboardSidebar() {
       {/* Collapse Toggle - Desktop only */}
       <button
         onClick={toggleSidebar}
-        className="hidden lg:flex absolute -right-3 top-20 z-50 h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
+        className="hidden lg:flex absolute -right-3 top-20 z-50 h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
         aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         aria-expanded={!sidebarCollapsed}
       >
-        <ChevronLeft className={`h-3 w-3 transition-transform duration-200 ${sidebarCollapsed ? "rotate-180" : ""}`} />
+        <ChevronLeft className={`h-3.5 w-3.5 transition-transform duration-200 ${sidebarCollapsed ? "rotate-180" : ""}`} />
       </button>
 
       {/* Nav Groups */}
@@ -183,13 +183,13 @@ export function DashboardSidebar() {
 
       {/* Mobile Drawer */}
       {mobileDrawerOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
+        <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
           <div
             className="absolute inset-0 bg-background/80 backdrop-blur-sm animate-fade-in"
             onClick={() => setMobileDrawerOpen(false)}
             aria-hidden="true"
           />
-          <aside className="relative flex h-full w-[280px] flex-col border-r border-border bg-sidebar animate-slide-in-left">
+          <aside className="relative flex h-full w-[85vw] max-w-[280px] flex-col border-r border-border bg-sidebar animate-slide-in-left">
             {sidebarContent}
           </aside>
         </div>

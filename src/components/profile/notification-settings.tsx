@@ -82,7 +82,7 @@ export function NotificationSettings() {
       </div>
 
       <div className="mt-5 border-t border-border pt-5">
-        <Button size="sm" className="btn-enterprise" onClick={handleSave}>
+        <Button size="default" className="btn-enterprise" onClick={handleSave}>
           <Save className="h-3.5 w-3.5" /> Save Preferences
         </Button>
       </div>

@@ -43,7 +43,7 @@ const a11yFeatures = [
 
 export function Accessibility() {
   return (
-    <section className="border-b border-border bg-background py-24">
+    <section className="border-b border-border bg-background py-12 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
@@ -58,7 +58,7 @@ export function Accessibility() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 sm:mt-12 md:mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {a11yFeatures.map((f) => (
             <div
               key={f.title}

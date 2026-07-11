@@ -198,7 +198,7 @@ export function DashboardNavbar() {
               )}
             </button>
             {notifOpen && (
-              <div className="absolute right-0 top-full mt-1 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-lg animate-slide-down">
+              <div className="absolute right-0 top-full z-50 mt-1 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-lg animate-slide-down">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
                   <span className="text-sm font-semibold text-foreground">Notifications</span>
                   <span className="text-xs text-primary cursor-pointer hover:underline" role="button" tabIndex={0}>Mark all read</span>
@@ -251,7 +251,7 @@ export function DashboardNavbar() {
               <ChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
             </button>
             {profileOpen && (
-              <div className="absolute right-0 top-full mt-1 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-lg animate-slide-down">
+              <div className="absolute right-0 top-full z-50 mt-1 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-lg animate-slide-down">
                 <div className="border-b border-border px-4 py-3">
                   <p className="text-sm font-medium text-foreground">John Doe</p>
                   <p className="text-xs text-muted-foreground">john@company.com</p>

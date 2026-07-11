@@ -17,7 +17,7 @@ export function Hero() {
   return (
     <section className="border-b border-border bg-background overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
+        <div className="grid items-center gap-8 py-12 sm:gap-12 sm:py-16 lg:grid-cols-2 lg:py-24">
           {/* Left Side */}
           <div>
             <Badge

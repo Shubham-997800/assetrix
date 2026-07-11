@@ -65,7 +65,7 @@ export function Security() {
   const { ref: metricsRef, isInView: metricsVisible } = useInView();
 
   return (
-    <section id="security" className="border-b border-border bg-muted/30 py-24">
+    <section id="security" className="border-b border-border bg-muted/30 py-12 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div
           ref={headerRef}
@@ -86,7 +86,7 @@ export function Security() {
         </div>
 
         {/* Security Cards */}
-        <div ref={cardsRef} className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div ref={cardsRef} className="mt-8 sm:mt-12 md:mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {securityFeatures.map((f, i) => (
             <div
               key={f.title}

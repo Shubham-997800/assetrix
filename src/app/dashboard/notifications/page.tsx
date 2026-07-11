@@ -105,17 +105,17 @@ function NotificationCard({ n, onArchive, onRead, onRestore }: {
         {!n.archived && (
           <>
             {n.unread && (
-              <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={onRead} title="Mark as read">
+              <Button variant="ghost" size="icon" className="h-11 w-11 btn-enterprise" onClick={onRead} aria-label="Mark as read" title="Mark as read">
                 <CheckCheck className="h-3.5 w-3.5" />
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={onArchive} title="Archive">
+            <Button variant="ghost" size="icon" className="h-11 w-11 btn-enterprise" onClick={onArchive} aria-label="Archive" title="Archive">
               <Archive className="h-3.5 w-3.5" />
             </Button>
           </>
         )}
         {n.archived && onRestore && (
-          <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={onRestore} title="Restore">
+          <Button variant="ghost" size="icon" className="h-11 w-11 btn-enterprise" onClick={onRestore} aria-label="Restore" title="Restore">
             <RotateCcw className="h-3.5 w-3.5" />
           </Button>
         )}
@@ -143,14 +143,14 @@ function PreferencesTab() {
           { key: "weekly" as const, label: "Weekly Reports", desc: "Weekly activity digest" },
           { key: "product" as const, label: "Product Updates", desc: "New features and changes" },
         ].map((item) => (
-          <div key={item.key} className="flex items-center justify-between py-3">
-            <div>
+          <div key={item.key} className="flex items-center justify-between gap-4 py-3">
+            <div className="min-w-0">
               <p className="text-sm font-medium text-foreground">{item.label}</p>
               <p className="text-xs text-muted-foreground">{item.desc}</p>
             </div>
-            <button role="switch" aria-checked={settings[item.key]} onClick={() => update(item.key, !settings[item.key])}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings[item.key] ? "bg-primary" : "bg-muted"}`}>
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings[item.key] ? "translate-x-6" : "translate-x-1"}`} />
+            <button role="switch" aria-checked={settings[item.key]} aria-label={item.label} onClick={() => update(item.key, !settings[item.key])}
+              className={`relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors ${settings[item.key] ? "bg-primary" : "bg-muted"}`}>
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings[item.key] ? "translate-x-2" : "-translate-x-2"}`} aria-hidden="true" />
             </button>
           </div>
         ))}

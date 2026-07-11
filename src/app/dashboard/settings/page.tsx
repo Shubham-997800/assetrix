@@ -93,7 +93,7 @@ function GeneralTab() {
           </div>
         </div>
         <div className="mt-5 flex items-center gap-2 border-t border-border pt-5">
-          <Button size="sm" className="btn-enterprise" onClick={handleSave}>
+          <Button size="default" className="btn-enterprise" onClick={handleSave}>
             {saved ? <><CheckCircle className="h-3.5 w-3.5" /> Saved</> : <><Save className="h-3.5 w-3.5" /> Save Changes</>}
           </Button>
         </div>
@@ -113,7 +113,7 @@ function AppearanceTab() {
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground">Theme</h3>
         <p className="text-xs text-muted-foreground">Choose your preferred color scheme</p>
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
             { id: "light", label: "Light", icon: Sun, desc: "Clean and bright" },
             { id: "dark", label: "Dark", icon: Moon, desc: "Easy on the eyes" },
@@ -228,7 +228,7 @@ function SecurityTab() {
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground">Security Overview</h3>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {[
             { label: "Last Login", value: "11 Jul 2026, 09:15 AM" },
             { label: "Password Changed", value: "28 Jun 2026" },
@@ -294,7 +294,7 @@ function IntegrationsTab() {
             <h3 className="text-sm font-semibold text-foreground">Connected Services</h3>
             <p className="text-xs text-muted-foreground">Manage third-party integrations</p>
           </div>
-          <Button size="sm" className="btn-enterprise"><Link2 className="h-3.5 w-3.5" /> Add Integration</Button>
+          <Button size="default" className="btn-enterprise"><Link2 className="h-3.5 w-3.5" /> Add Integration</Button>
         </div>
         <div className="mt-5 space-y-3">
           {integrations.map((int) => (
@@ -310,7 +310,7 @@ function IntegrationsTab() {
                 <p className="text-xs text-muted-foreground">{int.desc}</p>
                 <p className="text-[11px] text-muted-foreground/60 mt-0.5">Last sync: {int.lastSync}</p>
               </div>
-              <Button variant="outline" size="sm" className="btn-enterprise">
+              <Button variant="outline" size="default" className="btn-enterprise">
                 {int.status === "connected" ? "Manage" : int.status === "error" ? "Reconnect" : "Connect"}
               </Button>
             </div>
@@ -332,7 +332,7 @@ function IntegrationsTab() {
                 <span className="text-sm font-medium text-foreground">{key.name}</span>
                 <p className="text-xs text-muted-foreground">Created {key.created} · Last used {key.lastUsed}</p>
               </div>
-              <Button variant="ghost" size="sm" className="btn-enterprise">Revoke</Button>
+              <Button variant="ghost" size="default" className="btn-enterprise">Revoke</Button>
             </div>
           ))}
         </div>

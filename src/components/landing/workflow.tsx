@@ -48,7 +48,7 @@ export function Workflow() {
   const { ref: timelineRef, isInView: timelineVisible } = useInView();
 
   return (
-    <section id="workflow" className="border-b border-border bg-background py-24">
+    <section id="workflow" className="border-b border-border bg-background py-12 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div
           ref={headerRef}
@@ -69,7 +69,7 @@ export function Workflow() {
         </div>
 
         {/* Horizontal Timeline */}
-        <div ref={timelineRef} className="relative mt-16">
+        <div ref={timelineRef} className="relative mt-8 sm:mt-12 md:mt-16">
           {/* Connector Line - Desktop with draw animation */}
           <div className="absolute left-[10%] right-[10%] top-12 hidden border-t border-dashed border-border lg:block" />
           <div
