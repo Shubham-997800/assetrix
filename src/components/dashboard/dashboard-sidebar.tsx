@@ -29,7 +29,7 @@ const navGroups = [
   {
     label: "Operations",
     items: [
-      { icon: Bell, label: "Notifications", href: "/dashboard" },
+      { icon: Bell, label: "Notifications", href: "/dashboard/notifications" },
       { icon: GitBranch, label: "Workflows", href: "/dashboard" },
       { icon: ScrollText, label: "Audit Logs", href: "/dashboard" },
     ],
@@ -38,7 +38,7 @@ const navGroups = [
     label: "System",
     items: [
       { icon: Plug, label: "Integrations", href: "/dashboard" },
-      { icon: Settings, label: "Settings", href: "/dashboard" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       { icon: User, label: "Profile", href: "/dashboard/profile" },
     ],
   },
