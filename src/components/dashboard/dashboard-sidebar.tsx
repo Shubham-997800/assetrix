@@ -39,7 +39,7 @@ const navGroups = [
     items: [
       { icon: Plug, label: "Integrations", href: "/dashboard" },
       { icon: Settings, label: "Settings", href: "/dashboard" },
-      { icon: User, label: "Profile", href: "/dashboard" },
+      { icon: User, label: "Profile", href: "/dashboard/profile" },
     ],
   },
 ];
