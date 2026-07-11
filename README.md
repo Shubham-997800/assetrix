@@ -96,6 +96,11 @@ open http://localhost:5173
 | `/reset-password` | **Reset Password** | New password with strength meter → auto-redirect |
 | `/verify-email` | **Verify Email** | Verification instructions + resend email |
 | `/dashboard` | **Dashboard** | Full enterprise shell: sidebar, navbar, KPIs, charts, activity |
+| `/dashboard/profile` | **Profile** | 5 tabs: Profile, Security, Sessions, Activity, Notifications |
+| `/dashboard/settings` | **Settings** | 7 tabs: General, Appearance, Notifications, Security, Language, Integrations, Preferences |
+| `/dashboard/notifications` | **Notifications** | 5 tabs: All, Unread, Mentioned, Archived, Preferences |
+| `/dashboard/reports` | **Reports** | KPIs, 4 charts, data table, saved views, scheduled reports |
+| `/dashboard/admin` | **Administration** | Users, Roles, Audit Logs, Feature Flags, System Health, Background Jobs |
 | `*` | **404** | Custom error page with navigation |
 
 <br />
@@ -316,7 +321,7 @@ open http://localhost:5173
 | Feature | Implementation |
 |---------|---------------|
 | Collapse | 280px → 72px with animated toggle button |
-| Nav Groups | Main, Operations, System (9 items) |
+| Nav Groups | Main, Operations, System (10 items) |
 | Active State | Cyan background + dot indicator |
 | Tooltips | `title` attribute when collapsed |
 | Mobile | Drawer with backdrop blur overlay |
@@ -406,7 +411,12 @@ demo-/
 │   │   │
 │   │   ├── dashboard/
 │   │   │   ├── layout.tsx           # Dashboard Shell Layout
-│   │   │   └── page.tsx             # Dashboard (KPIs, Charts, Activity)
+│   │   │   ├── page.tsx             # Dashboard (KPIs, Charts, Activity)
+│   │   │   ├── profile/page.tsx     # Profile (5 tabs)
+│   │   │   ├── settings/page.tsx    # Settings (7 tabs)
+│   │   │   ├── notifications/page.tsx # Notifications (5 tabs)
+│   │   │   ├── reports/page.tsx     # Reports (charts, data table, views)
+│   │   │   └── admin/page.tsx       # Administration (users, roles, audit, flags, health, jobs)
 │   │   │
 │   │   └── not-found/page.tsx       # 404 Page
 │   │
@@ -430,6 +440,17 @@ demo-/
 │   │   │   ├── dashboard-shell.tsx  # Layout wrapper
 │   │   │   ├── dashboard-navbar.tsx # Search, notifications, profile
 │   │   │   └── dashboard-sidebar.tsx # Collapsible nav sidebar
+│   │   │
+│   │   ├── profile/                 # Profile Components
+│   │   │   ├── profile-header.tsx   # Avatar upload + initials
+│   │   │   ├── personal-info.tsx    # Edit mode form
+│   │   │   ├── contact-info.tsx     # Verified badges
+│   │   │   ├── account-info.tsx     # Read-only metadata
+│   │   │   ├── change-password.tsx  # Strength meter
+│   │   │   ├── active-sessions.tsx  # Revoke sessions
+│   │   │   ├── devices.tsx          # Trust/remove
+│   │   │   ├── activity-log.tsx     # Timeline
+│   │   │   └── notification-settings.tsx # Toggles
 │   │   │
 │   │   ├── landing/                 # 17 Landing Page Sections
 │   │   │   ├── navbar.tsx           # + scroll shadow
@@ -640,6 +661,16 @@ All monetary values use **Indian Rupees (₹)** with Indian number formatting:
 ║   Orders Table with Status Badges                        ║
 ║              ↓                                           ║
 ║   Notifications Dropdown · Profile Menu                  ║
+║              ↓                                           ║
+║   Navigate → Profile (5 tabs, avatar upload)            ║
+║              ↓                                           ║
+║   Navigate → Settings (7 tabs, theme switcher)          ║
+║              ↓                                           ║
+║   Navigate → Notifications (5 tabs, priority badges)   ║
+║              ↓                                           ║
+║   Navigate → Reports (KPIs, charts, data table)        ║
+║              ↓                                           ║
+║   Navigate → Admin (users, roles, audit, flags, health)║
 ║              ↓                                           ║
 ║   Mobile Responsive (drawer navigation)                  ║
 ║              ↓                                           ║

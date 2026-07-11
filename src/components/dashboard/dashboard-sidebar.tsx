@@ -13,6 +13,7 @@ import {
   Plug,
   Settings,
   User,
+  Shield,
   ChevronLeft,
   Zap,
 } from "lucide-react";
@@ -23,7 +24,7 @@ const navGroups = [
     items: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
       { icon: BarChart3, label: "Analytics", href: "/dashboard" },
-      { icon: FileText, label: "Reports", href: "/dashboard" },
+      { icon: FileText, label: "Reports", href: "/dashboard/reports" },
     ],
   },
   {
@@ -31,13 +32,14 @@ const navGroups = [
     items: [
       { icon: Bell, label: "Notifications", href: "/dashboard/notifications" },
       { icon: GitBranch, label: "Workflows", href: "/dashboard" },
-      { icon: ScrollText, label: "Audit Logs", href: "/dashboard" },
+      { icon: ScrollText, label: "Audit Logs", href: "/dashboard/admin" },
     ],
   },
   {
     label: "System",
     items: [
       { icon: Plug, label: "Integrations", href: "/dashboard" },
+      { icon: Shield, label: "Admin", href: "/dashboard/admin" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       { icon: User, label: "Profile", href: "/dashboard/profile" },
     ],
