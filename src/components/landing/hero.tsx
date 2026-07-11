@@ -1,0 +1,250 @@
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowRight,
+  DollarSign,
+  Users,
+  TrendingUp,
+  Activity,
+  CheckCircle,
+  Bell,
+} from "lucide-react";
+
+export function Hero() {
+  return (
+    <section className="border-b border-border bg-background">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
+          {/* Left Side */}
+          <div>
+            <Badge
+              variant="secondary"
+              className="mb-6 gap-1.5 px-3 py-1 text-xs font-medium"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Trusted by modern businesses
+            </Badge>
+
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
+              The Operating System For Modern Business Workflows
+            </h1>
+
+            <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
+              Automate approvals, analyze data, manage operations and make
+              faster business decisions using AI powered workflows.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="mt-8 flex items-center gap-4">
+              <Link href="/register">
+                <Button size="lg" className="gap-2 px-6">
+                  Start Building
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="outline" size="lg" className="px-6">
+                  Book Demo
+                </Button>
+              </Link>
+            </div>
+
+            {/* Trust Metrics */}
+            <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+              {[
+                { value: "99.99%", label: "Uptime" },
+                { value: "10M+", label: "Events Processed" },
+                { value: "500+", label: "Teams" },
+                { value: "24/7", label: "Monitoring" },
+              ].map((m) => (
+                <div key={m.label}>
+                  <p className="text-lg font-bold text-foreground">{m.value}</p>
+                  <p className="text-xs text-muted-foreground">{m.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Side - Dashboard Mockup */}
+          <div className="relative">
+            {/* Floating Cards */}
+            <div className="absolute -left-4 top-8 z-10 hidden rounded-xl border border-border bg-card p-3 shadow-md xl:block">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10">
+                  <TrendingUp className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">+24% Growth</p>
+                  <p className="text-[10px] text-muted-foreground">vs last quarter</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute -right-2 top-32 z-10 hidden rounded-xl border border-border bg-card p-3 shadow-md xl:block">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10">
+                  <Activity className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">92% Accuracy</p>
+                  <p className="text-[10px] text-muted-foreground">AI prediction</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute -left-2 bottom-28 z-10 hidden rounded-xl border border-border bg-card p-3 shadow-md xl:block">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-500/10">
+                  <CheckCircle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">12 Pending</p>
+                  <p className="text-[10px] text-muted-foreground">Approvals</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute -right-4 bottom-16 z-10 hidden rounded-xl border border-border bg-card p-3 shadow-md xl:block">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-500/10">
+                  <Bell className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">AI Insight</p>
+                  <p className="text-[10px] text-muted-foreground">Generated</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Dashboard */}
+            <div className="rounded-2xl border border-border bg-card shadow-lg">
+              <div className="rounded-t-2xl border-b border-border bg-muted/30 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-green-400" />
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    nexus.platform/dashboard
+                  </span>
+                </div>
+              </div>
+              <div className="p-5">
+                {/* Stats Row */}
+                <div className="mb-4 grid grid-cols-2 gap-3">
+                  {[
+                    { label: "Revenue", value: "$2.4M", icon: DollarSign, change: "+18%" },
+                    { label: "Users", value: "18,249", icon: Users, change: "+7%" },
+                    { label: "Approvals", value: "1,482", icon: CheckCircle, change: "98% rate" },
+                    { label: "Events", value: "10.2M", icon: Activity, change: "Live" },
+                  ].map((stat) => (
+                    <div
+                      key={stat.label}
+                      className="rounded-xl border border-border bg-background p-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-medium text-muted-foreground">
+                          {stat.label}
+                        </span>
+                        <stat.icon className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                      <p className="mt-1 text-base font-bold text-foreground">
+                        {stat.value}
+                      </p>
+                      <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                        {stat.change}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Chart */}
+                <div className="mb-4 rounded-xl border border-border bg-background p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground">
+                      Revenue Trend
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Last 12 months
+                    </span>
+                  </div>
+                  <div className="flex items-end gap-1" style={{ height: 100 }}>
+                    {[35, 48, 42, 60, 52, 72, 65, 82, 78, 90, 85, 95].map(
+                      (h, i) => (
+                        <div
+                          key={i}
+                          className="flex-1 rounded-t-sm bg-primary/20"
+                          style={{ height: `${h}%` }}
+                        >
+                          <div
+                            className="rounded-t-sm bg-primary"
+                            style={{ height: `${50 + Math.random() * 50}%` }}
+                          />
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Bottom Row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-border bg-background p-3">
+                    <p className="text-[10px] font-semibold text-foreground">
+                      Approval Queue
+                    </p>
+                    <div className="mt-2 space-y-2">
+                      {[
+                        { name: "PO #4821", status: "Pending" },
+                        { name: "Budget #127", status: "Review" },
+                        { name: "Vendor #89", status: "Pending" },
+                      ].map((item) => (
+                        <div
+                          key={item.name}
+                          className="flex items-center justify-between"
+                        >
+                          <span className="text-[10px] text-muted-foreground">
+                            {item.name}
+                          </span>
+                          <span className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-medium text-amber-600 dark:text-amber-400">
+                            {item.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-border bg-background p-3">
+                    <p className="text-[10px] font-semibold text-foreground">
+                      Recent Activity
+                    </p>
+                    <div className="mt-2 space-y-2">
+                      {[
+                        { action: "Order approved", time: "2m" },
+                        { action: "Report generated", time: "5m" },
+                        { action: "User onboarded", time: "8m" },
+                      ].map((item) => (
+                        <div
+                          key={item.action}
+                          className="flex items-center justify-between"
+                        >
+                          <span className="text-[10px] text-muted-foreground">
+                            {item.action}
+                          </span>
+                          <span className="text-[8px] text-muted-foreground/60">
+                            {item.time}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
