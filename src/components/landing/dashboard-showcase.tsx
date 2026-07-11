@@ -45,7 +45,7 @@ export function DashboardShowcase() {
             {/* Top KPI Row */}
             <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {[
-                { label: "Total Revenue", value: "$4.2M", change: "+18.2%", icon: DollarSign },
+                { label: "Total Revenue", value: "₹4.2Cr", change: "+18.2%", icon: DollarSign },
                 { label: "Active Users", value: "24,589", change: "+7.1%", icon: Users },
                 { label: "Conversion", value: "4.12%", change: "+1.3%", icon: TrendingUp },
                 { label: "System Uptime", value: "99.99%", change: "0.0%", icon: Activity },
@@ -201,11 +201,11 @@ export function DashboardShowcase() {
                   </thead>
                   <tbody>
                     {[
-                      { id: "TXN-8241", dept: "Procurement", amount: "$124,500", status: "Approved", assignee: "S. Chen", date: "Jul 10" },
-                      { id: "TXN-8240", dept: "Engineering", amount: "$89,200", status: "Pending", assignee: "M. Webb", date: "Jul 10" },
-                      { id: "TXN-8239", dept: "Marketing", amount: "$56,800", status: "Approved", assignee: "P. Sharma", date: "Jul 9" },
-                      { id: "TXN-8238", dept: "Operations", amount: "$201,300", status: "Review", assignee: "A. Rivera", date: "Jul 9" },
-                      { id: "TXN-8237", dept: "Finance", amount: "$73,400", status: "Approved", assignee: "J. Lee", date: "Jul 8" },
+                      { id: "TXN-8241", dept: "Procurement", amount: "₹12,45,000", status: "Approved", assignee: "S. Chen", date: "Jul 10" },
+                      { id: "TXN-8240", dept: "Engineering", amount: "₹8,92,000", status: "Pending", assignee: "M. Webb", date: "Jul 10" },
+                      { id: "TXN-8239", dept: "Marketing", amount: "₹5,68,000", status: "Approved", assignee: "P. Sharma", date: "Jul 9" },
+                      { id: "TXN-8238", dept: "Operations", amount: "₹20,13,000", status: "Review", assignee: "A. Rivera", date: "Jul 9" },
+                      { id: "TXN-8237", dept: "Finance", amount: "₹7,34,000", status: "Approved", assignee: "J. Lee", date: "Jul 8" },
                     ].map((row) => (
                       <tr
                         key={row.id}

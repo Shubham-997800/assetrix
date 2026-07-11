@@ -29,7 +29,7 @@ const sidebarLinks = [
 ];
 
 const kpiCards = [
-  { label: "Total Revenue", value: "$4.2M", change: "+18.2%" },
+  { label: "Total Revenue", value: "₹4.2Cr", change: "+18.2%" },
   { label: "Active Users", value: "24,589", change: "+7.1%" },
   { label: "Approvals", value: "1,482", change: "98% rate" },
   { label: "Uptime", value: "99.99%", change: "SLA met" },
@@ -45,12 +45,12 @@ const activityFeed = [
 ];
 
 const tableData = [
-  { id: "ORD-8241", dept: "Procurement", amount: "$124,500", status: "Approved", assignee: "S. Chen" },
-  { id: "ORD-8240", dept: "Engineering", amount: "$89,200", status: "Pending", assignee: "M. Webb" },
-  { id: "ORD-8239", dept: "Marketing", amount: "$56,800", status: "Approved", assignee: "P. Sharma" },
-  { id: "ORD-8238", dept: "Operations", amount: "$201,300", status: "Review", assignee: "A. Rivera" },
-  { id: "ORD-8237", dept: "Finance", amount: "$73,400", status: "Approved", assignee: "J. Lee" },
-  { id: "ORD-8236", dept: "HR", amount: "$34,200", status: "Pending", assignee: "K. Tanaka" },
+  { id: "ORD-8241", dept: "Procurement", amount: "₹12,45,000", status: "Approved", assignee: "S. Chen" },
+  { id: "ORD-8240", dept: "Engineering", amount: "₹8,92,000", status: "Pending", assignee: "M. Webb" },
+  { id: "ORD-8239", dept: "Marketing", amount: "₹5,68,000", status: "Approved", assignee: "P. Sharma" },
+  { id: "ORD-8238", dept: "Operations", amount: "₹20,13,000", status: "Review", assignee: "A. Rivera" },
+  { id: "ORD-8237", dept: "Finance", amount: "₹7,34,000", status: "Approved", assignee: "J. Lee" },
+  { id: "ORD-8236", dept: "HR", amount: "₹3,42,000", status: "Pending", assignee: "K. Tanaka" },
 ];
 
 const notifications = [

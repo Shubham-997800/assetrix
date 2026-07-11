@@ -135,7 +135,7 @@ export function Hero() {
                 {/* Stats Row */}
                 <div className="mb-4 grid grid-cols-2 gap-3">
                   {[
-                    { label: "Revenue", value: "$2.4M", icon: DollarSign, change: "+18%" },
+                    { label: "Revenue", value: "₹2.4Cr", icon: DollarSign, change: "+18%" },
                     { label: "Users", value: "18,249", icon: Users, change: "+7%" },
                     { label: "Approvals", value: "1,482", icon: CheckCircle, change: "98% rate" },
                     { label: "Events", value: "10.2M", icon: Activity, change: "Live" },

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const kpiCards = [
-  { label: "Total Revenue", value: "$4.2M", change: "+18.2%", icon: DollarSign },
+  { label: "Total Revenue", value: "₹4.2Cr", change: "+18.2%", icon: DollarSign },
   { label: "Active Users", value: "24,589", change: "+7.1%", icon: Users },
   { label: "Conversion Rate", value: "4.12%", change: "+1.3%", icon: TrendingUp },
   { label: "System Uptime", value: "99.99%", change: "0.0%", icon: Activity },
@@ -33,11 +33,11 @@ const reports = [
 ];
 
 const tableData = [
-  { id: "ORD-8241", department: "Procurement", amount: "$124,500", status: "Approved", assignee: "S. Chen" },
-  { id: "ORD-8240", department: "Engineering", amount: "$89,200", status: "Pending", assignee: "M. Webb" },
-  { id: "ORD-8239", department: "Marketing", amount: "$56,800", status: "Approved", assignee: "P. Sharma" },
-  { id: "ORD-8238", department: "Operations", amount: "$201,300", status: "Under Review", assignee: "A. Rivera" },
-  { id: "ORD-8237", department: "Finance", amount: "$73,400", status: "Approved", assignee: "J. Lee" },
+  { id: "ORD-8241", department: "Procurement", amount: "₹12,45,000", status: "Approved", assignee: "S. Chen" },
+  { id: "ORD-8240", department: "Engineering", amount: "₹8,92,000", status: "Pending", assignee: "M. Webb" },
+  { id: "ORD-8239", department: "Marketing", amount: "₹5,68,000", status: "Approved", assignee: "P. Sharma" },
+  { id: "ORD-8238", department: "Operations", amount: "₹20,13,000", status: "Under Review", assignee: "A. Rivera" },
+  { id: "ORD-8237", department: "Finance", amount: "₹7,34,000", status: "Approved", assignee: "J. Lee" },
 ];
 
 export function AnalyticsPreview() {
