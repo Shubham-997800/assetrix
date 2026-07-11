@@ -63,12 +63,12 @@ export function Footer() {
               <h4 className="text-sm font-semibold text-foreground">
                 {section.title}
               </h4>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-4 space-y-1">
                 {section.links.map((link) => (
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
+                      className="inline-block min-h-[44px] py-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
                     >
                       {link}
                     </a>

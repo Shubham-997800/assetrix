@@ -82,7 +82,7 @@ export function DashboardShowcase() {
                       Monthly recurring revenue
                     </p>
                   </div>
-                  <button className="text-muted-foreground hover:text-foreground">
+                  <button className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
                     <MoreHorizontal className="h-4 w-4" />
                   </button>
                 </div>
@@ -103,13 +103,13 @@ export function DashboardShowcase() {
                     )
                   )}
                 </div>
-                <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-                  {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map(
-                    (m) => (
-                      <span key={m}>{m}</span>
-                    )
-                  )}
-                </div>
+                  <div className="mt-2 flex justify-between text-[10px] text-muted-foreground overflow-hidden">
+                    {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map(
+                      (m, i) => (
+                        <span key={m} className={i % 2 === 1 ? "hidden sm:inline" : ""}>{m}</span>
+                      )
+                    )}
+                  </div>
               </div>
 
               {/* Activity Feed + Notifications */}
@@ -176,12 +176,14 @@ export function DashboardShowcase() {
             </div>
 
             {/* Data Table */}
-            <div className="mt-6 rounded-xl border border-border bg-background p-5">
+              <div className="rounded-xl border border-border bg-background p-5">
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-sm font-semibold text-foreground">
                   Recent Transactions
                 </p>
-                <span className="text-xs text-primary">Export CSV</span>
+                <button className="min-h-[44px] min-w-[44px] rounded-lg px-3 py-2 text-xs font-medium text-primary hover:bg-primary/5">
+                  Export CSV
+                </button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">

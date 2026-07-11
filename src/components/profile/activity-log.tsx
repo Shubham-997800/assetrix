@@ -36,9 +36,9 @@ export function ActivityLog() {
               {i < activityLog.length - 1 && <div className="mt-1 w-px flex-1 bg-border" />}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">{item.event}</span>
-                <span className="text-xs text-muted-foreground">{item.time}</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium text-foreground truncate">{item.event}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{item.time}</span>
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>
               <p className="mt-0.5 text-[11px] text-muted-foreground/60">{item.device}</p>

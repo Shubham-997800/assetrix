@@ -67,7 +67,7 @@ export function ProfileHeader({ name, role, department, status, joinDate, initia
           </div>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
+            className="absolute -bottom-1 -right-1 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Change avatar"
           >
             <Camera className="h-3.5 w-3.5" />

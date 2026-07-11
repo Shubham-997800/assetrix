@@ -55,12 +55,12 @@ export function Devices() {
                 <p className="text-xs text-muted-foreground/60 mt-0.5">Last seen: {d.lastSeen}</p>
               </div>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8 btn-enterprise" onClick={() => toggleTrust(i)}
-                  title={d.trusted ? "Remove trust" : "Trust device"}>
+                <Button variant="ghost" size="icon" className="h-11 w-11 btn-enterprise" onClick={() => toggleTrust(i)}
+                  aria-label={d.trusted ? "Remove trust" : "Trust device"} title={d.trusted ? "Remove trust" : "Trust device"}>
                   <Star className={`h-3.5 w-3.5 ${d.trusted ? "fill-amber-500 text-amber-500" : "text-muted-foreground"}`} />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/5 btn-enterprise"
-                  onClick={() => removeDevice(i)} title="Remove device">
+                <Button variant="ghost" size="icon" className="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/5 btn-enterprise"
+                  onClick={() => removeDevice(i)} aria-label="Remove device" title="Remove device">
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>

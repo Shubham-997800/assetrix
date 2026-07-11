@@ -19,9 +19,9 @@ export function AccountInfo() {
       </div>
       <div className="mt-5 space-y-3">
         {accountData.map((item) => (
-          <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-            <span className="text-sm text-muted-foreground">{item.label}</span>
-            <span className="text-sm font-medium text-foreground">{item.value}</span>
+          <div key={item.label} className="flex items-center justify-between gap-4 py-2 border-b border-border last:border-0">
+            <span className="shrink-0 text-sm text-muted-foreground">{item.label}</span>
+            <span className="min-w-0 truncate text-right text-sm font-medium text-foreground">{item.value}</span>
           </div>
         ))}
       </div>

@@ -56,9 +56,9 @@ export function ActiveSessions() {
               </p>
             </div>
             {!s.current && (
-              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/5 btn-enterprise"
+              <Button variant="ghost" size="sm" className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/5 btn-enterprise"
                 onClick={() => revokeSession(i)}>
-                <LogOut className="h-3.5 w-3.5" /> Revoke
+                <LogOut className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Revoke</span>
               </Button>
             )}
           </div>
