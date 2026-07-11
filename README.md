@@ -26,7 +26,7 @@
 <br />
 <br />
 
-[**Live Demo**](https://demo-opal-kappa.vercel.app) · [**Quick Start**](#-quick-start) · [**Features**](#-features) · [**Architecture**](#-architecture)
+[**Live Demo**](https://nexus-odoo.vercel.app) · [**GitHub**](https://github.com/Shubham-997800/demo-) · [**Quick Start**](#-quick-start) · [**Features**](#-features) · [**Architecture**](#-architecture)
 
 </div>
 
@@ -36,7 +36,7 @@
 
 ## Overview
 
-Nexus is a production-grade enterprise SaaS platform built for modern businesses. It combines workflow automation, AI-powered decision support, and real-time analytics into a unified operating system.
+Nexus is a production-grade enterprise SaaS platform built for the ODOO Hackathon 2026. It combines workflow automation, AI-powered decision support, and real-time analytics into a unified operating system.
 
 This is not a prototype. This is not a hackathon demo. This is engineering.
 
@@ -50,7 +50,7 @@ TypeScript 5        →  Full type safety across every module
 Tailwind CSS v4     →  Utility-first styling with design tokens
 shadcn/ui           →  Accessible, composable component library
 Lucide React        →  Consistent icon system
-next-themes         →  Dark/Light mode with system preference
+next-themes         →  Dark/Light/System mode with persistence
 Inter Font          →  Enterprise typography
 ```
 
@@ -96,11 +96,11 @@ open http://localhost:5173
 | `/reset-password` | **Reset Password** | New password with strength meter → auto-redirect |
 | `/verify-email` | **Verify Email** | Verification instructions + resend email |
 | `/dashboard` | **Dashboard** | Full enterprise shell: sidebar, navbar, KPIs, charts, activity |
-| `/dashboard/profile` | **Profile** | 5 tabs: Profile, Security, Sessions, Activity, Notifications |
+| `/dashboard/profile` | **Profile** | 5 tabs: Personal Info, Contact, Account, Password, Sessions, Devices, Activity |
 | `/dashboard/settings` | **Settings** | 7 tabs: General, Appearance, Notifications, Security, Language, Integrations, Preferences |
 | `/dashboard/notifications` | **Notifications** | 5 tabs: All, Unread, Mentioned, Archived, Preferences |
-| `/dashboard/reports` | **Reports** | KPIs, 4 charts, data table, saved views, scheduled reports |
-| `/dashboard/admin` | **Administration** | Users, Roles, Audit Logs, Feature Flags, System Health, Background Jobs |
+| `/dashboard/reports` | **Reports** | KPIs, 4 charts, data table with sort/search/paginate, saved views, scheduled reports |
+| `/dashboard/admin` | **Administration** | Users, Roles + Permissions Matrix, Audit Logs, Feature Flags, System Health, Background Jobs |
 | `*` | **404** | Custom error page with navigation |
 
 <br />
@@ -234,7 +234,7 @@ open http://localhost:5173
 ║                        ║                              ║
 ╚════════════════════════╩══════════════════════════════╝
         Desktop: 50/50 split
-        Tablet: 55% / 45%
+        Tablet: 40/60 split
         Mobile: Single column + logo
 ```
 
@@ -242,10 +242,10 @@ open http://localhost:5173
 
 | Component | Features |
 |-----------|----------|
-| `AuthInput` | Reusable field with label, error, hint, icon, show/hide password |
-| `SocialButtons` | Google (OAuth colors), GitHub, Microsoft with SVG icons |
-| `PasswordStrength` | 4-level bar (Weak/Medium/Strong/Very Strong) + 5-rule checklist |
-| `AuthDivider` | Centered "or continue with" separator |
+| `AuthInput` | Reusable field with label, error, hint, icon, 44px show/hide password toggle |
+| `SocialButtons` | Google (OAuth colors), GitHub, Microsoft with SVG icons, 44px height |
+| `PasswordStrength` | 4-level bar (Weak/Medium/Strong/Very Strong) + 5-rule checklist, `role="meter"` |
+| `AuthDivider` | Centered "or continue with" separator with `role="separator"` |
 
 ### Auth Pages
 
@@ -269,7 +269,7 @@ open http://localhost:5173
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ Top Navbar (64px)                                        │
+│ Top Navbar (64px, z-40)                                  │
 │ ┌──────┬─────────────────┬─────────────────────────────┐│
 │ │Toggle│ Nexus / Overview│ 🔍 Search  🔔 👤 ☀️          ││
 │ │      │                 │    Ctrl+K    2   Theme  Menu ││
@@ -280,27 +280,27 @@ open http://localhost:5173
 │ bar    │                                                 │
 │        │  ┌────────┐┌────────┐┌────────┐┌────────┐      │
 │ 280px  │  │Revenue ││ Users  ││ Tasks  ││ AI Recs│      │
-│        │  │₹4.2Cr  ││24,589  ││1,482   ││ 342    │      │
-│ □ Dash │  └────────┘└────────┘└────────┘└────────┘      │
-│ □ Anal │                                                 │
-│ □ Repo │  ┌──────────────────┐┌──────────────────┐      │
-│ □ Noti │  │ Revenue Trend    ││ Workflow Status   │      │
-│ □ Work │  │ (Bar Chart)      ││ (Donut Chart)     │      │
-│ □ Audi │  └──────────────────┘└──────────────────┘      │
-│ □ Inte │                                                 │
-│ □ Sett │  ┌──────────────────┐┌──────────────────┐      │
-│ □ Prof │  │ Performance      ││ Distribution      │      │
-│        │  │ (Area Chart)     ││ (Bar Chart)       │      │
-│ ────── │  └──────────────────┘└──────────────────┘      │
-│ JD     │                                                 │
-│ john@. │  ┌──────────────────┐┌─────┐┌─────────┐       │
-│        │  │ Activity Timeline││Quick││ System  │       │
-│        │  │ (6 items)        ││Actns││ Status  │       │
+│ (72px  │  │₹4.2Cr  ││24,589  ││1,482   ││ 342    │      │
+│  col-  │  └────────┘└────────┘└────────┘└────────┘      │
+│  lpsd) │                                                 │
+│ □ Dash │  ┌──────────────────┐┌──────────────────┐      │
+│ □ Anal │  │ Revenue Trend    ││ Workflow Status   │      │
+│ □ Repo │  │ (Bar Chart)      ││ (Donut Chart)     │      │
+│ □ Noti │  └──────────────────┘└──────────────────┘      │
+│ □ Work │                                                 │
+│ □ Audi │  ┌──────────────────┐┌──────────────────┐      │
+│ □ Inte │  │ Performance      ││ Distribution      │      │
+│ □ Admi │  │ (Area Chart)     ││ (Bar Chart)       │      │
+│ □ Sett │  └──────────────────┘└──────────────────┘      │
+│ □ Prof │                                                 │
+│ ────── │  ┌──────────────────┐┌─────┐┌─────────┐       │
+│ JD     │  │ Activity Timeline││Quick││ System  │       │
+│ john@. │  │ (6 items)        ││Actns││ Status  │       │
 │        │  └──────────────────┘└─────┘└─────────┘       │
 │        │                                                 │
 │        │  ┌─────────────────────────────────────────┐   │
 │        │  │ Recent Orders Table                      │   │
-│        │  │ ORD-8241 │ Procurement │ ₹12,45,000 │ ✓ │   │
+│        │  │ ORD-8241 │ ₹12,45,000 │ Approved │ S.C. │   │
 │        │  └─────────────────────────────────────────┘   │
 └────────┴────────────────────────────────────────────────┘
 ```
@@ -310,21 +310,21 @@ open http://localhost:5173
 | Feature | Implementation |
 |---------|---------------|
 | Global Search | `Ctrl+K` shortcut, dropdown with suggestions (pages, records, users, workflows) |
-| Notifications | Dropdown with 5 items, unread badge, mark all read |
-| Theme Toggle | Light/Dark/System with persistence |
-| Profile Menu | Profile, Settings, Security, Activity Log, Logout |
-| Breadcrumb | Nexus / Current Page |
-| Mobile Menu | Hamburger → Drawer overlay |
+| Notifications | Dropdown with 5 items, unread badge, mark all read, `z-50` |
+| Theme Toggle | Light/Dark/System with persistence (44px touch target) |
+| Profile Menu | Profile, Settings, Security, Activity Log, Logout, `z-50` |
+| Breadcrumb | Nexus / Current Page (hidden on mobile) |
+| Mobile Menu | Hamburger → Sheet overlay (`z-[55]`) |
 
 ### Sidebar Features
 
 | Feature | Implementation |
 |---------|---------------|
-| Collapse | 280px → 72px with animated toggle button |
-| Nav Groups | Main, Operations, System (10 items) |
+| Collapse | 280px → 72px with animated toggle button (28px, desktop only) |
+| Nav Groups | Main, Operations, System (10 items with `aria-current="page"`) |
 | Active State | Cyan background + dot indicator |
 | Tooltips | `title` attribute when collapsed |
-| Mobile | Drawer with backdrop blur overlay |
+| Mobile Drawer | `85vw max-w-280px`, backdrop blur, `z-[60]`, Escape to close, body scroll lock |
 | User Section | Avatar, name, email at bottom |
 
 ### Dashboard Sections
@@ -332,14 +332,14 @@ open http://localhost:5173
 | Section | Description |
 |---------|-------------|
 | **KPI Cards** | 6 cards with animated counters (₹4.2Cr, 24,589, 1,482, 342, 18, 99.99%) |
-| **Revenue Trend** | 12-month bar chart with hover tooltips |
+| **Revenue Trend** | 12-month bar chart with hover tooltips, responsive height |
 | **Workflow Status** | SVG donut chart (Completed/In Progress/Pending/Failed) |
 | **Performance** | SVG area chart with gradient fill |
 | **Category Distribution** | Horizontal bar chart (5 departments) |
 | **Activity Timeline** | 6 items with colored avatars, timestamps |
-| **Quick Actions** | 6 compact cards (Create Report, New Workflow, etc.) |
+| **Quick Actions** | 6 compact cards, 2-col on mobile |
 | **System Status** | 5-item health list (API, Database, Workers, Queue, Cache) |
-| **Orders Table** | 5 rows with status badges, hover highlight |
+| **Orders Table** | Responsive — Department/Assignee hidden on mobile, 3-col padding |
 
 <br />
 
@@ -364,6 +364,7 @@ open http://localhost:5173
 | `animate-fade-in-up` | Fade + slide up 16px |
 | `animate-scale-in` | Scale from 0.98 + fade |
 | `animate-slide-down` | Slide down 8px + fade |
+| `animate-slide-in-left` | Slide in from left |
 | `animate-shimmer` | Skeleton loading shimmer |
 | `animate-draw-line` | Progressive line width |
 | `card-hover` | translateY(-4px) + border highlight |
@@ -382,7 +383,7 @@ open http://localhost:5173
 
 ### Reduced Motion
 
-All animations respect `prefers-reduced-motion: reduce` — disables all animations and transitions for users who prefer reduced motion.
+All animations respect `prefers-reduced-motion: reduce` — uses `0s` duration for all animations and transitions.
 
 <br />
 
@@ -399,9 +400,9 @@ demo-/
 ├── src/
 │   ├── app/                         # Next.js App Router
 │   │   ├── globals.css              # Aura Cyan Theme + Animation System
-│   │   ├── layout.tsx               # Root Layout + Providers
+│   │   ├── layout.tsx               # Root Layout + ThemeProvider + CommandPalette
 │   │   ├── page.tsx                 # Landing Page (17 sections)
-│   │   ├── not-found.tsx            # 404 Handler
+│   │   ├── not-found.tsx            # 404 Handler (semantic, 44px targets)
 │   │   │
 │   │   ├── login/page.tsx           # Login (social + email/password)
 │   │   ├── register/page.tsx        # Register (strength meter + terms)
@@ -416,9 +417,9 @@ demo-/
 │   │   │   ├── settings/page.tsx    # Settings (7 tabs)
 │   │   │   ├── notifications/page.tsx # Notifications (5 tabs)
 │   │   │   ├── reports/page.tsx     # Reports (charts, data table, views)
-│   │   │   └── admin/page.tsx       # Administration (users, roles, audit, flags, health, jobs)
+│   │   │   └── admin/page.tsx       # Admin (users, roles, audit, flags, health, jobs)
 │   │   │
-│   │   └── not-found/page.tsx       # 404 Page
+│   │   └── not-found/page.tsx       # 404 Page (stacking buttons on mobile)
 │   │
 │   ├── components/
 │   │   ├── ui/                      # shadcn/ui Components
@@ -428,53 +429,56 @@ demo-/
 │   │   │   ├── button.tsx           # + btn-enterprise class
 │   │   │   ├── card.tsx
 │   │   │   ├── separator.tsx
-│   │   │   └── sheet.tsx
+│   │   │   └── sheet.tsx            # z-[55] overlay/content
 │   │   │
 │   │   ├── auth/                    # Auth Components
-│   │   │   ├── auth-input.tsx       # Reusable input with validation
-│   │   │   ├── social-buttons.tsx   # Google/GitHub/Microsoft
-│   │   │   ├── password-strength.tsx # Strength meter + checklist
-│   │   │   └── auth-divider.tsx     # "or continue with"
+│   │   │   ├── auth-input.tsx       # Reusable input with 44px toggle
+│   │   │   ├── social-buttons.tsx   # Google/GitHub/Microsoft (44px)
+│   │   │   ├── password-strength.tsx # role="meter" + checklist
+│   │   │   └── auth-divider.tsx     # role="separator"
 │   │   │
 │   │   ├── dashboard/               # Dashboard Shell
-│   │   │   ├── dashboard-shell.tsx  # Layout wrapper
-│   │   │   ├── dashboard-navbar.tsx # Search, notifications, profile
-│   │   │   └── dashboard-sidebar.tsx # Collapsible nav sidebar
+│   │   │   ├── dashboard-shell.tsx  # Layout wrapper + skip-to-content
+│   │   │   ├── dashboard-navbar.tsx # Search, notifications, profile (z-40)
+│   │   │   └── dashboard-sidebar.tsx # Collapsible nav (z-[60] mobile drawer)
 │   │   │
 │   │   ├── profile/                 # Profile Components
-│   │   │   ├── profile-header.tsx   # Avatar upload + initials
+│   │   │   ├── profile-header.tsx   # Avatar upload + initials (44px button)
 │   │   │   ├── personal-info.tsx    # Edit mode form
 │   │   │   ├── contact-info.tsx     # Verified badges
-│   │   │   ├── account-info.tsx     # Read-only metadata
-│   │   │   ├── change-password.tsx  # Strength meter
-│   │   │   ├── active-sessions.tsx  # Revoke sessions
-│   │   │   ├── devices.tsx          # Trust/remove
-│   │   │   ├── activity-log.tsx     # Timeline
-│   │   │   └── notification-settings.tsx # Toggles
+│   │   │   ├── account-info.tsx     # Read-only metadata (overflow-safe)
+│   │   │   ├── change-password.tsx  # Strength meter + full-width submit
+│   │   │   ├── active-sessions.tsx  # Revoke (hidden text on mobile)
+│   │   │   ├── devices.tsx          # Trust/remove (44px buttons + aria-label)
+│   │   │   ├── activity-log.tsx     # Timeline (truncate + justify-between)
+│   │   │   └── notification-settings.tsx # 44px toggles + aria-label
 │   │   │
 │   │   ├── landing/                 # 17 Landing Page Sections
-│   │   │   ├── navbar.tsx           # + scroll shadow
-│   │   │   ├── hero.tsx             # + stagger animations
+│   │   │   ├── navbar.tsx           # + scroll shadow, z-40
+│   │   │   ├── hero.tsx             # + stagger animations, flex-wrap CTAs
 │   │   │   ├── trusted-by.tsx       # + counter animations
 │   │   │   ├── features.tsx         # + scroll reveal
-│   │   │   ├── architecture.tsx
+│   │   │   ├── architecture.tsx     # Responsive pipeline (mobile vertical, desktop horizontal)
 │   │   │   ├── ai-intelligence.tsx
-│   │   │   ├── dashboard-showcase.tsx
+│   │   │   ├── dashboard-showcase.tsx # Full dashboard preview
 │   │   │   ├── workflow.tsx         # + progressive line draw
 │   │   │   ├── security.tsx         # + hover effects
 │   │   │   ├── developer-experience.tsx
 │   │   │   ├── performance.tsx
 │   │   │   ├── accessibility.tsx
 │   │   │   ├── analytics.tsx
+│   │   │   ├── analytics-preview.tsx
 │   │   │   ├── customer-stories.tsx
+│   │   │   ├── testimonials.tsx
 │   │   │   ├── faq.tsx
 │   │   │   ├── cta-banner.tsx
-│   │   │   └── footer.tsx
+│   │   │   └── footer.tsx           # 44px social links, aria-label
 │   │   │
 │   │   └── shared/                  # Shared Components
-│   │       ├── skeleton.tsx
+│   │       ├── skeleton.tsx         # Responsive grid, role="status"
 │   │       ├── empty-state.tsx
-│   │       └── command-palette.tsx
+│   │       ├── command-palette.tsx  # Focus trap, z-[100], arrow nav
+│   │       └── theme-toggle.tsx     # 44px, sr-only label
 │   │
 │   ├── contexts/
 │   │   └── dashboard-context.tsx    # Sidebar + drawer state
@@ -575,9 +579,25 @@ npm run lint         # Run ESLint
 - Soft shadows only (`0 1px 2px rgba(0,0,0,0.05)`)
 - 16px card radius, 12px button/input radius
 - Inter typography (400, 500, 600, 700)
-- 24px spacing between related sections
-- 120px spacing between landing sections
+- 48px mobile spacing, 64px tablet, 96px desktop (landing sections)
 - All currency in Indian Rupees (₹)
+
+<br />
+
+---
+
+<br />
+
+## Z-Index Hierarchy
+
+| Layer | Z-Index | Element |
+|-------|---------|---------|
+| Page Content | `0` | Normal content |
+| Navbar | `40` | Dashboard sticky navbar |
+| Sheet (Landing) | `55` | Landing page mobile menu |
+| Dropdowns | `50` | Notification/profile dropdowns |
+| Sidebar Drawer | `60` | Dashboard mobile sidebar drawer |
+| Command Palette | `100` | Global search modal |
 
 <br />
 
@@ -589,23 +609,26 @@ npm run lint         # Run ESLint
 
 | Feature | Status |
 |---------|--------|
-| Keyboard Navigation | Supported |
-| Focus States | Visible (Cyan ring) |
-| ARIA Labels | Implemented across all interactive elements |
+| Keyboard Navigation | Supported across all interactive elements |
+| Focus States | Visible (Cyan ring, `focus-visible`) |
+| ARIA Labels | Implemented on all interactive elements |
 | Semantic HTML | `<main>`, `<nav>`, `<header>`, `<footer>`, `<aside>` landmarks |
 | Color Contrast | WCAG 2.1 AA |
-| Screen Reader Support | Compatible |
-| Reduced Motion | Respected (`prefers-reduced-motion: reduce`) |
+| Screen Reader Support | Compatible (`sr-only` labels, `aria-hidden` decorative icons) |
+| Reduced Motion | Respected (`prefers-reduced-motion: reduce` → `0s` duration) |
 | Error Messages | `role="alert"` with `aria-describedby` |
-| Password Toggle | `aria-label` toggles between Show/Hide |
+| Password Toggle | `aria-label` toggles between Show/Hide, 44px touch target |
 | Skip to Content | Dashboard skip-link for keyboard users |
 | Form Labels | All inputs associated via `htmlFor`/`id` |
-| Focus Traps | Command palette modal |
-| Keyboard Shortcuts | `Ctrl+K` command palette with arrow navigation |
+| Focus Traps | Command palette modal (`aria-modal`, `role="dialog"`) |
+| Keyboard Shortcuts | `Ctrl+K` command palette with arrow navigation, `role="listbox"` |
 | Tab ARIA | `role="tablist"`, `role="tab"`, `aria-selected` |
 | Toggle Switches | `role="switch"`, `aria-checked`, `aria-label` |
+| Password Meter | `role="meter"`, `aria-valuenow`, `aria-label` |
 | Decorative Icons | `aria-hidden="true"` on non-interactive icons |
-| Touch Targets | Minimum 44px on all interactive elements |
+| Touch Targets | Minimum 44px on ALL interactive elements |
+| Mobile Drawer | Escape key to close, body scroll lock, close on resize |
+| Skeleton Loading | `role="status"`, `aria-label="Loading dashboard"` |
 
 <br />
 
@@ -680,7 +703,7 @@ All monetary values use **Indian Rupees (₹)** with Indian number formatting:
 ║              ↓                                           ║
 ║   Navigate → Admin (users, roles, audit, flags, health)║
 ║              ↓                                           ║
-║   Mobile Responsive (drawer navigation)                  ║
+║   Test Mobile → Drawer nav, responsive tables, 44px     ║
 ║              ↓                                           ║
 ║   404 Page Works                                         ║
 ║              ↓                                           ║
@@ -701,15 +724,9 @@ All monetary values use **Indian Rupees (₹)** with Indian number formatting:
 
 <br />
 
-## License
-
-MIT License — Built for ODOO Hackathon 2026
-
-<br />
-
 ## Production Audit
 
-Full enterprise audit performed across all 16 routes:
+Full enterprise audit performed across all 16 routes, 30+ files changed:
 
 ### Accessibility Audit
 
@@ -725,6 +742,7 @@ Full enterprise audit performed across all 16 routes:
 | Shimmer colors (dark mode) | 2 Medium | Fixed |
 | Reduced motion (0s) | 1 Low | Fixed |
 | Z-index conflicts | 6 High | Fixed (hierarchy established) |
+| Password meter ARIA | 1 Medium | Fixed (`role="meter"`) |
 
 ### Responsiveness Audit
 
@@ -756,6 +774,7 @@ Full enterprise audit performed across all 16 routes:
 | Dashboard chart height (fixed px) | 1 Medium | Fixed (responsive) |
 | 404 page buttons (no stack) | 1 Medium | Fixed (flex-col mobile) |
 | Architecture mobile width (fixed 256px) | 1 Medium | Fixed (max-w) |
+| Theme toggle touch target (36px) | 1 Medium | Fixed (44px) |
 
 ### Deployment
 
@@ -763,6 +782,16 @@ Full enterprise audit performed across all 16 routes:
 |----------|-----|
 | **Vercel (Production)** | https://nexus-odoo.vercel.app |
 | **GitHub** | https://github.com/Shubham-997800/demo- |
+
+<br />
+
+---
+
+<br />
+
+## License
+
+MIT License — Built for ODOO Hackathon 2026
 
 <br />
 
