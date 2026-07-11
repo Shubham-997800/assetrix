@@ -1,5 +1,6 @@
 "use client";
 
+import { useInView } from "@/hooks/use-in-view";
 import {
   FilePlus,
   CheckCircle,
@@ -43,10 +44,18 @@ const steps = [
 ];
 
 export function Workflow() {
+  const { ref: headerRef, isInView: headerVisible } = useInView();
+  const { ref: timelineRef, isInView: timelineVisible } = useInView();
+
   return (
     <section id="workflow" className="border-b border-border bg-background py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
+        <div
+          ref={headerRef}
+          className={`mx-auto max-w-2xl text-center transition-all duration-500 ${
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}
+        >
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Workflow
           </p>
@@ -60,18 +69,29 @@ export function Workflow() {
         </div>
 
         {/* Horizontal Timeline */}
-        <div className="relative mt-16">
-          {/* Connector Line - Desktop */}
+        <div ref={timelineRef} className="relative mt-16">
+          {/* Connector Line - Desktop with draw animation */}
           <div className="absolute left-[10%] right-[10%] top-12 hidden border-t border-dashed border-border lg:block" />
+          <div
+            className={`absolute left-[10%] top-12 hidden h-px bg-primary lg:block transition-all duration-700 ease-out ${
+              timelineVisible ? "w-[80%]" : "w-0"
+            }`}
+            style={{ transitionDelay: "300ms" }}
+          />
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-0">
             {steps.map((step, i) => (
               <div
                 key={step.number}
-                className="relative flex flex-col items-center text-center lg:px-4"
+                className={`relative flex flex-col items-center text-center transition-all duration-400 lg:px-4 ${
+                  timelineVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                }`}
+                style={{ transitionDelay: `${i * 120}ms` }}
               >
                 {/* Step Circle */}
-                <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
+                <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/30">
                   <step.icon className="h-7 w-7 text-primary" />
                 </div>
 

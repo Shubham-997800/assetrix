@@ -1,5 +1,6 @@
 "use client";
 
+import { useInView } from "@/hooks/use-in-view";
 import {
   KeyRound,
   Lock,
@@ -10,7 +11,6 @@ import {
   Server,
   Users,
   Fingerprint,
-  Clock,
 } from "lucide-react";
 
 const securityFeatures = [
@@ -60,10 +60,19 @@ const metrics = [
 ];
 
 export function Security() {
+  const { ref: headerRef, isInView: headerVisible } = useInView();
+  const { ref: cardsRef, isInView: cardsVisible } = useInView();
+  const { ref: metricsRef, isInView: metricsVisible } = useInView();
+
   return (
     <section id="security" className="border-b border-border bg-muted/30 py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
+        <div
+          ref={headerRef}
+          className={`mx-auto max-w-2xl text-center transition-all duration-500 ${
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}
+        >
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Security
           </p>
@@ -77,11 +86,14 @@ export function Security() {
         </div>
 
         {/* Security Cards */}
-        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {securityFeatures.map((f) => (
+        <div ref={cardsRef} className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {securityFeatures.map((f, i) => (
             <div
               key={f.title}
-              className="rounded-2xl border border-border bg-card p-6 transition-all hover:shadow-md"
+              className={`card-hover rounded-2xl border border-border bg-card p-6 transition-all duration-400 ${
+                cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
+              style={{ transitionDelay: `${i * 60}ms` }}
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <f.icon className="h-5 w-5" />
@@ -97,9 +109,18 @@ export function Security() {
         </div>
 
         {/* Metrics Bar */}
-        <div className="mt-12 grid grid-cols-2 gap-4 border-t border-border pt-12 sm:grid-cols-4">
-          {metrics.map((m) => (
-            <div key={m.label} className="text-center">
+        <div
+          ref={metricsRef}
+          className="mt-12 grid grid-cols-2 gap-4 border-t border-border pt-12 sm:grid-cols-4"
+        >
+          {metrics.map((m, i) => (
+            <div
+              key={m.label}
+              className={`text-center transition-all duration-400 ${
+                metricsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
+              style={{ transitionDelay: `${i * 80}ms` }}
+            >
               <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <m.icon className="h-4 w-4" />
               </div>

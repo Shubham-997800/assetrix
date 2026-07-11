@@ -119,6 +119,11 @@
   --sidebar-ring: #22D3EE;
 }
 
+/* ═══════════════════════════════════════════════
+   ENTERPRISE ANIMATION SYSTEM
+   Aura Cyan Edition — ODOO Hackathon 2026
+   ═══════════════════════════════════════════════ */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -128,5 +133,158 @@
   }
   html {
     @apply font-sans scroll-smooth;
+  }
+}
+
+/* ── Keyframes ── */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes drawLine {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@keyframes drawLineVertical {
+  from { height: 0%; }
+  to { height: 100%; }
+}
+
+/* ── Animation Utilities ── */
+
+.animate-fade-in-up {
+  animation: fadeInUp 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 300ms ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-down {
+  animation: slideDown 150ms ease-out both;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.animate-draw-line {
+  animation: drawLine 600ms ease-out both;
+}
+
+.animate-draw-line-v {
+  animation: drawLineVertical 600ms ease-out both;
+}
+
+/* ── Stagger Delays ── */
+
+.delay-0 { animation-delay: 0ms; }
+.delay-50 { animation-delay: 50ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-250 { animation-delay: 250ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-350 { animation-delay: 350ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+
+/* ── Button Animations ── */
+
+.btn-enterprise {
+  transition: transform 100ms ease-out, box-shadow 200ms ease-out, background-color 200ms ease-out;
+}
+.btn-enterprise:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.btn-enterprise:active {
+  transform: scale(0.98);
+  transition-duration: 100ms;
+}
+
+/* ── Card Hover ── */
+
+.card-hover {
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: var(--primary);
+}
+
+/* ── Input Focus Glow ── */
+
+.input-focus-glow:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.12);
+}
+
+.dark .input-focus-glow:focus {
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.08);
+}
+
+/* ── Navbar Scroll Shadow ── */
+
+.navbar-scrolled {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+/* ── Skeleton Shimmer ── */
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    var(--muted) 40%,
+    rgba(255,255,255,0.08) 50%,
+    var(--muted) 60%,
+    var(--muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Reduced Motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

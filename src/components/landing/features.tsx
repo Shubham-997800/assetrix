@@ -1,5 +1,6 @@
 "use client";
 
+import { useInView } from "@/hooks/use-in-view";
 import {
   Workflow,
   Brain,
@@ -64,10 +65,18 @@ const features = [
 ];
 
 export function Features() {
+  const { ref: headerRef, isInView: headerVisible } = useInView();
+  const { ref: gridRef, isInView: gridVisible } = useInView();
+
   return (
     <section id="features" className="border-b border-border bg-background py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
+        <div
+          ref={headerRef}
+          className={`mx-auto max-w-2xl text-center transition-all duration-500 ${
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}
+        >
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Platform
           </p>
@@ -80,11 +89,19 @@ export function Features() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((f) => (
+        <div
+          ref={gridRef}
+          className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {features.map((f, i) => (
             <div
               key={f.title}
-              className="group rounded-2xl border border-border bg-card p-6 transition-all hover:shadow-md"
+              className={`card-hover group rounded-2xl border border-border bg-card p-6 transition-all duration-400 ${
+                gridVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
+              }`}
+              style={{ transitionDelay: `${i * 60}ms` }}
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                 <f.icon className="h-5 w-5" />
