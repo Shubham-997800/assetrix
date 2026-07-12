@@ -12,7 +12,6 @@ import {
   Bell,
   Shield,
   LogOut,
-  Command,
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
@@ -40,9 +39,7 @@ export function CommandPalette() {
     c.label.toLowerCase().includes(query.toLowerCase())
   );
 
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [query]);
+  const safeIndex = Math.min(selectedIndex, Math.max(filtered.length - 1, 0));
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -68,22 +65,22 @@ export function CommandPalette() {
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelectedIndex((prev) => (prev - 1 + filtered.length) % filtered.length);
-      } else if (e.key === "Enter" && filtered[selectedIndex]) {
+      } else if (e.key === "Enter" && filtered[safeIndex]) {
         e.preventDefault();
-        router.push(filtered[selectedIndex].path);
+        router.push(filtered[safeIndex].path);
         setOpen(false);
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [open, filtered, selectedIndex, router]);
+  }, [open, filtered, safeIndex, router]);
 
   useEffect(() => {
     if (open && listRef.current) {
-      const selected = listRef.current.children[selectedIndex] as HTMLElement;
+      const selected = listRef.current.children[safeIndex] as HTMLElement;
       selected?.scrollIntoView({ block: "nearest" });
     }
-  }, [selectedIndex, open]);
+  }, [safeIndex, open]);
 
   if (!open) return null;
 
@@ -113,7 +110,7 @@ export function CommandPalette() {
             placeholder="Type a command or search..."
             aria-label="Search commands"
             aria-controls="command-list"
-            aria-activedescendant={filtered[selectedIndex] ? `command-${selectedIndex}` : undefined}
+            aria-activedescendant={filtered[safeIndex] ? `command-${safeIndex}` : undefined}
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           <kbd className="hidden rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
@@ -126,13 +123,13 @@ export function CommandPalette() {
               key={cmd.label}
               id={`command-${i}`}
               role="option"
-              aria-selected={i === selectedIndex}
+              aria-selected={i === safeIndex}
               onClick={() => {
                 router.push(cmd.path);
                 setOpen(false);
               }}
               className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                i === selectedIndex
+                i === safeIndex
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}

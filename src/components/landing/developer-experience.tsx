@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, Webhook, Package, FileText, Plug, ArrowRight } from "lucide-react";
+import { Code2, Webhook, Package, FileText, Plug } from "lucide-react";
 
 const devFeatures = [
   {

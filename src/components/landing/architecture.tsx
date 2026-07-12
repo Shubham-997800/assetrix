@@ -64,7 +64,7 @@ export function PlatformArchitecture() {
         {/* Horizontal Pipeline - Desktop */}
         <div className="mt-8 sm:mt-12 md:mt-16 hidden lg:block">
           <div className="relative flex items-start justify-between">
-            {steps.map((step, i) => (
+            {steps.map((step) => (
               <div key={step.label} className="relative flex flex-1 flex-col items-center z-10">
                 <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
                   <div

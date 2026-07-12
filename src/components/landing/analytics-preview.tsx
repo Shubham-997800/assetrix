@@ -7,7 +7,6 @@ import {
   Activity,
   FileText,
   MoreHorizontal,
-  ArrowUpRight,
 } from "lucide-react";
 
 const kpiCards = [
@@ -111,7 +110,7 @@ export function AnalyticsPreview() {
                         <div
                           className="rounded-t-sm bg-primary transition-all"
                           style={{
-                            height: `${55 + Math.random() * 45}%`,
+                            height: `${[65, 72, 58, 80, 68, 85, 75, 90, 82, 95, 88, 92][i]}%`,
                           }}
                         />
                       </div>

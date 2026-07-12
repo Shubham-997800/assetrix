@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Camera, CheckCircle, Pencil, Upload, X } from "lucide-react";
+import { Camera, Pencil, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ProfileHeaderProps {
@@ -41,11 +41,7 @@ export function ProfileHeader({ name, role, department, status, joinDate, initia
     setUploadPreview(null);
   };
 
-  const removeAvatar = () => {
-    setAvatarUrl(null);
-    setShowUpload(false);
-    setUploadPreview(null);
-  };
+  // removeAvatar is available via showUpload flow
 
   const statusColors = {
     online: "bg-emerald-500",

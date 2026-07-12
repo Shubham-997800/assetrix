@@ -11,9 +11,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Info,
-  Trash2,
   RotateCcw,
-  Filter,
 } from "lucide-react";
 
 const tabs = [

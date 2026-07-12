@@ -9,14 +9,9 @@ import {
   Download,
   Filter,
   Search,
-  Calendar,
-  ChevronDown,
   Save,
-  FileText,
-  Table,
   BarChart3,
   RefreshCw,
-  Clock,
   Users,
   CheckCircle,
   AlertTriangle,
@@ -81,7 +76,7 @@ function RevenueTrendChart() {
           <div key={i} className="group relative flex-1">
             <div className="flex items-end h-40 sm:h-48">
               <div className="w-full rounded-t-sm bg-primary/20 transition-colors group-hover:bg-primary/30" style={{ height: `${h}%` }}>
-                <div className="rounded-t-sm bg-primary/70 transition-colors group-hover:bg-primary" style={{ height: `${60 + Math.random() * 40}%` }} />
+                <div className="rounded-t-sm bg-primary/70 transition-colors group-hover:bg-primary" style={{ height: `${[65, 72, 58, 80, 68, 85, 75, 90, 82, 95, 88, 92][i]}%` }} />
               </div>
             </div>
           </div>
@@ -180,7 +175,7 @@ function UserGrowthChart() {
       <div className="mt-5 flex items-end gap-1.5 h-40 sm:h-48">
         {data.map((h, i) => (
           <div key={i} className="flex-1 rounded-t-sm bg-emerald-500/20 transition-colors hover:bg-emerald-500/30" style={{ height: `${h}%` }}>
-            <div className="rounded-t-sm bg-emerald-500/70 transition-colors hover:bg-emerald-500" style={{ height: `${50 + Math.random() * 50}%` }} />
+            <div className="rounded-t-sm bg-emerald-500/70 transition-colors hover:bg-emerald-500" style={{ height: `${[65, 72, 58, 80, 68, 85, 75, 90, 82, 95, 88, 98][i]}%` }} />
           </div>
         ))}
       </div>
@@ -214,7 +209,7 @@ function DataTable() {
     else { setSortKey(key); setSortDir("asc"); }
   };
 
-  let filtered = tableData.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()) || r.dept.toLowerCase().includes(search.toLowerCase()));
+  const filtered = tableData.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()) || r.dept.toLowerCase().includes(search.toLowerCase()));
   filtered.sort((a, b) => {
     const av = a[sortKey as keyof typeof a] || "";
     const bv = b[sortKey as keyof typeof b] || "";

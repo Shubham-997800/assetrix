@@ -1,12 +1,10 @@
 "use client";
 
 import { useCountUp } from "@/hooks/use-count-up";
-import { useInView } from "@/hooks/use-in-view";
 import {
   DollarSign,
   Users,
   CheckCircle,
-  Activity,
   AlertCircle,
   Server,
   TrendingUp,

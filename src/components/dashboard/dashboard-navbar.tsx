@@ -39,7 +39,7 @@ const notifications = [
 const unreadCount = notifications.filter((n) => n.unread).length;
 
 export function DashboardNavbar() {
-  const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, commandOpen, setCommandOpen } = useDashboard();
+  const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, setCommandOpen } = useDashboard();
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notifOpen, setNotifOpen] = useState(false);
