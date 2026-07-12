@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
 import {
@@ -81,7 +81,11 @@ const PRIORITY_LABELS: Record<string, string> = {
   low: "Low",
 };
 
-export function AIPanel() {
+const FILTER_OPTIONS = ["all", "warning", "suggestion", "prediction", "info"] as const;
+
+const SUGGESTION_QUESTIONS = ["Asset status", "Budget analysis", "Maintenance schedule", "Utilization report"] as const;
+
+export const AIPanel = memo(function AIPanel() {
   const { aiPanelOpen, setAiPanelOpen } = useDashboard();
   const pathname = usePathname();
   const [expandedInsight, setExpandedInsight] = useState<string | null>(null);
@@ -96,7 +100,7 @@ export function AIPanel() {
     return base.filter((i) => i.type === filter);
   }, [pathname, filter]);
 
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (!chatInput.trim()) return;
     const userMsg: AIResponse = {
       id: `msg-${Date.now()}`,
@@ -125,7 +129,7 @@ export function AIPanel() {
       ]);
       setIsTyping(false);
     }, 800);
-  };
+  }, [chatInput]);
 
   if (!aiPanelOpen) return null;
 
@@ -155,7 +159,7 @@ export function AIPanel() {
         <div className="flex items-center justify-between px-4 pt-3 pb-2">
           <p className="text-xs font-semibold text-foreground">Page Insights</p>
           <div className="flex gap-1">
-            {(["all", "warning", "suggestion", "prediction", "info"] as const).map((f) => (
+            {FILTER_OPTIONS.map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -221,7 +225,7 @@ export function AIPanel() {
             <p className="text-sm font-medium text-foreground">Ask anything</p>
             <p className="mt-1 text-xs text-muted-foreground">I can help with assets, maintenance, bookings, and more.</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              {["Asset status", "Budget analysis", "Maintenance schedule", "Utilization report"].map((q) => (
+              {SUGGESTION_QUESTIONS.map((q) => (
                 <button
                   key={q}
                   onClick={() => { setChatInput(q); }}
@@ -285,4 +289,4 @@ export function AIPanel() {
       </div>
     </div>
   );
-}
+});

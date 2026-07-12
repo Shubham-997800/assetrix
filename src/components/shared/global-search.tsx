@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
 import {
@@ -56,7 +56,7 @@ function loadRecentSearches(): string[] {
   } catch { return []; }
 }
 
-export function GlobalSearch() {
+export const GlobalSearch = memo(function GlobalSearch() {
   const { searchOpen, setSearchOpen } = useDashboard();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -91,6 +91,8 @@ export function GlobalSearch() {
   }, [query]);
 
   const flatResults = useMemo(() => Object.values(grouped).flat(), [grouped]);
+
+  const selectedItemId = flatResults[selectedIndex]?.id;
 
   useEffect(() => {
     if (searchOpen) setTimeout(() => inputRef.current?.focus(), 50);
@@ -151,8 +153,6 @@ export function GlobalSearch() {
 
   if (!searchOpen) return null;
 
-  let runningIndex = -1;
-
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh]" role="dialog" aria-modal="true" aria-label="Global search">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={closeSearch} />
@@ -197,15 +197,12 @@ export function GlobalSearch() {
               return (
                 <div key={category} className="mb-2">
                   <p className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{category}</p>
-                  {items.map((item) => {
-                    runningIndex++;
-                    const idx = runningIndex;
-                    return (
+                  {items.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => navigateTo(item.href, item.label)}
                         className={`flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors ${
-                          idx === selectedIndex ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
+                          item.id === selectedItemId ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                         }`}
                       >
                         <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-muted">
@@ -217,8 +214,7 @@ export function GlobalSearch() {
                         </div>
                         <span className="text-[10px] text-muted-foreground/60 font-medium uppercase">{item.category}</span>
                       </button>
-                    );
-                  })}
+                  ))}
                 </div>
               );
             })
@@ -244,4 +240,4 @@ export function GlobalSearch() {
       </div>
     </div>
   );
-}
+});
