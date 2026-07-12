@@ -1,0 +1,602 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  DEPARTMENT_MANAGER
+  TECHNICIAN
+  EMPLOYEE
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum AssetStatus {
+  AVAILABLE
+  ALLOCATED
+  MAINTENANCE
+  RETIRED
+  LOST
+  STOLEN
+}
+
+enum AssetCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+  DAMAGED
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum MaintenanceStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+  PREDICTIVE
+  EMERGENCY
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FULFILLED
+}
+
+enum NotificationType {
+  USER_REGISTRATION
+  EMAIL_VERIFICATION
+  ASSET_ASSIGNED
+  ASSET_RETURNED
+  BOOKING_APPROVED
+  BOOKING_REJECTED
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  MAINTENANCE_ASSIGNED
+  MAINTENANCE_COMPLETED
+  WARRANTY_EXPIRY
+  PASSWORD_CHANGED
+  SYSTEM_ALERT
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  PUSH
+}
+
+// ─── MODEL: USER ──────────────────────────────────────────
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  password       String
+  firstName      String
+  lastName       String
+  phone          String?
+  avatar         String?
+  role           UserRole  @default(EMPLOYEE)
+  status         UserStatus @default(PENDING_VERIFICATION)
+  employeeId     String?   @unique
+  designation    String?
+  departmentId   String?
+  department     Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  managerId      String?
+  manager        User?      @relation("UserHierarchy", fields: [managerId], references: [id], onDelete: SetNull)
+  directReports  User[]     @relation("UserHierarchy")
+  emailVerified  Boolean   @default(false)
+  lastLoginAt    DateTime?
+  loginAttempts  Int       @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  createdBy      String?
+  updatedBy      String?
+  version        Int       @default(1)
+
+  allocatedAssets      Asset[]          @relation("AssetAllocation")
+  maintenanceTechnician MaintenanceTask[] @relation("MaintenanceTechnician")
+  maintenanceRequestedBy MaintenanceTask[] @relation("MaintenanceRequester")
+  bookings             Booking[]         @relation("BookingUser")
+  bookingApprover      Booking[]         @relation("BookingApprover")
+  headedDepartments    Department[]      @relation("DepartmentHead")
+  allocations          Allocation[]
+  notifications        Notification[]
+  sessions             Session[]
+  auditLogs            AuditLog[]
+  activityLogs         ActivityLog[]
+
+  @@index([email])
+  @@index([employeeId])
+  @@index([departmentId])
+  @@index([role])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+// ─── MODEL: SESSION ───────────────────────────────────────
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  deviceInfo   String?
+  isActive     Boolean  @default(true)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([refreshToken])
+  @@index([isActive])
+}
+
+// ─── MODEL: DEPARTMENT ────────────────────────────────────
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  code        String   @unique
+  description String?
+  headId      String?
+  head        User?    @relation("DepartmentHead", fields: [headId], references: [id], onDelete: SetNull)
+  parentId    String?
+  parent      Department? @relation("DeptHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Department[] @relation("DeptHierarchy")
+  budget      Decimal? @db.Decimal(15, 2)
+  costCenter  String?
+  location    String?
+  phone       String?
+  email       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  createdBy   String?
+  updatedBy   String?
+  version     Int      @default(1)
+
+  users       User[]
+  assets      Asset[]
+  allocations Allocation[]
+
+  @@index([name])
+  @@index([code])
+  @@index([parentId])
+  @@index([deletedAt])
+}
+
+// ─── MODEL: ASSET CATEGORY ────────────────────────────────
+
+model AssetCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  code        String   @unique
+  description String?
+  parentId    String?
+  parent      AssetCategory? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    AssetCategory[] @relation("CategoryHierarchy")
+  icon        String?
+  color       String?
+  depreciationMethod String?
+  defaultUsefulLife  Int?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  createdBy   String?
+  updatedBy   String?
+  version     Int      @default(1)
+
+  assets      Asset[]
+
+  @@index([name])
+  @@index([code])
+  @@index([parentId])
+  @@index([deletedAt])
+}
+
+// ─── MODEL: ASSET ─────────────────────────────────────────
+
+model Asset {
+  id              String        @id @default(uuid())
+  assetTag        String        @unique
+  name            String
+  description     String?
+  serialNumber    String?
+  model           String?
+  manufacturer    String?
+  yearOfManufacture Int?
+  purchaseDate    DateTime?
+  purchasePrice   Decimal?      @db.Decimal(15, 2)
+  currentValue    Decimal?      @db.Decimal(15, 2)
+  salvageValue    Decimal?      @db.Decimal(15, 2)
+  warrantyExpiry  DateTime?
+  warrantyProvider String?
+  invoiceNumber   String?
+  qrCode          String        @unique
+  status          AssetStatus   @default(AVAILABLE)
+  condition       AssetCondition @default(GOOD)
+  location        String?
+  floor           String?
+  room            String?
+  departmentId    String?
+  department      Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  categoryId      String?
+  category        AssetCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  allocatedToId   String?
+  allocatedTo     User?         @relation("AssetAllocation", fields: [allocatedToId], references: [id], onDelete: SetNull)
+  allocatedAt     DateTime?
+  expectedReturn  DateTime?
+  lastMaintenanceDate DateTime?
+  nextMaintenanceDate DateTime?
+  insuranceProvider String?
+  insuranceExpiry    DateTime?
+  disposalDate    DateTime?
+  disposalValue   Decimal?      @db.Decimal(15, 2)
+  disposalReason  String?
+  image           String?
+  documents       AssetDocument[]
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
+  version         Int           @default(1)
+
+  allocations     Allocation[]
+  bookings        Booking[]
+  maintenanceTasks MaintenanceTask[]
+  history         AssetHistory[]
+  maintenanceSchedules MaintenanceSchedule[]
+  aiRecommendations AIRecommendation[]
+
+  @@index([assetTag])
+  @@index([qrCode])
+  @@index([serialNumber])
+  @@index([status])
+  @@index([departmentId])
+  @@index([categoryId])
+  @@index([allocatedToId])
+  @@index([condition])
+  @@index([warrantyExpiry])
+  @@index([deletedAt])
+  @@index([name])
+}
+
+// ─── MODEL: ASSET DOCUMENT ────────────────────────────────
+
+model AssetDocument {
+  id          String   @id @default(uuid())
+  assetId     String
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  name        String
+  type        String
+  fileUrl     String
+  fileSize    Int?
+  uploadedBy  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([assetId])
+}
+
+// ─── MODEL: ASSET HISTORY ─────────────────────────────────
+
+model AssetHistory {
+  id          String   @id @default(uuid())
+  assetId     String
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  action      String
+  description String?
+  oldValues   Json?
+  newValues   Json?
+  performedBy String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([assetId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ─── MODEL: ALLOCATION ────────────────────────────────────
+
+model Allocation {
+  id          String   @id @default(uuid())
+  assetId     String
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departmentId String?
+  department  Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  allocatedAt DateTime @default(now())
+  expectedReturn DateTime?
+  returnedAt  DateTime?
+  status      String   @default("ACTIVE")
+  notes       String?
+  condition   AssetCondition?
+  returnCondition AssetCondition?
+  approvedBy  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  @@index([assetId])
+  @@index([userId])
+  @@index([departmentId])
+  @@index([status])
+  @@index([allocatedAt])
+}
+
+// ─── MODEL: BOOKING ───────────────────────────────────────
+
+model Booking {
+  id          String        @id @default(uuid())
+  assetId     String
+  asset       Asset         @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation("BookingUser", fields: [userId], references: [id], onDelete: Cascade)
+  purpose     String
+  startDate   DateTime
+  endDate     DateTime
+  status      BookingStatus @default(PENDING)
+  approvedById String?
+  approvedBy  User?         @relation("BookingApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt  DateTime?
+  rejectionReason String?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  createdBy   String?
+  updatedBy   String?
+  version     Int           @default(1)
+
+  @@index([assetId])
+  @@index([userId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([deletedAt])
+}
+
+// ─── MODEL: MAINTENANCE SCHEDULE ──────────────────────────
+
+model MaintenanceSchedule {
+  id          String   @id @default(uuid())
+  assetId     String
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  type        MaintenanceType @default(PREVENTIVE)
+  intervalDays Int?
+  lastRunDate DateTime?
+  nextRunDate DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  tasks       MaintenanceTask[]
+
+  @@index([assetId])
+  @@index([nextRunDate])
+}
+
+// ─── MODEL: MAINTENANCE TASK ──────────────────────────────
+
+model MaintenanceTask {
+  id              String           @id @default(uuid())
+  title           String
+  description     String?
+  assetId         String
+  asset           Asset            @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  scheduleId      String?
+  schedule        MaintenanceSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  type            MaintenanceType  @default(PREVENTIVE)
+  status          MaintenanceStatus @default(SCHEDULED)
+  priority        Int              @default(3)
+  assignedToId    String?
+  assignedTo      User?            @relation("MaintenanceTechnician", fields: [assignedToId], references: [id], onDelete: SetNull)
+  requestedById   String?
+  requestedBy     User?            @relation("MaintenanceRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  scheduledDate   DateTime
+  startedAt       DateTime?
+  completedAt     DateTime?
+  estimatedCost   Decimal?         @db.Decimal(15, 2)
+  actualCost      Decimal?         @db.Decimal(15, 2)
+  notes           String?
+  findings        String?
+  partsUsed       String?
+  externalVendor  String?
+  attachments     MaintenanceAttachment[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
+  version         Int              @default(1)
+
+  @@index([assetId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([type])
+  @@index([scheduledDate])
+  @@index([priority])
+  @@index([deletedAt])
+}
+
+// ─── MODEL: MAINTENANCE ATTACHMENT ────────────────────────
+
+model MaintenanceAttachment {
+  id          String   @id @default(uuid())
+  taskId      String
+  task        MaintenanceTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  name        String
+  fileUrl     String
+  fileSize    Int?
+  uploadedBy  String?
+  createdAt   DateTime @default(now())
+
+  @@index([taskId])
+}
+
+// ─── MODEL: NOTIFICATION ──────────────────────────────────
+
+model Notification {
+  id          String              @id @default(uuid())
+  userId      String
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  message     String
+  channel     NotificationChannel @default(IN_APP)
+  isRead      Boolean             @default(false)
+  readAt      DateTime?
+  link        String?
+  metadata    Json?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ─── MODEL: AUDIT LOG ─────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String
+  entity      String
+  entityId    String
+  oldValues   Json?
+  newValues   Json?
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ─── MODEL: ACTIVITY LOG ──────────────────────────────────
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action      String
+  entity      String
+  entityId    String?
+  description String?
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+}
+
+// ─── MODEL: AI RECOMMENDATION ─────────────────────────────
+
+model AIRecommendation {
+  id          String   @id @default(uuid())
+  assetId     String
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  type        String
+  title       String
+  description String
+  confidence  Decimal? @db.Decimal(5, 2)
+  priority    Int      @default(3)
+  status      String   @default("PENDING")
+  actionTaken String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([assetId])
+  @@index([type])
+  @@index([status])
+}
+
+// ─── MODEL: SYSTEM SETTINGS ───────────────────────────────
+
+model SystemSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json
+  description String?
+  category    String?
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+
+  @@index([key])
+  @@index([category])
+}
+
+// ─── MODEL: REPORT ────────────────────────────────────────
+
+model Report {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  format      String
+  fileUrl     String?
+  parameters  Json?
+  generatedById String
+  status      String   @default("PENDING")
+  fileSize    Int?
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  @@index([generatedById])
+  @@index([type])
+  @@index([status])
+}
