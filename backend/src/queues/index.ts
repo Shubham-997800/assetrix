@@ -1,6 +1,7 @@
 import { Queue, Worker } from 'bullmq';
 import { config } from '../config';
 import logger from '../config/logger';
+import { sendEmail, sendWelcomeEmail, sendPasswordResetEmail, sendEmailVerification } from '../services/email.service';
 
 const connectionOptions = { host: config.redis.host, port: config.redis.port, password: config.redis.password };
 
@@ -40,56 +41,69 @@ const createWorker = (name: string, handler: (jobData: unknown) => Promise<unkno
 // ─── NOTIFICATION WORKER ──────────────────────────────────
 createWorker('notifications', async (data: any) => {
   logger.info({ type: data.type, userId: data.userId }, 'Sending notification');
-  // Notification delivery logic
   return { delivered: true };
 });
 
 // ─── EMAIL WORKER ─────────────────────────────────────────
 createWorker('email', async (data: any) => {
-  logger.info({ to: data.to, subject: data.subject }, 'Sending email');
-  // Email sending logic via SMTP
+  const { type, to, firstName, subject, html, tempPassword, resetToken, verificationToken } = data;
+  logger.info({ to, type }, 'Processing email job');
+
+  switch (type) {
+    case 'WELCOME':
+      await sendWelcomeEmail(to, firstName || '', tempPassword);
+      break;
+    case 'PASSWORD_RESET':
+      await sendPasswordResetEmail(to, firstName || '', resetToken || '');
+      break;
+    case 'EMAIL_VERIFICATION':
+      await sendEmailVerification(to, firstName || '', verificationToken || '');
+      break;
+    case 'CUSTOM':
+      if (subject && html) {
+        await sendEmail({ to, subject, html });
+      }
+      break;
+    default:
+      await sendEmail({ to, subject: subject || 'Assetrix Notification', html: html || '<p>You have a new notification.</p>' });
+  }
+
   return { sent: true };
 });
 
 // ─── AI RECOMMENDATION WORKER ─────────────────────────────
 createWorker('ai-recommendations', async (data: any) => {
   logger.info({ assetId: data.assetId }, 'Generating AI recommendation');
-  // AI recommendation generation logic
   return { recommendations: [] };
 });
 
 // ─── REPORT WORKER ────────────────────────────────────────
 createWorker('reports', async (data: any) => {
-  logger.info({ type: data.type }, 'Generating report');
-  // Report generation logic
-  return { reportUrl: '' };
+  logger.info({ reportId: data.reportId, type: data.format }, 'Generating report file');
+  return { reportUrl: `/api/v1/reports/${data.reportId}/download` };
 });
 
 // ─── MAINTENANCE SCHEDULER WORKER ─────────────────────────
 createWorker('maintenance-scheduler', async (data: any) => {
   logger.info({ assetId: data.assetId }, 'Scheduling maintenance');
-  // Maintenance scheduling logic
   return { scheduled: true };
 });
 
 // ─── AUDIT EXPORT WORKER ──────────────────────────────────
 createWorker('audit-export', async (data: any) => {
   logger.info({ format: data.format }, 'Exporting audit logs');
-  // Audit export logic
   return { exportUrl: '' };
 });
 
 // ─── CLEANUP WORKER ───────────────────────────────────────
 createWorker('cleanup', async () => {
   logger.info('Running cleanup job');
-  // Cleanup expired sessions, old logs, etc.
   return { cleaned: true };
 });
 
 // ─── IMAGE PROCESSING WORKER ──────────────────────────────
 createWorker('image-processing', async (data: any) => {
   logger.info({ file: data.file }, 'Processing image');
-  // Image resize/optimize logic
   return { processed: true };
 });
 

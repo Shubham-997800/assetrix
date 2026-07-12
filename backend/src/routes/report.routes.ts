@@ -164,6 +164,55 @@ router.get(
 
 /**
  * @swagger
+ * /reports/{id}/download:
+ *   get:
+ *     tags: [Reports]
+ *     summary: Download a report
+ *     description: Downloads the report data as CSV, PDF, or Excel file
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [csv, pdf, excel]
+ *           default: csv
+ *     responses:
+ *       200:
+ *         description: Report file download
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
+router.get(
+  '/:id/download',
+  authenticate,
+  validate(reportIdParamSchema, 'params'),
+  reportController.downloadReport
+);
+
+/**
+ * @swagger
  * /reports/{id}:
  *   delete:
  *     tags: [Reports]

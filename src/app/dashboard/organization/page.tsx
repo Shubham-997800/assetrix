@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   Eye,
   ArrowRight,
+  ArrowUp,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════
@@ -940,15 +941,6 @@ function EmployeesTab({
         onCancel={() => setConfirm({ open: false, id: "", action: "" })}
       />
     </div>
-  );
-}
-
-/* missing ArrowUp icon */
-function ArrowUp({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 19V5" /><path d="m5 12 7-7 7 7" />
-    </svg>
   );
 }
 
