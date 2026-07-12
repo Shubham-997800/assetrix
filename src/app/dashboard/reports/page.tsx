@@ -4,127 +4,237 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCountUp } from "@/hooks/use-count-up";
 import {
+  Package,
+  BarChart3,
+  Clock,
   TrendingUp,
   TrendingDown,
-  Download,
-  Filter,
-  Search,
-  Save,
-  BarChart3,
-  RefreshCw,
-  Users,
-  CheckCircle,
+  CalendarCheck,
   AlertTriangle,
-  Activity,
+  Download,
+  RefreshCw,
+  FileText,
+  FileSpreadsheet,
+  File,
+  Calendar,
+  Filter,
+  ChevronDown,
 } from "lucide-react";
 
-/* ── KPI Cards ── */
+/* ── KPI Data ── */
 
 const kpis = [
-  { label: "Total Revenue", value: 4200000, prefix: "₹", format: "currency" as const, change: "+12.4%", up: true, icon: TrendingUp },
-  { label: "Active Users", value: 24589, prefix: "", format: "number" as const, change: "+7.1%", up: true, icon: Users },
-  { label: "Conversion Rate", value: 3.8, prefix: "", suffix: "%", format: "decimal" as const, change: "+0.4%", up: true, icon: Activity },
-  { label: "Approval Rate", value: 97.2, prefix: "", suffix: "%", format: "decimal" as const, change: "+1.2%", up: true, icon: CheckCircle },
-  { label: "Efficiency Score", value: 89, prefix: "", suffix: "/100", format: "number" as const, change: "+5pts", up: true, icon: BarChart3 },
-  { label: "Risk Score", value: 12, prefix: "", suffix: "", format: "number" as const, change: "-3", up: false, icon: AlertTriangle },
+  { label: "Total Assets", value: 1247, display: "1,247", change: "+3.2%", up: true, icon: Package },
+  { label: "Utilization Rate", value: 87, display: "87%", change: "+2.1%", up: true, icon: BarChart3 },
+  { label: "Idle Assets", value: 42, display: "42", change: "-5 from last month", up: false, icon: Clock },
+  { label: "Maintenance Cost", value: 8.4, display: "₹8.4L", change: "+12%", up: false, icon: TrendingUp, costRed: true },
+  { label: "Booking Rate", value: 94, display: "94%", change: "+1.8%", up: true, icon: CalendarCheck },
+  { label: "Retirement Due", value: 15, display: "15", change: "+3 this quarter", up: false, icon: AlertTriangle },
 ];
 
-function formatVal(v: number, fmt: string, pfx: string, sfx?: string) {
-  if (fmt === "currency") return `${pfx}${(v / 100000).toFixed(1)}L`;
-  if (fmt === "decimal") return `${v}${sfx || ""}`;
-  return `${pfx}${v.toLocaleString("en-IN")}${sfx || ""}`;
-}
-
 function KpiCard({ kpi }: { kpi: (typeof kpis)[0] }) {
-  const count = useCountUp(kpi.format === "decimal" ? (kpi.value > 100 ? kpi.value * 100 : kpi.value * 100) : kpi.value, 1200);
-  const display = kpi.format === "decimal" ? kpi.value : count;
+  const count = useCountUp(kpi.value, 1200);
   return (
     <div className="card-hover rounded-xl border border-border bg-card p-5">
       <div className="flex items-center justify-between">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
           <kpi.icon className="h-4 w-4 text-primary" />
         </div>
-        <span className={`flex items-center gap-1 text-xs font-medium ${kpi.up ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+        <span className={`flex items-center gap-1 text-xs font-medium ${kpi.up ? "text-emerald-600 dark:text-emerald-400" : kpi.costRed ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"}`}>
           {kpi.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
           {kpi.change}
         </span>
       </div>
       <p className="mt-3 text-2xl font-bold text-foreground">
-        {formatVal(display, kpi.format, kpi.prefix, kpi.suffix)}
+        {kpi.label === "Maintenance Cost" ? `₹${count >= 8 ? "8" : count}.4L` : kpi.label === "Total Assets" ? count.toLocaleString("en-IN") : `${count}${kpi.label === "Utilization Rate" || kpi.label === "Booking Rate" ? "%" : ""}`}
       </p>
       <p className="mt-0.5 text-xs text-muted-foreground">{kpi.label}</p>
     </div>
   );
 }
 
-/* ── Charts ── */
+/* ── Asset Utilization Tab ── */
 
-function RevenueTrendChart() {
-  const data = [35, 48, 42, 60, 52, 72, 65, 82, 78, 90, 85, 95];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const deptUtilization = [
+  { dept: "Engineering", value: 92 },
+  { dept: "Procurement", value: 88 },
+  { dept: "Operations", value: 85 },
+  { dept: "Finance", value: 78 },
+  { dept: "HR", value: 72 },
+  { dept: "Marketing", value: 80 },
+];
+
+const monthlyUtilization = [78, 80, 82, 85, 83, 87, 86, 89, 88, 90, 87, 87];
+
+const idleAssets = [
+  { name: "HP Laptop Pro 14", category: "IT Equipment", lastUsed: "12 Jun 2026", daysIdle: 30, dept: "HR" },
+  { name: "Canon ImagePress C750", category: "Printers", lastUsed: "05 Jun 2026", daysIdle: 37, dept: "Marketing" },
+  { name: "JCB 3DX Backhoe", category: "Heavy Machinery", lastUsed: "28 May 2026", daysIdle: 44, dept: "Operations" },
+  { name: "Dell PowerEdge R740", category: "Servers", lastUsed: "20 Jun 2026", daysIdle: 22, dept: "IT" },
+  { name: "Toyota Hilux", category: "Vehicles", lastUsed: "15 Jun 2026", daysIdle: 27, dept: "Engineering" },
+];
+
+function DeptBarChart() {
   return (
     <div className="rounded-xl border border-border bg-card p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">Revenue Trend</h3>
-          <p className="text-xs text-muted-foreground">Monthly recurring revenue</p>
-        </div>
-        <Button variant="outline" size="sm" className="btn-enterprise"><Download className="h-3.5 w-3.5" /> Export</Button>
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">Utilization by Department</h3>
+        <p className="text-xs text-muted-foreground">Current utilization rates</p>
       </div>
-      <div className="mt-5 flex items-end gap-1.5 h-40 sm:h-48">
-        {data.map((h, i) => (
-          <div key={i} className="group relative flex-1">
-            <div className="flex items-end h-40 sm:h-48">
-              <div className="w-full rounded-t-sm bg-primary/20 transition-colors group-hover:bg-primary/30" style={{ height: `${h}%` }}>
-                <div className="rounded-t-sm bg-primary/70 transition-colors group-hover:bg-primary" style={{ height: `${[65, 72, 58, 80, 68, 85, 75, 90, 82, 95, 88, 92][i]}%` }} />
-              </div>
+      <div className="mt-5 space-y-3">
+        {deptUtilization.map((d) => (
+          <div key={d.dept} className="flex items-center gap-3">
+            <span className="w-28 text-xs text-muted-foreground">{d.dept}</span>
+            <div className="flex-1 h-5 rounded-sm bg-muted/50 overflow-hidden">
+              <div className="h-full rounded-sm bg-primary/70 transition-all" style={{ width: `${d.value}%` }} />
             </div>
+            <span className="w-10 text-right text-xs font-medium text-foreground">{d.value}%</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function MonthlyUtilizationLine() {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const min = Math.min(...monthlyUtilization) - 5;
+  const max = Math.max(...monthlyUtilization) + 5;
+  const range = max - min;
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">Monthly Utilization Trend</h3>
+        <p className="text-xs text-muted-foreground">Year-over-year trend</p>
+      </div>
+      <div className="mt-5 relative h-40 sm:h-48">
+        <svg viewBox="0 0 120 80" className="h-full w-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="utilGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.15" />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={`M0,${80 - ((monthlyUtilization[0] - min) / range) * 70} ${monthlyUtilization.map((v, i) => `L${i * (120 / 11)},${80 - ((v - min) / range) * 70}`).join(" ")} L120,80 L0,80 Z`} fill="url(#utilGrad)" />
+          <path d={`M0,${80 - ((monthlyUtilization[0] - min) / range) * 70} ${monthlyUtilization.map((v, i) => `L${i * (120 / 11)},${80 - ((v - min) / range) * 70}`).join(" ")}`} fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
+          {monthlyUtilization.map((v, i) => (
+            <circle key={i} cx={i * (120 / 11)} cy={80 - ((v - min) / range) * 70} r="1.5" fill="var(--primary)" />
+          ))}
+        </svg>
       </div>
       <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">{months.map((m) => <span key={m}>{m}</span>)}</div>
     </div>
   );
 }
 
-function CategoryDonut() {
-  const items = [
-    { label: "Procurement", value: 35, color: "bg-primary" },
-    { label: "Engineering", value: 25, color: "bg-emerald-500" },
-    { label: "Marketing", value: 20, color: "bg-amber-500" },
-    { label: "Operations", value: 12, color: "bg-violet-500" },
-    { label: "Other", value: 8, color: "bg-muted-foreground/30" },
-  ];
-  const total = 100;
-  let offset = 0;
+function IdleAssetsTable() {
+  return (
+    <div className="rounded-xl border border-border bg-card">
+      <div className="border-b border-border px-6 py-4">
+        <h3 className="text-sm font-semibold text-foreground">Idle Assets</h3>
+        <p className="text-xs text-muted-foreground">Assets with no activity in the last 20+ days</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              {["Asset Name", "Category", "Last Used", "Days Idle", "Department"].map((h) => (
+                <th key={h} className="px-6 py-3 text-xs font-medium text-muted-foreground">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {idleAssets.map((a) => (
+              <tr key={a.name} className="border-b border-border last:border-0 hover:bg-muted/30">
+                <td className="px-6 py-3 font-medium text-foreground">{a.name}</td>
+                <td className="px-6 py-3 text-muted-foreground">{a.category}</td>
+                <td className="px-6 py-3 text-muted-foreground">{a.lastUsed}</td>
+                <td className="px-6 py-3">
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${a.daysIdle >= 40 ? "bg-red-500/10 text-red-600 dark:text-red-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"}`}>
+                    {a.daysIdle} days
+                  </span>
+                </td>
+                <td className="px-6 py-3 text-muted-foreground">{a.dept}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ── Maintenance Trends Tab ── */
+
+const monthlyMaintenance = [18, 22, 15, 28, 20, 32, 25, 30, 27, 35, 22, 28];
+
+const maintenanceType = [
+  { label: "Preventive", value: 45, color: "bg-emerald-500" },
+  { label: "Corrective", value: 35, color: "bg-amber-500" },
+  { label: "Emergency", value: 20, color: "bg-red-500" },
+];
+
+const topMaintained = [
+  { name: "CAT 320 Excavator", category: "Heavy Machinery", requests: 14, avgDays: 3.2, dept: "Operations" },
+  { name: "CNC Lathe Haas ST-20", category: "Manufacturing", requests: 11, avgDays: 2.5, dept: "Engineering" },
+  { name: "Volvo FH16 Truck", category: "Vehicles", requests: 9, avgDays: 4.1, dept: "Logistics" },
+  { name: "Xerox Versant 4100", category: "Printers", requests: 8, avgDays: 1.8, dept: "Marketing" },
+  { name: "Schneider UPS 60kVA", category: "IT Infrastructure", requests: 7, avgDays: 2.0, dept: "IT" },
+];
+
+function MaintenanceBarChart() {
+  const max = Math.max(...monthlyMaintenance) + 5;
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   return (
     <div className="rounded-xl border border-border bg-card p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">Category Distribution</h3>
-          <p className="text-xs text-muted-foreground">Orders by department</p>
-        </div>
-        <Button variant="outline" size="sm" className="btn-enterprise"><Download className="h-3.5 w-3.5" /></Button>
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">Monthly Maintenance Requests</h3>
+        <p className="text-xs text-muted-foreground">Total requests per month</p>
+      </div>
+      <div className="mt-5 flex items-end gap-1.5 h-40 sm:h-48">
+        {monthlyMaintenance.map((h, i) => {
+          const innerHeights = [75, 65, 80, 60, 70, 85, 72, 78, 68, 82, 77, 88];
+          return (
+          <div key={i} className="flex-1 rounded-t-sm bg-primary/20 transition-colors hover:bg-primary/30" style={{ height: `${(h / max) * 100}%` }}>
+            <div className="rounded-t-sm bg-primary/70 transition-colors hover:bg-primary" style={{ height: `${innerHeights[i]}%` }} />
+          </div>
+          );
+        })}
+      </div>
+      <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">{months.map((m) => <span key={m}>{m}</span>)}</div>
+    </div>
+  );
+}
+
+function MaintenanceDonut() {
+  const offsets = maintenanceType.reduce<number[]>((acc, _s, idx) => {
+    const lastOffset = acc.length > 0 ? acc[acc.length - 1] + maintenanceType[acc.length - 1].value : 0;
+    acc.push(idx === 0 ? 0 : lastOffset);
+    return acc;
+  }, []);
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">Maintenance Type Distribution</h3>
+        <p className="text-xs text-muted-foreground">Breakdown by request type</p>
       </div>
       <div className="mt-5 flex items-center gap-6">
         <div className="relative h-32 w-32 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
-            {items.map((s) => {
-              const dash = (s.value / total) * 100;
-              const el = (
-                <circle key={s.label} cx="18" cy="18" r="15.915" fill="none" className={s.color} strokeOpacity="0.8" strokeWidth="3.5" strokeDasharray={`${dash} ${100 - dash}`} strokeDashoffset={`${-offset}`} />
+            {maintenanceType.map((s, i) => {
+              const dash = (s.value / 100) * 100;
+              return (
+                <circle key={s.label} cx="18" cy="18" r="15.915" fill="none" className={s.color} strokeOpacity="0.8" strokeWidth="3.5" strokeDasharray={`${dash} ${100 - dash}`} strokeDashoffset={`${-offsets[i]}`} />
               );
-              offset += dash;
-              return el;
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl font-bold text-foreground">{total}</span>
+            <span className="text-xl font-bold text-foreground">100%</span>
             <span className="text-[10px] text-muted-foreground">Total</span>
           </div>
         </div>
         <div className="flex-1 space-y-2">
-          {items.map((s) => (
+          {maintenanceType.map((s) => (
             <div key={s.label} className="flex items-center gap-2">
               <div className={`h-2.5 w-2.5 rounded-full ${s.color}`} />
               <span className="flex-1 text-sm text-muted-foreground">{s.label}</span>
@@ -137,159 +247,135 @@ function CategoryDonut() {
   );
 }
 
-function ApprovalTimelineChart() {
-  const data = [12, 18, 15, 22, 19, 28, 24, 32, 28, 35, 30, 38];
-  return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">Approval Timeline</h3>
-        <p className="text-xs text-muted-foreground">Monthly approvals processed</p>
-      </div>
-      <div className="mt-5 relative h-40 sm:h-48">
-        <svg viewBox="0 0 120 80" className="h-full w-full" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="areaGrad2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.15" />
-              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d={`M0,${80 - data[0] * 1.5} ${data.map((v, i) => `L${i * (120 / 11)},${80 - v * 1.5}`).join(" ")} L120,80 L0,80 Z`} fill="url(#areaGrad2)" />
-          <path d={`M0,${80 - data[0] * 1.5} ${data.map((v, i) => `L${i * (120 / 11)},${80 - v * 1.5}`).join(" ")}`} fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </div>
-      <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-        {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((m) => <span key={m}>{m}</span>)}
-      </div>
-    </div>
-  );
-}
-
-function UserGrowthChart() {
-  const data = [40, 52, 48, 65, 58, 75, 68, 85, 80, 92, 88, 98];
-  return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">User Growth</h3>
-        <p className="text-xs text-muted-foreground">Monthly active users</p>
-      </div>
-      <div className="mt-5 flex items-end gap-1.5 h-40 sm:h-48">
-        {data.map((h, i) => (
-          <div key={i} className="flex-1 rounded-t-sm bg-emerald-500/20 transition-colors hover:bg-emerald-500/30" style={{ height: `${h}%` }}>
-            <div className="rounded-t-sm bg-emerald-500/70 transition-colors hover:bg-emerald-500" style={{ height: `${[65, 72, 58, 80, 68, 85, 75, 90, 82, 95, 88, 98][i]}%` }} />
-          </div>
-        ))}
-      </div>
-      <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-        {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((m) => <span key={m}>{m}</span>)}
-      </div>
-    </div>
-  );
-}
-
-/* ── Data Table ── */
-
-const tableData = [
-  { id: "RPT-001", name: "Q2 Financial Summary", dept: "Finance", type: "PDF", rows: "2,847", date: "10 Jul 2026", status: "Ready" },
-  { id: "RPT-002", name: "Procurement Analysis", dept: "Procurement", type: "CSV", rows: "1,293", date: "09 Jul 2026", status: "Ready" },
-  { id: "RPT-003", name: "User Activity Report", dept: "HR", type: "Excel", rows: "8,412", date: "08 Jul 2026", status: "Ready" },
-  { id: "RPT-004", name: "Vendor Performance", dept: "Operations", type: "PDF", rows: "567", date: "07 Jul 2026", status: "Ready" },
-  { id: "RPT-005", name: "Security Audit Log", dept: "IT", type: "CSV", rows: "15,234", date: "06 Jul 2026", status: "Generating" },
-  { id: "RPT-006", name: "Monthly Compliance", dept: "Legal", type: "PDF", rows: "1,891", date: "05 Jul 2026", status: "Ready" },
-];
-
-function DataTable() {
-  const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState("date");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
-  const [page, setPage] = useState(1);
-  const perPage = 5;
-
-  const sort = (key: string) => {
-    if (sortKey === key) setSortDir((d) => d === "asc" ? "desc" : "asc");
-    else { setSortKey(key); setSortDir("asc"); }
-  };
-
-  const filtered = tableData.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()) || r.dept.toLowerCase().includes(search.toLowerCase()));
-  filtered.sort((a, b) => {
-    const av = a[sortKey as keyof typeof a] || "";
-    const bv = b[sortKey as keyof typeof b] || "";
-    return sortDir === "asc" ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
-  });
-
-  const totalPages = Math.ceil(filtered.length / perPage);
-  const paged = filtered.slice((page - 1) * perPage, page * perPage);
-
+function TopMaintainedTable() {
   return (
     <div className="rounded-xl border border-border bg-card">
-      <div className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">Reports</h3>
-          <p className="text-xs text-muted-foreground">{filtered.length} reports found</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 sm:flex-initial">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input type="text" placeholder="Search reports..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="h-8 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary sm:w-48" />
-          </div>
-          <Button variant="outline" size="sm" className="btn-enterprise"><Filter className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Filter</span></Button>
-          <Button variant="outline" size="sm" className="btn-enterprise"><Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Export</span></Button>
-        </div>
+      <div className="border-b border-border px-6 py-4">
+        <h3 className="text-sm font-semibold text-foreground">Top 5 Most Maintained Assets</h3>
+        <p className="text-xs text-muted-foreground">Assets with highest maintenance frequency</p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-border">
-              {[{ key: "id", label: "ID" }, { key: "name", label: "Report" }, { key: "dept", label: "Department", hide: true }, { key: "type", label: "Format", hide: true }, { key: "rows", label: "Rows", hide: true }, { key: "date", label: "Date" }, { key: "status", label: "Status" }].map((col) => (
-                <th key={col.key} className={`cursor-pointer px-3 py-3 text-xs font-medium text-muted-foreground hover:text-foreground select-none sm:px-6 ${col.hide ? "hidden md:table-cell" : ""}`} onClick={() => sort(col.key)}>
-                  {col.label} {sortKey === col.key ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                </th>
+              {["Asset Name", "Category", "Requests", "Avg Days", "Department"].map((h) => (
+                <th key={h} className="px-6 py-3 text-xs font-medium text-muted-foreground">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {paged.map((row) => (
-              <tr key={row.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
-                <td className="px-3 py-3 font-medium text-foreground sm:px-6">{row.id}</td>
-                <td className="px-3 py-3 text-foreground sm:px-6">{row.name}</td>
-                <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{row.dept}</td>
-                <td className="hidden px-3 py-3 md:table-cell sm:px-6"><span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">{row.type}</span></td>
-                <td className="hidden px-3 py-3 text-muted-foreground md:table-cell sm:px-6">{row.rows}</td>
-                <td className="px-3 py-3 text-muted-foreground sm:px-6">{row.date}</td>
-                <td className="px-3 py-3 sm:px-6">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${row.status === "Ready" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"}`}>
-                    {row.status}
-                  </span>
+            {topMaintained.map((a, i) => (
+              <tr key={a.name} className="border-b border-border last:border-0 hover:bg-muted/30">
+                <td className="px-6 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded bg-muted text-[10px] font-bold text-muted-foreground">{i + 1}</span>
+                    <span className="font-medium text-foreground">{a.name}</span>
+                  </div>
                 </td>
+                <td className="px-6 py-3 text-muted-foreground">{a.category}</td>
+                <td className="px-6 py-3">
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">{a.requests}</span>
+                </td>
+                <td className="px-6 py-3 text-muted-foreground">{a.avgDays} days</td>
+                <td className="px-6 py-3 text-muted-foreground">{a.dept}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-between border-t border-border px-6 py-3">
-        <span className="text-xs text-muted-foreground">Page {page} of {totalPages}</span>
-        <div className="flex gap-1">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Prev</Button>
-          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</Button>
+    </div>
+  );
+}
+
+/* ── Export Tab ── */
+
+const exportFormats = [
+  { label: "CSV", desc: "Comma-separated values for data analysis", icon: FileText, color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  { label: "PDF", desc: "Formatted report for sharing and printing", icon: File, color: "bg-red-500/10 text-red-600 dark:text-red-400" },
+  { label: "Excel", desc: "Spreadsheet with charts and pivots", icon: FileSpreadsheet, color: "bg-primary/10 text-primary" },
+];
+
+const departments = ["All Departments", "Engineering", "Procurement", "Operations", "Finance", "HR", "Marketing"];
+const categories = ["All Categories", "IT Equipment", "Heavy Machinery", "Vehicles", "Printers", "Servers"];
+const statuses = ["All Statuses", "Active", "Idle", "Under Maintenance", "Retired"];
+
+function ExportTab() {
+  const [selectedFormat, setSelectedFormat] = useState("CSV");
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-3">
+        {exportFormats.map((f) => (
+          <button key={f.label} onClick={() => setSelectedFormat(f.label)}
+            className={`card-hover rounded-xl border bg-card p-5 text-left transition-colors ${selectedFormat === f.label ? "border-primary ring-1 ring-primary/20" : "border-border"}`}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${f.color}`}>
+              <f.icon className="h-5 w-5" />
+            </div>
+            <p className="mt-3 text-sm font-semibold text-foreground">{f.label}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{f.desc}</p>
+          </button>
+        ))}
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground">Report Configuration</h3>
+        <p className="text-xs text-muted-foreground">Configure date range and filters for your report</p>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Start Date</label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input type="date" defaultValue="2026-01-01" className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary" />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">End Date</label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input type="date" defaultValue="2026-07-12" className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary" />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Department</label>
+            <div className="relative">
+              <select className="h-9 w-full appearance-none rounded-lg border border-border bg-background px-3 pr-8 text-sm outline-none focus:border-primary">
+                {departments.map((d) => <option key={d}>{d}</option>)}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Category</label>
+            <div className="relative">
+              <select className="h-9 w-full appearance-none rounded-lg border border-border bg-background px-3 pr-8 text-sm outline-none focus:border-primary">
+                {categories.map((c) => <option key={c}>{c}</option>)}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Status</label>
+            <div className="relative">
+              <select className="h-9 w-full appearance-none rounded-lg border border-border bg-background px-3 pr-8 text-sm outline-none focus:border-primary">
+                {statuses.map((s) => <option key={s}>{s}</option>)}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center gap-3">
+          <Button size="sm" className="btn-enterprise"><Download className="h-3.5 w-3.5" /> Generate Report</Button>
+          <Button variant="outline" size="sm" className="btn-enterprise"><Filter className="h-3.5 w-3.5" /> Reset Filters</Button>
         </div>
       </div>
     </div>
   );
 }
-
-/* ── Saved Views + Scheduled Reports ── */
-
-const savedViews = [
-  { name: "Executive Dashboard", filters: "Revenue, Users", updated: "2 hours ago" },
-  { name: "Operations View", filters: "Approvals, Workflows", updated: "1 day ago" },
-  { name: "Finance Reports", filters: "Revenue, Expenses", updated: "3 days ago" },
-];
-
-const scheduled = [
-  { name: "Daily Revenue Summary", schedule: "Daily at 08:00 AM", delivery: "Email", status: "Active" },
-  { name: "Weekly Operations", schedule: "Every Monday", delivery: "Download", status: "Active" },
-  { name: "Monthly Compliance", schedule: "1st of every month", delivery: "Email", status: "Paused" },
-];
 
 /* ── Page ── */
 
@@ -301,7 +387,7 @@ export default function ReportsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Reports & Analytics</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Business intelligence and data insights</p>
+          <p className="mt-1 text-sm text-muted-foreground">Assetrix ERP — Asset intelligence and insights</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="btn-enterprise"><RefreshCw className="h-3.5 w-3.5" /> Refresh</Button>
@@ -314,10 +400,9 @@ export default function ReportsPage() {
         <nav className="flex gap-1 overflow-x-auto">
           {[
             { id: "overview", label: "Overview" },
-            { id: "charts", label: "Charts" },
-            { id: "data", label: "Data Tables" },
-            { id: "saved", label: "Saved Views" },
-            { id: "scheduled", label: "Scheduled" },
+            { id: "utilization", label: "Asset Utilization" },
+            { id: "maintenance", label: "Maintenance Trends" },
+            { id: "export", label: "Export" },
           ].map((t) => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
@@ -328,73 +413,44 @@ export default function ReportsPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
-        {kpis.map((kpi) => <KpiCard key={kpi.label} kpi={kpi} />)}
-      </div>
+      {activeTab === "overview" && (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
+          {kpis.map((kpi) => <KpiCard key={kpi.label} kpi={kpi} />)}
+        </div>
+      )}
 
-      {/* Charts */}
-      {(activeTab === "overview" || activeTab === "charts") && (
+      {/* Overview Charts */}
+      {activeTab === "overview" && (
         <div className="grid gap-6 lg:grid-cols-2">
-          <RevenueTrendChart />
-          <CategoryDonut />
-          <ApprovalTimelineChart />
-          <UserGrowthChart />
+          <DeptBarChart />
+          <MaintenanceDonut />
         </div>
       )}
 
-      {/* Data Table */}
-      {(activeTab === "overview" || activeTab === "data") && <DataTable />}
-
-      {/* Saved Views */}
-      {activeTab === "saved" && (
-        <div className="grid gap-4 sm:grid-cols-3">
-          {savedViews.map((v) => (
-            <div key={v.name} className="card-hover rounded-xl border border-border bg-card p-5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10"><Save className="h-5 w-5 text-primary" /></div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{v.name}</p>
-                  <p className="text-xs text-muted-foreground">{v.filters}</p>
-                </div>
-              </div>
-              <p className="mt-3 text-xs text-muted-foreground/60">Updated {v.updated}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Scheduled Reports */}
-      {activeTab === "scheduled" && (
-        <div className="rounded-xl border border-border bg-card">
-          <div className="border-b border-border px-6 py-4">
-            <h3 className="text-sm font-semibold text-foreground">Scheduled Reports</h3>
-            <p className="text-xs text-muted-foreground">Automated report delivery</p>
+      {/* Asset Utilization Tab */}
+      {activeTab === "utilization" && (
+        <div className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <DeptBarChart />
+            <MonthlyUtilizationLine />
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  {["Report", "Schedule", "Delivery", "Status"].map((h) => (
-                    <th key={h} className="px-6 py-3 text-xs font-medium text-muted-foreground">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {scheduled.map((r) => (
-                  <tr key={r.name} className="border-b border-border last:border-0 hover:bg-muted/30">
-                    <td className="px-6 py-3 font-medium text-foreground">{r.name}</td>
-                    <td className="px-6 py-3 text-muted-foreground">{r.schedule}</td>
-                    <td className="px-6 py-3 text-muted-foreground">{r.delivery}</td>
-                    <td className="px-6 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${r.status === "Active" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>{r.status}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <IdleAssetsTable />
         </div>
       )}
+
+      {/* Maintenance Trends Tab */}
+      {activeTab === "maintenance" && (
+        <div className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <MaintenanceBarChart />
+            <MaintenanceDonut />
+          </div>
+          <TopMaintainedTable />
+        </div>
+      )}
+
+      {/* Export Tab */}
+      {activeTab === "export" && <ExportTab />}
     </div>
   );
 }
