@@ -211,6 +211,17 @@ export const scheduleIdParamSchema = z.object({
   id: z.string().uuid('Invalid maintenance schedule ID'),
 });
 
+// ─── APPROVE / REJECT MAINTENANCE TASK ──────────────────────
+
+export const approveMaintenanceSchema = z.object({
+  notes: z.string().max(2000).trim().optional(),
+  actualCost: z.number().min(0).optional().nullable(),
+});
+
+export const rejectMaintenanceSchema = z.object({
+  rejectionReason: z.string().min(1, 'Rejection reason is required').max(2000).trim(),
+});
+
 // ─── SCHEDULE QUERY ─────────────────────────────────────────
 
 export const maintenanceScheduleQuerySchema = z.object({
@@ -238,3 +249,5 @@ export type MaintenanceTaskQueryInput = z.infer<typeof maintenanceTaskQuerySchem
 export type CreateMaintenanceScheduleInput = z.infer<typeof createMaintenanceScheduleSchema>;
 export type UpdateMaintenanceScheduleInput = z.infer<typeof updateMaintenanceScheduleSchema>;
 export type MaintenanceScheduleQueryInput = z.infer<typeof maintenanceScheduleQuerySchema>;
+export type ApproveMaintenanceInput = z.infer<typeof approveMaintenanceSchema>;
+export type RejectMaintenanceInput = z.infer<typeof rejectMaintenanceSchema>;

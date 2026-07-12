@@ -11,6 +11,8 @@ import {
   updateMaintenanceScheduleSchema,
   scheduleIdParamSchema,
   maintenanceScheduleQuerySchema,
+  approveMaintenanceSchema,
+  rejectMaintenanceSchema,
 } from '../validators/maintenance.schema';
 import * as maintenanceController from '../controllers/maintenance.controller';
 
@@ -577,6 +579,22 @@ router.delete(
   authorize('SUPER_ADMIN', 'ADMIN'),
   validate(taskIdParamSchema, 'params'),
   maintenanceController.deleteTask
+);
+
+router.post(
+  '/:id/approve',
+  authorize('SUPER_ADMIN', 'ADMIN', 'DEPARTMENT_MANAGER'),
+  validate(taskIdParamSchema, 'params'),
+  validate(approveMaintenanceSchema),
+  maintenanceController.approveTask
+);
+
+router.post(
+  '/:id/reject',
+  authorize('SUPER_ADMIN', 'ADMIN', 'DEPARTMENT_MANAGER'),
+  validate(taskIdParamSchema, 'params'),
+  validate(rejectMaintenanceSchema),
+  maintenanceController.rejectTask
 );
 
 // ─── MAINTENANCE SCHEDULES ──────────────────────────────────

@@ -4,6 +4,9 @@ import { validate } from '../middleware/validate';
 import {
   createAllocationSchema,
   returnAllocationSchema,
+  transferAllocationSchema,
+  approveTransferSchema,
+  rejectTransferSchema,
   allocationIdParamSchema,
   allocationQuerySchema,
 } from '../validators/allocation.schema';
@@ -266,6 +269,37 @@ router.post(
   validate(allocationIdParamSchema, 'params'),
   validate(returnAllocationSchema),
   allocationController.returnAllocation
+);
+
+router.get(
+  '/transfers/pending',
+  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
+  validate(allocationQuerySchema, 'query'),
+  allocationController.getPendingTransfers
+);
+
+router.post(
+  '/:id/transfer',
+  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
+  validate(allocationIdParamSchema, 'params'),
+  validate(transferAllocationSchema),
+  allocationController.transferAsset
+);
+
+router.post(
+  '/:id/transfer/approve',
+  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
+  validate(allocationIdParamSchema, 'params'),
+  validate(approveTransferSchema),
+  allocationController.approveTransfer
+);
+
+router.post(
+  '/:id/transfer/reject',
+  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
+  validate(allocationIdParamSchema, 'params'),
+  validate(rejectTransferSchema),
+  allocationController.rejectTransfer
 );
 
 export { router as allocationRouter };

@@ -73,3 +73,14 @@ export const getUpcomingBookings = async (req: AuthenticatedRequest, res: Respon
   const result = await bookingService.getUpcomingBookings(req.user!.userId, page, limit);
   res.status(HTTP_STATUS.OK).json(result);
 };
+
+export const updateBooking = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  const result = await bookingService.updateBooking(
+    req.params.id as string,
+    req.body,
+    req.user!.userId,
+    req.ip,
+    req.headers['user-agent']
+  );
+  res.status(HTTP_STATUS.OK).json(result);
+};

@@ -12,6 +12,8 @@ import {
   CreateMaintenanceScheduleInput,
   UpdateMaintenanceScheduleInput,
   MaintenanceScheduleQueryInput,
+  ApproveMaintenanceInput,
+  RejectMaintenanceInput,
 } from '../validators/maintenance.schema';
 
 const taskInclude = {
@@ -977,4 +979,142 @@ export const getMaintenanceStats = async () => {
     upcomingTasks,
     recentCompleted,
   };
+};
+
+// ─── APPROVE TASK ──────────────────────────────────────────
+
+export const approveTask = async (
+  taskId: string,
+  data: ApproveMaintenanceInput,
+  userId: string,
+  ipAddress?: string,
+  userAgent?: string
+) => {
+  const existingTask = await prisma.maintenanceTask.findFirst({
+    where: { id: taskId, deletedAt: null },
+    include: { asset: { select: { id: true, name: true, assetTag: true } }, assignedTo: { select: { id: true, firstName: true, lastName: true } } },
+  });
+
+  if (!existingTask) {
+    throw new AppError('Maintenance task not found', HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (existingTask.status === 'COMPLETED' || existingTask.status === 'CANCELLED') {
+    throw new AppError('Cannot approve a completed or cancelled task', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const now = new Date();
+
+  const task = await prisma.$transaction(async (tx) => {
+    const updatedTask = await tx.maintenanceTask.update({
+      where: { id: taskId },
+      data: {
+        status: 'COMPLETED',
+        completedAt: now,
+        actualCost: data.actualCost,
+        notes: data.notes || existingTask.notes,
+        updatedBy: userId,
+      },
+      include: taskInclude,
+    });
+
+    await tx.asset.update({
+      where: { id: existingTask.assetId },
+      data: { lastMaintenanceDate: now },
+    });
+
+    return updatedTask;
+  });
+
+  await createAuditLog({
+    userId,
+    action: 'APPROVE',
+    entity: 'MaintenanceTask',
+    entityId: taskId,
+    oldValues: { status: existingTask.status },
+    newValues: { status: 'COMPLETED', approved: true, actualCost: data.actualCost },
+    ipAddress,
+    userAgent,
+  });
+
+  if (existingTask.requestedById) {
+    await createNotification({
+      userId: existingTask.requestedById,
+      type: 'MAINTENANCE_COMPLETED',
+      title: 'Maintenance Approved & Completed',
+      message: `Maintenance task "${existingTask.title}" has been approved and marked as completed.`,
+      link: `/maintenance/tasks/${taskId}`,
+      metadata: { taskId },
+    });
+  }
+
+  if (existingTask.assignedToId && existingTask.assignedToId !== userId) {
+    await createNotification({
+      userId: existingTask.assignedToId,
+      type: 'MAINTENANCE_COMPLETED',
+      title: 'Maintenance Approved & Completed',
+      message: `Maintenance task "${existingTask.title}" has been approved and completed.`,
+      link: `/maintenance/tasks/${taskId}`,
+      metadata: { taskId },
+    });
+  }
+
+  return task;
+};
+
+// ─── REJECT TASK ───────────────────────────────────────────
+
+export const rejectTask = async (
+  taskId: string,
+  data: RejectMaintenanceInput,
+  userId: string,
+  ipAddress?: string,
+  userAgent?: string
+) => {
+  const existingTask = await prisma.maintenanceTask.findFirst({
+    where: { id: taskId, deletedAt: null },
+    include: { asset: { select: { id: true, name: true, assetTag: true } }, assignedTo: { select: { id: true, firstName: true, lastName: true } } },
+  });
+
+  if (!existingTask) {
+    throw new AppError('Maintenance task not found', HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (existingTask.status === 'COMPLETED' || existingTask.status === 'CANCELLED') {
+    throw new AppError('Cannot reject a completed or cancelled task', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const task = await prisma.maintenanceTask.update({
+    where: { id: taskId },
+    data: {
+      status: 'CANCELLED',
+      notes: `Rejected: ${data.rejectionReason}${existingTask.notes ? '\n' + existingTask.notes : ''}`,
+      updatedBy: userId,
+    },
+    include: taskInclude,
+  });
+
+  await createAuditLog({
+    userId,
+    action: 'REJECT',
+    entity: 'MaintenanceTask',
+    entityId: taskId,
+    oldValues: { status: existingTask.status },
+    newValues: { status: 'CANCELLED', rejectionReason: data.rejectionReason },
+    ipAddress,
+    userAgent,
+  });
+
+  if (existingTask.assignedToId) {
+    await createNotification({
+      userId: existingTask.assignedToId,
+      type: 'SYSTEM_ALERT',
+      title: 'Maintenance Task Rejected',
+      message: `Maintenance task "${existingTask.title}" has been rejected. Reason: ${data.rejectionReason}`,
+      link: `/maintenance/tasks/${taskId}`,
+      metadata: { taskId },
+    });
+  }
+
+  return task;
 };

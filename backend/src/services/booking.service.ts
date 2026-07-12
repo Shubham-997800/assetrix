@@ -7,6 +7,7 @@ import { createNotification } from '../notifications';
 import { NotificationType } from '@prisma/client';
 import {
   CreateBookingInput,
+  UpdateBookingInput,
   ApproveBookingInput,
   RejectBookingInput,
   CancelBookingInput,
@@ -395,6 +396,78 @@ export const completeBooking = async (
   });
 
   return successResponse('Booking completed successfully', booking);
+};
+
+export const updateBooking = async (
+  id: string,
+  data: UpdateBookingInput,
+  userId: string,
+  ip?: string,
+  userAgent?: string
+) => {
+  const existing = await prisma.booking.findUnique({ where: { id } });
+
+  if (!existing) {
+    throw new AppError('Booking not found', HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (existing.userId !== userId) {
+    throw new AppError('You can only update your own bookings', HTTP_STATUS.FORBIDDEN);
+  }
+
+  if (existing.status !== 'PENDING') {
+    throw new AppError('Only pending bookings can be updated', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const startDate = data.startDate || existing.startDate;
+  const endDate = data.endDate || existing.endDate;
+
+  if (endDate <= startDate) {
+    throw new AppError('End date must be after start date', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  if (data.startDate || data.endDate) {
+    const overlappingBooking = await prisma.booking.findFirst({
+      where: {
+        id: { not: id },
+        assetId: existing.assetId,
+        deletedAt: null,
+        status: { in: ['PENDING', 'APPROVED'] },
+        startDate: { lt: endDate },
+        endDate: { gt: startDate },
+      },
+    });
+
+    if (overlappingBooking) {
+      throw new AppError('Asset is already booked for the selected dates', HTTP_STATUS.CONFLICT);
+    }
+  }
+
+  const booking = await prisma.booking.update({
+    where: { id },
+    data: {
+      purpose: data.purpose || existing.purpose,
+      startDate,
+      endDate,
+      notes: data.notes !== undefined ? data.notes : existing.notes,
+      updatedBy: userId,
+      version: { increment: 1 },
+    },
+    include: includeRelations,
+  });
+
+  await createAuditLog({
+    userId,
+    action: 'UPDATE',
+    entity: 'Booking',
+    entityId: id,
+    oldValues: { purpose: existing.purpose, startDate: existing.startDate, endDate: existing.endDate },
+    newValues: { purpose: booking.purpose, startDate: booking.startDate, endDate: booking.endDate },
+    ipAddress: ip,
+    userAgent,
+  });
+
+  return successResponse('Booking updated successfully', booking);
 };
 
 export const getUpcomingBookings = async (userId: string, page = 1, limit = 20) => {

@@ -46,9 +46,23 @@ export const bookingQuerySchema = z.object({
   endDateTo: z.coerce.date().optional(),
 });
 
+export const updateBookingSchema = z.object({
+  purpose: z.string().min(1).max(500).optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
+  notes: z.string().max(500).optional(),
+}).refine((data) => {
+  if (data.startDate && data.endDate) return data.endDate > data.startDate;
+  return true;
+}, {
+  message: 'End date must be after start date',
+  path: ['endDate'],
+});
+
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
 export type ApproveBookingInput = z.infer<typeof approveBookingSchema>;
 export type RejectBookingInput = z.infer<typeof rejectBookingSchema>;
 export type CancelBookingInput = z.infer<typeof cancelBookingSchema>;
 export type CompleteBookingInput = z.infer<typeof completeBookingSchema>;
+export type UpdateBookingInput = z.infer<typeof updateBookingSchema>;
 export type BookingQueryInput = z.infer<typeof bookingQuerySchema>;

@@ -134,6 +134,11 @@ model User {
   sessions             Session[]
   auditLogs            AuditLog[]
   activityLogs         ActivityLog[]
+  auditAssignments     AuditAssignment[]
+  auditVerifications   AuditVerification[]
+  auditReportedDiscrepancies AuditDiscrepancy[] @relation("ReportedByDiscrepancy")
+  auditResolvedDiscrepancies AuditDiscrepancy[] @relation("ResolvedByDiscrepancy")
+  notificationPreference NotificationPreference?
 
   @@index([email])
   @@index([employeeId])
@@ -283,6 +288,8 @@ model Asset {
   history         AssetHistory[]
   maintenanceSchedules MaintenanceSchedule[]
   aiRecommendations AIRecommendation[]
+  auditVerifications AuditVerification[]
+  auditDiscrepancies AuditDiscrepancy[]
 
   @@index([assetTag])
   @@index([qrCode])
@@ -351,6 +358,9 @@ model Allocation {
   condition   AssetCondition?
   returnCondition AssetCondition?
   approvedBy  String?
+  transferToUserId String?
+  transferReason   String?
+  transferStatus   String?  // PENDING, APPROVED, REJECTED
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdBy   String?
@@ -599,4 +609,172 @@ model Report {
   @@index([generatedById])
   @@index([type])
   @@index([status])
+}
+
+// ─── ENUM: AUDIT CYCLE STATUS ─────────────────────────
+
+enum AuditCycleStatus {
+  DRAFT
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum AuditResult {
+  VERIFIED
+  MISSING
+  DAMAGED
+  DISCREPANCY
+  PENDING
+}
+
+enum DiscrepancyStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  DISMISSED
+}
+
+enum DiscrepancySeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AllocationStatus {
+  ACTIVE
+  RETURNED
+  TRANSFERRED
+  OVERDUE
+}
+
+// ─── MODEL: AUDIT CYCLE ────────────────────────────────
+
+model AuditCycle {
+  id               String          @id @default(uuid())
+  name             String
+  description      String?
+  departmentScope  String?
+  locationScope    String?
+  startDate        DateTime
+  endDate          DateTime
+  status           AuditCycleStatus @default(DRAFT)
+  verifiedCount    Int             @default(0)
+  totalAssets      Int             @default(0)
+  discrepanciesCount Int           @default(0)
+  createdById      String
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  deletedAt        DateTime?
+  createdBy        String?
+  updatedBy        String?
+
+  assignments      AuditAssignment[]
+  verifications    AuditVerification[]
+  discrepancies    AuditDiscrepancy[]
+
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([deletedAt])
+}
+
+// ─── MODEL: AUDIT ASSIGNMENT ───────────────────────────
+
+model AuditAssignment {
+  id          String    @id @default(uuid())
+  cycleId     String
+  cycle       AuditCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedAt  DateTime  @default(now())
+  notes       String?
+
+  @@index([cycleId])
+  @@index([userId])
+  @@unique([cycleId, userId])
+}
+
+// ─── MODEL: AUDIT VERIFICATION ─────────────────────────
+
+model AuditVerification {
+  id              String      @id @default(uuid())
+  cycleId         String
+  cycle           AuditCycle  @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  assetId         String
+  asset           Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  auditorId       String
+  auditor         User        @relation(fields: [auditorId], references: [id], onDelete: Cascade)
+  result          AuditResult @default(PENDING)
+  currentLocation String?
+  recordedHolder  String?
+  notes           String?
+  verifiedAt      DateTime    @default(now())
+  createdAt       DateTime    @default(now())
+
+  @@index([cycleId])
+  @@index([assetId])
+  @@index([auditorId])
+  @@index([result])
+  @@unique([cycleId, assetId])
+}
+
+// ─── MODEL: AUDIT DISCREPANCY ──────────────────────────
+
+model AuditDiscrepancy {
+  id              String              @id @default(uuid())
+  cycleId         String
+  cycle           AuditCycle          @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  assetId         String
+  asset           Asset               @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  type            String
+  severity        DiscrepancySeverity @default(MEDIUM)
+  status          DiscrepancyStatus   @default(OPEN)
+  description     String
+  reportedById    String
+  reportedBy      User                @relation(fields: [reportedById], references: [id], onDelete: Cascade)
+  resolvedById    String?
+  resolvedBy      User?               @relation(fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolutionNotes String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  resolvedAt      DateTime?
+
+  @@index([cycleId])
+  @@index([assetId])
+  @@index([status])
+  @@index([severity])
+}
+
+// ─── MODEL: NOTIFICATION PREFERENCE ────────────────────
+
+model NotificationPreference {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailEnabled    Boolean  @default(true)
+  pushEnabled     Boolean  @default(true)
+  securityAlerts  Boolean  @default(true)
+  productUpdates  Boolean  @default(false)
+  weeklyDigest    Boolean  @default(true)
+  maintenanceAlerts Boolean @default(true)
+  bookingAlerts   Boolean  @default(true)
+  allocationAlerts Boolean @default(true)
+  auditAlerts     Boolean  @default(true)
+  emailAssetAssigned  Boolean  @default(true)
+  emailAssetReturned  Boolean  @default(true)
+  emailBookingApproved Boolean @default(true)
+  emailBookingRejected Boolean @default(true)
+  emailMaintenanceAssigned Boolean @default(true)
+  emailMaintenanceCompleted Boolean @default(true)
+  emailMaintenanceOverdue Boolean @default(true)
+  emailWarrantyExpiry  Boolean  @default(true)
+  emailSystemAlerts    Boolean  @default(true)
+  emailPasswordChanged Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
 }

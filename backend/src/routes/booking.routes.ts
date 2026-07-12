@@ -7,6 +7,7 @@ import {
   rejectBookingSchema,
   cancelBookingSchema,
   completeBookingSchema,
+  updateBookingSchema,
   bookingIdParamSchema,
   bookingQuerySchema,
 } from '../validators/booking.schema';
@@ -404,6 +405,13 @@ router.post(
   validate(bookingIdParamSchema, 'params'),
   validate(completeBookingSchema),
   bookingController.completeBooking
+);
+
+router.put(
+  '/:id',
+  validate(bookingIdParamSchema, 'params'),
+  validate(updateBookingSchema),
+  bookingController.updateBooking
 );
 
 export { router as bookingRouter };

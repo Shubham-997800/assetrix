@@ -11,6 +11,8 @@ import {
   CreateMaintenanceScheduleInput,
   UpdateMaintenanceScheduleInput,
   MaintenanceScheduleQueryInput,
+  ApproveMaintenanceInput,
+  RejectMaintenanceInput,
 } from '../validators/maintenance.schema';
 
 // ─── TASK CONTROLLERS ───────────────────────────────────────
@@ -204,5 +206,33 @@ export const deleteSchedule = async (req: AuthenticatedRequest, res: Response): 
 
   res.status(HTTP_STATUS.OK).json(
     successResponse('Maintenance schedule deleted successfully')
+  );
+};
+
+export const approveTask = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  const id = req.params.id as string;
+  const data = req.body as ApproveMaintenanceInput;
+  const userId = req.user!.userId;
+  const ipAddress = req.ip;
+  const userAgent = req.headers['user-agent'];
+
+  const task = await maintenanceService.approveTask(id, data, userId, ipAddress, userAgent);
+
+  res.status(HTTP_STATUS.OK).json(
+    successResponse('Maintenance task approved successfully', task)
+  );
+};
+
+export const rejectTask = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  const id = req.params.id as string;
+  const data = req.body as RejectMaintenanceInput;
+  const userId = req.user!.userId;
+  const ipAddress = req.ip;
+  const userAgent = req.headers['user-agent'];
+
+  const task = await maintenanceService.rejectTask(id, data, userId, ipAddress, userAgent);
+
+  res.status(HTTP_STATUS.OK).json(
+    successResponse('Maintenance task rejected', task)
   );
 };
