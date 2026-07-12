@@ -32,6 +32,8 @@ export interface JwtPayload {
   userId: string;
   email: string;
   role: string;
+  sessionId?: string;
+  type?: string;
 }
 
 export interface AuthRequest extends Express.Request {
@@ -49,6 +51,48 @@ export interface AuditLogData {
   newValues?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
+}
+
+export interface DeviceInfo {
+  userAgent?: string;
+  ipAddress?: string;
+  browserName?: string;
+  browserVersion?: string;
+  os?: string;
+  deviceType?: string;
+}
+
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface RegisterResult {
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    status: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface LoginResult {
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    status: string;
+    avatar: string | null;
+    lastLoginAt: Date | null;
+  };
+  accessToken: string;
+  refreshToken: string;
 }
 
 export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'DEPARTMENT_MANAGER' | 'TECHNICIAN' | 'EMPLOYEE';

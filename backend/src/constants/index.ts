@@ -92,13 +92,32 @@ export const ALLOWED_FILE_TYPES = {
   'text/csv': '.csv',
 } as const;
 
+export const AUTH_CONSTANTS = {
+  MAX_LOGIN_ATTEMPTS: 5,
+  LOCK_DURATION_MINUTES: 30,
+  SESSION_TTL_SECONDS: 7 * 24 * 60 * 60,
+  REFRESH_TTL_SECONDS: 7 * 24 * 60 * 60,
+  REFRESH_REMEMBER_ME_TTL_SECONDS: 30 * 24 * 60 * 60,
+  PASSWORD_RESET_TTL_SECONDS: 60 * 60,
+  EMAIL_VERIFICATION_TTL_SECONDS: 24 * 60 * 60,
+  MAX_CONCURRENT_SESSIONS: 5,
+  SUSPICIOUS_LOGIN_THRESHOLD: 3,
+  SUSPICIOUS_LOGIN_WINDOW_HOURS: 24,
+  PASSWORD_SALT_ROUNDS: 12,
+  MAX_FAILED_LOGINS_PER_IP: 20,
+  IP_LOCKOUT_WINDOW_MINUTES: 60,
+} as const;
+
 export const REDIS_KEYS = {
   SESSION: (userId: string) => `auth:session:${userId}`,
+  SESSIONS: (userId: string) => `auth:sessions:${userId}`,
   REFRESH_TOKEN: (userId: string) => `auth:refresh:${userId}`,
   OTP: (email: string) => `otp:${email}`,
   PASSWORD_RESET: (email: string) => `password-reset:${email}`,
   EMAIL_VERIFICATION: (email: string) => `email-verify:${email}`,
   RATE_LIMIT: (ip: string) => `rate:${ip}`,
+  FAILED_LOGINS: (ip: string) => `auth:failed:${ip}`,
+  ACTIVE_SESSION_COUNT: (userId: string) => `auth:session-count:${userId}`,
   ASSET_CACHE: (assetId: string) => `asset:${assetId}`,
   DASHBOARD_CACHE: 'analytics:dashboard',
   AI_CACHE: (key: string) => `ai:${key}`,

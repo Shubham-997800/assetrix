@@ -4,103 +4,108 @@ import { config } from '../config';
 import logger from '../config/logger';
 import { getRedisConnection } from '../config/redis';
 import { hashPassword, comparePassword, generateToken, generateId } from '../utils';
-import { HTTP_STATUS, REDIS_KEYS } from '../constants';
+import { parseUserAgent } from '../utils/userAgent';
+import { HTTP_STATUS, REDIS_KEYS, AUTH_CONSTANTS } from '../constants';
 import { createNotification } from '../notifications';
 import { createAuditLog } from '../audit';
 import { emailQueue } from '../queues';
 import { AppError } from '../middleware/error';
-import { JwtPayload } from '../types';
+import { JwtPayload, TokenPair, RegisterResult, LoginResult, DeviceInfo } from '../types';
 import { NotificationType } from '@prisma/client';
 
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCK_DURATION_MINUTES = 30;
-const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
-const REFRESH_TTL_SECONDS = 7 * 24 * 60 * 60;
-const PASSWORD_RESET_TTL_SECONDS = 60 * 60;
-const EMAIL_VERIFICATION_TTL_SECONDS = 24 * 60 * 60;
+const {
+  MAX_LOGIN_ATTEMPTS,
+  LOCK_DURATION_MINUTES,
+  SESSION_TTL_SECONDS,
+  REFRESH_TTL_SECONDS,
+  REFRESH_REMEMBER_ME_TTL_SECONDS,
+  PASSWORD_RESET_TTL_SECONDS,
+  EMAIL_VERIFICATION_TTL_SECONDS,
+  MAX_CONCURRENT_SESSIONS,
+  SUSPICIOUS_LOGIN_THRESHOLD,
+  SUSPICIOUS_LOGIN_WINDOW_HOURS,
+} = AUTH_CONSTANTS;
 
-interface TokenPair {
-  accessToken: string;
-  refreshToken: string;
-}
-
-interface RegisterResult {
-  user: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-    status: string;
-  };
-  accessToken: string;
-  refreshToken: string;
-}
-
-interface LoginResult {
-  user: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-    status: string;
-    avatar: string | null;
-    lastLoginAt: Date | null;
-  };
-  accessToken: string;
-  refreshToken: string;
-}
+const parseExpiryToSeconds = (expiry: string): number => {
+  const match = expiry.match(/^(\d+)([smhd])$/);
+  if (!match) return 900;
+  const value = parseInt(match[1], 10);
+  const unit = match[2];
+  switch (unit) {
+    case 's': return value;
+    case 'm': return value * 60;
+    case 'h': return value * 3600;
+    case 'd': return value * 86400;
+    default: return 900;
+  }
+};
 
 const generateTokenPair = (payload: JwtPayload): TokenPair => {
   const accessToken = jwt.sign(payload, config.jwt.secret, {
-    expiresIn: config.jwt.accessExpiry as any,
+    expiresIn: config.jwt.accessExpiry as unknown as number,
   });
-
   const refreshToken = jwt.sign(
     { ...payload, type: 'refresh' },
     config.jwt.refreshSecret,
-    { expiresIn: config.jwt.refreshExpiry as any }
+    { expiresIn: config.jwt.refreshExpiry as unknown as number }
   );
-
   return { accessToken, refreshToken };
+};
+
+const parseDeviceInfo = (userAgent?: string, ipAddress?: string): DeviceInfo => {
+  const parsed = parseUserAgent(userAgent);
+  return {
+    userAgent: userAgent || undefined,
+    ipAddress: ipAddress || undefined,
+    ...parsed,
+  };
 };
 
 const storeSession = async (
   userId: string,
   refreshToken: string,
-  userAgent?: string,
-  ipAddress?: string
+  deviceInfo: DeviceInfo,
+  rememberMe: boolean
 ): Promise<void> => {
   const redis = getRedisConnection();
+  const ttl = rememberMe ? REFRESH_REMEMBER_ME_TTL_SECONDS : REFRESH_TTL_SECONDS;
 
-  await prisma.session.create({
+  const session = await prisma.session.create({
     data: {
       userId,
       refreshToken,
-      userAgent: userAgent || null,
-      ipAddress: ipAddress || null,
+      userAgent: deviceInfo.userAgent || null,
+      ipAddress: deviceInfo.ipAddress || null,
+      browserName: deviceInfo.browserName || null,
+      browserVersion: deviceInfo.browserVersion || null,
+      os: deviceInfo.os || null,
+      deviceType: deviceInfo.deviceType || null,
+      deviceInfo: JSON.stringify(deviceInfo),
       isActive: true,
-      expiresAt: new Date(Date.now() + REFRESH_TTL_SECONDS * 1000),
+      lastActiveAt: new Date(),
+      expiresAt: new Date(Date.now() + ttl * 1000),
     },
   });
 
   await redis.setex(
     REDIS_KEYS.REFRESH_TOKEN(userId),
-    REFRESH_TTL_SECONDS,
+    ttl,
     refreshToken
   );
 
   await redis.setex(
     REDIS_KEYS.SESSION(userId),
-    SESSION_TTL_SECONDS,
+    ttl,
     JSON.stringify({
+      sessionId: session.id,
       refreshToken,
-      userAgent,
-      ipAddress,
+      ...deviceInfo,
       createdAt: new Date().toISOString(),
     })
   );
+
+  await redis.incr(REDIS_KEYS.ACTIVE_SESSION_COUNT(userId));
+  await redis.expire(REDIS_KEYS.ACTIVE_SESSION_COUNT(userId), ttl);
 };
 
 const revokeSession = async (userId: string): Promise<void> => {
@@ -113,49 +118,135 @@ const revokeSession = async (userId: string): Promise<void> => {
 
   await redis.del(REDIS_KEYS.REFRESH_TOKEN(userId));
   await redis.del(REDIS_KEYS.SESSION(userId));
+  await redis.del(REDIS_KEYS.ACTIVE_SESSION_COUNT(userId));
 };
 
-const parseExpiryToSeconds = (expiry: string): number => {
-  const match = expiry.match(/^(\d+)([smhd])$/);
-  if (!match) return 900;
+const enforceConcurrentSessionLimit = async (userId: string): Promise<void> => {
+  const activeSessions = await prisma.session.findMany({
+    where: { userId, isActive: true },
+    orderBy: { createdAt: 'asc' },
+  });
 
-  const value = parseInt(match[1], 10);
-  const unit = match[2];
+  if (activeSessions.length >= MAX_CONCURRENT_SESSIONS) {
+    const sessionsToRevoke = activeSessions.slice(0, activeSessions.length - MAX_CONCURRENT_SESSIONS + 1);
+    const sessionIds = sessionsToRevoke.map((s) => s.id);
 
-  switch (unit) {
-    case 's':
-      return value;
-    case 'm':
-      return value * 60;
-    case 'h':
-      return value * 3600;
-    case 'd':
-      return value * 86400;
-    default:
-      return 900;
+    await prisma.session.updateMany({
+      where: { id: { in: sessionIds } },
+      data: { isActive: false },
+    });
+
+    logger.info(
+      { userId, revokedCount: sessionIds.length },
+      'Enforced concurrent session limit'
+    );
   }
 };
+
+const detectSuspiciousLogin = async (
+  userId: string,
+  ipAddress?: string,
+  userAgent?: string
+): Promise<{ isSuspicious: boolean; reason?: string }> => {
+  const redis = getRedisConnection();
+  const recentLogins = await prisma.loginHistory.findMany({
+    where: {
+      userId,
+      createdAt: {
+        gte: new Date(Date.now() - SUSPICIOUS_LOGIN_WINDOW_HOURS * 60 * 60 * 1000),
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 20,
+  });
+
+  const currentDevice = parseUserAgent(userAgent);
+
+  const previousDistinctIps = new Set(
+    recentLogins.filter((l) => l.ipAddress && l.ipAddress !== ipAddress).map((l) => l.ipAddress)
+  );
+
+  if (previousDistinctIps.size >= SUSPICIOUS_LOGIN_THRESHOLD && ipAddress) {
+    const isNewIp = !recentLogins.some((l) => l.ipAddress === ipAddress);
+    if (isNewIp) {
+      return {
+        isSuspicious: true,
+        reason: `Login from new IP address (${ipAddress}) after ${previousDistinctIps.size} different IPs in ${SUSPICIOUS_LOGIN_WINDOW_HOURS}h`,
+      };
+    }
+  }
+
+  const previousDevices = new Set(
+    recentLogins
+      .filter((l) => l.browserName !== currentDevice.browserName || l.os !== currentDevice.os)
+      .map((l) => `${l.browserName} ${l.os}`)
+  );
+
+  if (previousDevices.size >= SUSPICIOUS_LOGIN_THRESHOLD) {
+    const isNewDevice = !recentLogins.some(
+      (l) => l.browserName === currentDevice.browserName && l.os === currentDevice.os
+    );
+    if (isNewDevice) {
+      return {
+        isSuspicious: true,
+        reason: `Login from new device (${currentDevice.browserName} on ${currentDevice.os})`,
+      };
+    }
+  }
+
+  return { isSuspicious: false };
+};
+
+// ─── REGISTER ─────────────────────────────────────────────
 
 export const register = async (
   data: {
     email: string;
     password: string;
+    confirmPassword?: string;
     firstName: string;
     lastName: string;
     phone?: string;
     employeeId?: string;
     designation?: string;
     departmentId?: string;
+    role?: string;
+    termsAccepted: boolean;
   },
   ipAddress?: string,
   userAgent?: string
 ): Promise<RegisterResult> => {
-  const existingUser = await prisma.user.findUnique({
+  if (!data.termsAccepted) {
+    throw new AppError('You must accept the terms and conditions', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const existingEmail = await prisma.user.findUnique({
     where: { email: data.email },
+    select: { id: true, deletedAt: true },
   });
 
-  if (existingUser) {
+  if (existingEmail && !existingEmail.deletedAt) {
     throw new AppError('An account with this email already exists', HTTP_STATUS.CONFLICT);
+  }
+
+  if (data.employeeId) {
+    const existingEmp = await prisma.user.findUnique({
+      where: { employeeId: data.employeeId },
+      select: { id: true, deletedAt: true },
+    });
+    if (existingEmp && !existingEmp.deletedAt) {
+      throw new AppError('An account with this employee ID already exists', HTTP_STATUS.CONFLICT);
+    }
+  }
+
+  if (data.departmentId) {
+    const dept = await prisma.department.findUnique({
+      where: { id: data.departmentId },
+      select: { id: true },
+    });
+    if (!dept) {
+      throw new AppError('Department not found', HTTP_STATUS.BAD_REQUEST);
+    }
   }
 
   const hashedPassword = await hashPassword(data.password);
@@ -172,8 +263,10 @@ export const register = async (
       employeeId: data.employeeId || null,
       designation: data.designation || null,
       departmentId: data.departmentId || null,
+      role: (data.role as any) || 'EMPLOYEE',
       status: 'PENDING_VERIFICATION',
       emailVerified: false,
+      termsAccepted: true,
     },
     select: {
       id: true,
@@ -192,13 +285,23 @@ export const register = async (
     verificationToken
   );
 
+  await prisma.verificationToken.create({
+    data: {
+      userId: user.id,
+      token: verificationToken,
+      type: 'EMAIL_VERIFICATION',
+      expiresAt: new Date(Date.now() + verificationTtl * 1000),
+    },
+  });
+
   const tokens = generateTokenPair({
     userId: user.id,
     email: user.email,
     role: user.role,
   });
 
-  await storeSession(user.id, tokens.refreshToken, userAgent, ipAddress);
+  const deviceInfo = parseDeviceInfo(userAgent, ipAddress);
+  await storeSession(user.id, tokens.refreshToken, deviceInfo, false);
 
   await emailQueue.add('send-email', {
     to: user.email,
@@ -242,8 +345,10 @@ export const register = async (
   };
 };
 
+// ─── LOGIN ────────────────────────────────────────────────
+
 export const login = async (
-  data: { email: string; password: string },
+  data: { email: string; password: string; rememberMe?: boolean },
   ipAddress?: string,
   userAgent?: string
 ): Promise<LoginResult> => {
@@ -267,6 +372,11 @@ export const login = async (
   });
 
   if (!user || user.deletedAt) {
+    if (ipAddress) {
+      const redis = getRedisConnection();
+      await redis.incr(REDIS_KEYS.FAILED_LOGINS(ipAddress));
+      await redis.expire(REDIS_KEYS.FAILED_LOGINS(ipAddress), AUTH_CONSTANTS.IP_LOCKOUT_WINDOW_MINUTES * 60);
+    }
     throw new AppError('Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
   }
 
@@ -310,6 +420,16 @@ export const login = async (
       },
     });
 
+    await createAuditLog({
+      userId: user.id,
+      action: 'FAILED_LOGIN',
+      entity: 'User',
+      entityId: user.id,
+      newValues: { attempts: newAttempts, locked: shouldLock },
+      ipAddress,
+      userAgent,
+    });
+
     if (shouldLock) {
       logger.warn(
         { userId: user.id, attempts: newAttempts },
@@ -335,6 +455,8 @@ export const login = async (
     );
   }
 
+  await enforceConcurrentSessionLimit(user.id);
+
   await prisma.user.update({
     where: { id: user.id },
     data: {
@@ -350,15 +472,79 @@ export const login = async (
     role: user.role,
   });
 
-  await storeSession(user.id, tokens.refreshToken, userAgent, ipAddress);
+  const deviceInfo = parseDeviceInfo(userAgent, ipAddress);
+  await storeSession(user.id, tokens.refreshToken, deviceInfo, data.rememberMe || false);
+
+  const suspiciousResult = await detectSuspiciousLogin(user.id, ipAddress, userAgent);
+
+  await prisma.loginHistory.create({
+    data: {
+      userId: user.id,
+      email: user.email,
+      ipAddress: ipAddress || null,
+      userAgent: userAgent || null,
+      browserName: deviceInfo.browserName || null,
+      browserVersion: deviceInfo.browserVersion || null,
+      os: deviceInfo.os || null,
+      deviceType: deviceInfo.deviceType || null,
+      status: 'SUCCESS',
+    },
+  });
 
   await createAuditLog({
     userId: user.id,
     action: 'LOGIN',
     entity: 'User',
     entityId: user.id,
+    newValues: {
+      ipAddress,
+      browser: deviceInfo.browserName,
+      os: deviceInfo.os,
+      deviceType: deviceInfo.deviceType,
+      suspicious: suspiciousResult.isSuspicious,
+    },
     ipAddress,
     userAgent,
+  });
+
+  if (suspiciousResult.isSuspicious) {
+    await createNotification({
+      userId: user.id,
+      type: NotificationType.SYSTEM_ALERT,
+      title: 'Suspicious login detected',
+      message: `A login was detected with unusual characteristics: ${suspiciousResult.reason}. If this was not you, please change your password immediately.`,
+      channel: 'EMAIL',
+    });
+
+    await emailQueue.add('send-email', {
+      to: user.email,
+      subject: 'Suspicious login detected on your account',
+      html: `
+        <h1>Suspicious Login Detected</h1>
+        <p>We detected a login with unusual characteristics:</p>
+        <p><strong>${suspiciousResult.reason}</strong></p>
+        <p>If this was you, no action is needed.</p>
+        <p>If this was not you, please change your password immediately and contact support.</p>
+      `,
+    });
+
+    logger.warn(
+      { userId: user.id, reason: suspiciousResult.reason, ipAddress },
+      'Suspicious login detected'
+    );
+  }
+
+  await emailQueue.add('send-email', {
+    to: user.email,
+    subject: 'Login successful - Assetrix',
+    html: `
+      <h1>Login Successful</h1>
+      <p>You have successfully logged in to Assetrix.</p>
+      <p><strong>Device:</strong> ${deviceInfo.browserName} on ${deviceInfo.os}</p>
+      <p><strong>IP Address:</strong> ${ipAddress || 'Unknown'}</p>
+      <p><strong>Time:</strong> ${new Date().toISOString()}</p>
+      <p>If this was not you, please contact support immediately.</p>
+    `,
   });
 
   logger.info({ userId: user.id, email: user.email }, 'User logged in successfully');
@@ -378,6 +564,8 @@ export const login = async (
     refreshToken: tokens.refreshToken,
   };
 };
+
+// ─── REFRESH TOKEN ────────────────────────────────────────
 
 export const refreshToken = async (
   refreshTokenStr: string,
@@ -446,7 +634,8 @@ export const refreshToken = async (
     data: { isActive: false },
   });
 
-  await storeSession(user.id, newTokens.refreshToken, userAgent, ipAddress);
+  const deviceInfo = parseDeviceInfo(userAgent, ipAddress);
+  await storeSession(user.id, newTokens.refreshToken, deviceInfo, false);
 
   await createAuditLog({
     userId: user.id,
@@ -465,6 +654,8 @@ export const refreshToken = async (
 
   return newTokens;
 };
+
+// ─── LOGOUT ───────────────────────────────────────────────
 
 export const logout = async (
   userId: string,
@@ -500,6 +691,28 @@ export const logout = async (
   logger.info({ userId }, 'User logged out');
 };
 
+// ─── LOGOUT ALL ───────────────────────────────────────────
+
+export const logoutAll = async (userId: string): Promise<void> => {
+  await revokeSession(userId);
+
+  await prisma.refreshToken.updateMany({
+    where: { userId, isRevoked: false },
+    data: { isRevoked: true },
+  });
+
+  await createAuditLog({
+    userId,
+    action: 'LOGOUT_ALL',
+    entity: 'User',
+    entityId: userId,
+  });
+
+  logger.info({ userId }, 'User logged out from all devices');
+};
+
+// ─── FORGOT PASSWORD ─────────────────────────────────────
+
 export const forgotPassword = async (email: string): Promise<void> => {
   const user = await prisma.user.findUnique({
     where: { email },
@@ -524,6 +737,14 @@ export const forgotPassword = async (email: string): Promise<void> => {
     PASSWORD_RESET_TTL_SECONDS,
     resetToken
   );
+
+  await prisma.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      token: resetToken,
+      expiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_SECONDS * 1000),
+    },
+  });
 
   await emailQueue.add('send-email', {
     to: user.email,
@@ -558,6 +779,8 @@ export const forgotPassword = async (email: string): Promise<void> => {
   logger.info({ userId: user.id, email: user.email }, 'Password reset email queued');
 };
 
+// ─── RESET PASSWORD ───────────────────────────────────────
+
 export const resetPassword = async (
   token: string,
   newPassword: string
@@ -576,18 +799,94 @@ export const resetPassword = async (
   }
 
   if (!matchedEmail) {
-    throw new AppError('Invalid or expired reset token', HTTP_STATUS.BAD_REQUEST);
+    const dbToken = await prisma.passwordResetToken.findUnique({
+      where: { token },
+      select: { userId: true, expiresAt: true, isUsed: true },
+    });
+
+    if (!dbToken || dbToken.isUsed || dbToken.expiresAt < new Date()) {
+      throw new AppError('Invalid or expired reset token', HTTP_STATUS.BAD_REQUEST);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: dbToken.userId },
+      select: { id: true, email: true, password: true, status: true, deletedAt: true },
+    });
+
+    if (!user || user.deletedAt) {
+      throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
+    }
+
+    matchedEmail = user.email;
+  } else {
+    const user = await prisma.user.findUnique({
+      where: { email: matchedEmail },
+      select: { id: true, email: true, password: true, status: true, deletedAt: true },
+    });
+
+    if (!user || user.deletedAt) {
+      throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
+    }
+
+    const isSamePassword = await comparePassword(newPassword, user.password);
+    if (isSamePassword) {
+      throw new AppError(
+        'New password must be different from your current password',
+        HTTP_STATUS.BAD_REQUEST
+      );
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        loginAttempts: 0,
+        lockedUntil: null,
+      },
+    });
+
+    await redis.del(REDIS_KEYS.PASSWORD_RESET(matchedEmail));
+    await revokeSession(user.id);
+
+    await prisma.passwordResetToken.updateMany({
+      where: { userId: user.id, isUsed: false },
+      data: { isUsed: true },
+    });
+
+    await emailQueue.add('send-email', {
+      to: user.email,
+      subject: 'Your Assetrix password has been changed',
+      html: `
+        <h1>Password Changed</h1>
+        <p>Your password has been successfully changed.</p>
+        <p>If you did not make this change, please contact support immediately.</p>
+      `,
+    });
+
+    await createNotification({
+      userId: user.id,
+      type: NotificationType.PASSWORD_CHANGED,
+      title: 'Password Changed',
+      message: 'Your password has been successfully changed.',
+      channel: 'EMAIL',
+    });
+
+    await createAuditLog({
+      userId: user.id,
+      action: 'RESET_PASSWORD',
+      entity: 'User',
+      entityId: user.id,
+    });
+
+    logger.info({ userId: user.id }, 'Password reset successfully');
+    return;
   }
 
   const user = await prisma.user.findUnique({
     where: { email: matchedEmail },
-    select: {
-      id: true,
-      email: true,
-      password: true,
-      status: true,
-      deletedAt: true,
-    },
+    select: { id: true, email: true, password: true, status: true, deletedAt: true },
   });
 
   if (!user || user.deletedAt) {
@@ -615,6 +914,11 @@ export const resetPassword = async (
 
   await redis.del(REDIS_KEYS.PASSWORD_RESET(matchedEmail));
   await revokeSession(user.id);
+
+  await prisma.passwordResetToken.updateMany({
+    where: { userId: user.id, isUsed: false },
+    data: { isUsed: true },
+  });
 
   await emailQueue.add('send-email', {
     to: user.email,
@@ -644,6 +948,8 @@ export const resetPassword = async (
   logger.info({ userId: user.id }, 'Password reset successfully');
 };
 
+// ─── VERIFY EMAIL ─────────────────────────────────────────
+
 export const verifyEmail = async (token: string): Promise<void> => {
   const redis = getRedisConnection();
 
@@ -658,28 +964,49 @@ export const verifyEmail = async (token: string): Promise<void> => {
     }
   }
 
-  if (!matchedEmail) {
-    throw new AppError('Invalid or expired verification token', HTTP_STATUS.BAD_REQUEST);
+  let user: { id: string; email: string; firstName: string; emailVerified: boolean; status: string; deletedAt: Date | null } | null = null;
+
+  if (matchedEmail) {
+    user = await prisma.user.findUnique({
+      where: { email: matchedEmail },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        emailVerified: true,
+        status: true,
+        deletedAt: true,
+      },
+    });
+  } else {
+    const dbToken = await prisma.verificationToken.findUnique({
+      where: { token },
+      select: { userId: true, expiresAt: true },
+    });
+
+    if (dbToken && dbToken.expiresAt > new Date()) {
+      user = await prisma.user.findUnique({
+        where: { id: dbToken.userId },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          emailVerified: true,
+          status: true,
+          deletedAt: true,
+        },
+      });
+      matchedEmail = user?.email || null;
+    }
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: matchedEmail },
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      emailVerified: true,
-      status: true,
-      deletedAt: true,
-    },
-  });
-
-  if (!user || user.deletedAt) {
-    throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
+  if (!user || user.deletedAt || !matchedEmail) {
+    throw new AppError('Invalid or expired verification token', HTTP_STATUS.BAD_REQUEST);
   }
 
   if (user.emailVerified) {
     await redis.del(REDIS_KEYS.EMAIL_VERIFICATION(matchedEmail));
+    await prisma.verificationToken.deleteMany({ where: { userId: user.id } });
     throw new AppError('Email is already verified', HTTP_STATUS.BAD_REQUEST);
   }
 
@@ -692,6 +1019,7 @@ export const verifyEmail = async (token: string): Promise<void> => {
   });
 
   await redis.del(REDIS_KEYS.EMAIL_VERIFICATION(matchedEmail));
+  await prisma.verificationToken.deleteMany({ where: { userId: user.id } });
 
   await createNotification({
     userId: user.id,
@@ -710,6 +1038,8 @@ export const verifyEmail = async (token: string): Promise<void> => {
 
   logger.info({ userId: user.id, email: user.email }, 'Email verified successfully');
 };
+
+// ─── RESEND VERIFICATION ─────────────────────────────────
 
 export const resendVerification = async (email: string): Promise<void> => {
   const user = await prisma.user.findUnique({
@@ -734,6 +1064,7 @@ export const resendVerification = async (email: string): Promise<void> => {
 
   const redis = getRedisConnection();
   await redis.del(REDIS_KEYS.EMAIL_VERIFICATION(email));
+  await prisma.verificationToken.deleteMany({ where: { userId: user.id } });
 
   const verificationToken = generateToken(32);
   const verificationTtl = parseExpiryToSeconds(EMAIL_VERIFICATION_TTL_SECONDS.toString());
@@ -743,6 +1074,15 @@ export const resendVerification = async (email: string): Promise<void> => {
     verificationTtl,
     verificationToken
   );
+
+  await prisma.verificationToken.create({
+    data: {
+      userId: user.id,
+      token: verificationToken,
+      type: 'EMAIL_VERIFICATION',
+      expiresAt: new Date(Date.now() + verificationTtl * 1000),
+    },
+  });
 
   await emailQueue.add('send-email', {
     to: user.email,
@@ -766,4 +1106,121 @@ export const resendVerification = async (email: string): Promise<void> => {
   });
 
   logger.info({ userId: user.id, email }, 'Verification email resent');
+};
+
+// ─── GET SESSIONS ─────────────────────────────────────────
+
+export const getSessions = async (
+  userId: string,
+  currentRefreshToken?: string
+) => {
+  const sessions = await prisma.session.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      userAgent: true,
+      ipAddress: true,
+      browserName: true,
+      browserVersion: true,
+      os: true,
+      deviceType: true,
+      isActive: true,
+      lastActiveAt: true,
+      expiresAt: true,
+      createdAt: true,
+    },
+  });
+
+  const enrichedSessions = sessions.map((session) => ({
+    ...session,
+    isCurrent: false,
+    isExpired: session.expiresAt < new Date(),
+  }));
+
+  return enrichedSessions;
+};
+
+// ─── DELETE SESSION ───────────────────────────────────────
+
+export const deleteSession = async (
+  userId: string,
+  sessionId: string
+): Promise<void> => {
+  const session = await prisma.session.findFirst({
+    where: { id: sessionId, userId },
+  });
+
+  if (!session) {
+    throw new AppError('Session not found', HTTP_STATUS.NOT_FOUND);
+  }
+
+  await prisma.session.update({
+    where: { id: sessionId },
+    data: { isActive: false },
+  });
+
+  const activeSessions = await prisma.session.count({
+    where: { userId, isActive: true },
+  });
+
+  if (activeSessions === 0) {
+    const redis = getRedisConnection();
+    await redis.del(REDIS_KEYS.REFRESH_TOKEN(userId));
+    await redis.del(REDIS_KEYS.SESSION(userId));
+  }
+
+  await createAuditLog({
+    userId,
+    action: 'SESSION_REVOKED',
+    entity: 'User',
+    entityId: userId,
+    newValues: { sessionId },
+  });
+
+  logger.info({ userId, sessionId }, 'Session revoked');
+};
+
+// ─── GET LOGIN HISTORY ────────────────────────────────────
+
+export const getLoginHistory = async (
+  userId: string,
+  page: number = 1,
+  limit: number = 20
+) => {
+  const safeLimit = Math.min(limit, 100);
+  const skip = (page - 1) * safeLimit;
+
+  const [items, totalItems] = await Promise.all([
+    prisma.loginHistory.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: safeLimit,
+      select: {
+        id: true,
+        ipAddress: true,
+        browserName: true,
+        browserVersion: true,
+        os: true,
+        deviceType: true,
+        location: true,
+        status: true,
+        failureReason: true,
+        createdAt: true,
+      },
+    }),
+    prisma.loginHistory.count({ where: { userId } }),
+  ]);
+
+  return {
+    items,
+    meta: {
+      totalItems,
+      totalPages: Math.ceil(totalItems / safeLimit),
+      currentPage: page,
+      hasNextPage: page * safeLimit < totalItems,
+      hasPreviousPage: page > 1,
+    },
+  };
 };

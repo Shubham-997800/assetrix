@@ -5,6 +5,26 @@ import { successResponse, errorResponse } from '../utils/response';
 import { HTTP_STATUS } from '../constants';
 import logger from '../config/logger';
 
+const handleControllerError = (error: unknown, res: Response, context: string): void => {
+  if (error instanceof Error && 'statusCode' in error) {
+    const appError = error as { statusCode: number; message: string };
+    res
+      .status(appError.statusCode)
+      .json(errorResponse(appError.message, appError.statusCode));
+    return;
+  }
+
+  logger.error({ error }, `${context} error`);
+  res
+    .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    .json(
+      errorResponse(
+        `An unexpected error occurred during ${context.toLowerCase()}`,
+        HTTP_STATUS.INTERNAL_SERVER_ERROR
+      )
+    );
+};
+
 export const register = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const {
@@ -16,18 +36,23 @@ export const register = async (req: AuthenticatedRequest, res: Response): Promis
       employeeId,
       designation,
       departmentId,
+      role,
+      termsAccepted,
     } = req.body;
 
     const result = await authService.register(
       {
         email,
         password,
+        confirmPassword: req.body.confirmPassword,
         firstName,
         lastName,
         phone,
         employeeId,
         designation,
         departmentId,
+        role,
+        termsAccepted,
       },
       req.ip,
       req.headers['user-agent']
@@ -49,35 +74,23 @@ export const register = async (req: AuthenticatedRequest, res: Response): Promis
         })
       );
   } catch (error) {
-    if (error instanceof Error && 'statusCode' in error) {
-      const appError = error as { statusCode: number; message: string };
-      res
-        .status(appError.statusCode)
-        .json(errorResponse(appError.message, appError.statusCode));
-      return;
-    }
-
-    logger.error({ error }, 'Registration error');
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json(
-        errorResponse(
-          'An unexpected error occurred during registration',
-          HTTP_STATUS.INTERNAL_SERVER_ERROR
-        )
-      );
+    handleControllerError(error, res, 'Registration');
   }
 };
 
 export const login = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
 
     const result = await authService.login(
-      { email, password },
+      { email, password, rememberMe },
       req.ip,
       req.headers['user-agent']
     );
+
+    const maxAge = rememberMe
+      ? 30 * 24 * 60 * 60 * 1000
+      : 7 * 24 * 60 * 60 * 1000;
 
     res
       .status(HTTP_STATUS.OK)
@@ -85,25 +98,17 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<v
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge,
         path: '/api/v1/auth',
       })
-      .json(successResponse('Login successful', { user: result.user, accessToken: result.accessToken }));
-  } catch (error) {
-    if (error instanceof Error && 'statusCode' in error) {
-      const appError = error as { statusCode: number; message: string };
-      res
-        .status(appError.statusCode)
-        .json(errorResponse(appError.message, appError.statusCode));
-      return;
-    }
-
-    logger.error({ error }, 'Login error');
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
       .json(
-        errorResponse('An unexpected error occurred during login', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        successResponse('Login successful', {
+          user: result.user,
+          accessToken: result.accessToken,
+        })
       );
+  } catch (error) {
+    handleControllerError(error, res, 'Login');
   }
 };
 
@@ -137,23 +142,7 @@ export const refreshToken = async (req: AuthenticatedRequest, res: Response): Pr
       })
       .json(successResponse('Token refreshed successfully', { accessToken: tokens.accessToken }));
   } catch (error) {
-    if (error instanceof Error && 'statusCode' in error) {
-      const appError = error as { statusCode: number; message: string };
-      res
-        .status(appError.statusCode)
-        .json(errorResponse(appError.message, appError.statusCode));
-      return;
-    }
-
-    logger.error({ error }, 'Token refresh error');
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json(
-        errorResponse(
-          'An unexpected error occurred during token refresh',
-          HTTP_STATUS.INTERNAL_SERVER_ERROR
-        )
-      );
+    handleControllerError(error, res, 'Token refresh');
   }
 };
 
@@ -181,27 +170,40 @@ export const logout = async (req: AuthenticatedRequest, res: Response): Promise<
       })
       .json(successResponse('Logged out successfully'));
   } catch (error) {
-    if (error instanceof Error && 'statusCode' in error) {
-      const appError = error as { statusCode: number; message: string };
+    handleControllerError(error, res, 'Logout');
+  }
+};
+
+export const logoutAll = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
       res
-        .status(appError.statusCode)
-        .json(errorResponse(appError.message, appError.statusCode));
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json(errorResponse('Authentication required', HTTP_STATUS.UNAUTHORIZED));
       return;
     }
 
-    logger.error({ error }, 'Logout error');
+    await authService.logoutAll(userId);
+
     res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json(
-        errorResponse('An unexpected error occurred during logout', HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      );
+      .status(HTTP_STATUS.OK)
+      .clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/api/v1/auth',
+      })
+      .json(successResponse('Logged out from all devices successfully'));
+  } catch (error) {
+    handleControllerError(error, res, 'Logout all');
   }
 };
 
 export const forgotPassword = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { email } = req.body;
-
     await authService.forgotPassword(email);
 
     res
@@ -212,59 +214,34 @@ export const forgotPassword = async (req: AuthenticatedRequest, res: Response): 
         )
       );
   } catch (error) {
-    if (error instanceof Error && 'statusCode' in error) {
-      const appError = error as { statusCode: number; message: string };
-      res
-        .status(appError.statusCode)
-        .json(errorResponse(appError.message, appError.statusCode));
-      return;
-    }
-
-    logger.error({ error }, 'Forgot password error');
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json(
-        errorResponse(
-          'An unexpected error occurred. Please try again later.',
-          HTTP_STATUS.INTERNAL_SERVER_ERROR
-        )
-      );
+    handleControllerError(error, res, 'Forgot password');
   }
 };
 
 export const resetPassword = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { token, password } = req.body;
-
     await authService.resetPassword(token, password);
 
     res
       .status(HTTP_STATUS.OK)
       .json(successResponse('Password reset successful. Please log in with your new password.'));
   } catch (error) {
-    if (error instanceof Error && 'statusCode' in error) {
-      const appError = error as { statusCode: number; message: string };
-      res
-        .status(appError.statusCode)
-        .json(errorResponse(appError.message, appError.statusCode));
-      return;
-    }
-
-    logger.error({ error }, 'Reset password error');
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json(
-        errorResponse(
-          'An unexpected error occurred during password reset',
-          HTTP_STATUS.INTERNAL_SERVER_ERROR
-        )
-      );
+    handleControllerError(error, res, 'Reset password');
   }
 };
 
 export const verifyEmail = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { token } = req.body;
+    const tokenParam = req.query.token;
+    const token = (Array.isArray(tokenParam) ? tokenParam[0] : tokenParam) || req.body?.token;
+
+    if (!token) {
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json(errorResponse('Verification token is required', HTTP_STATUS.BAD_REQUEST));
+      return;
+    }
 
     await authService.verifyEmail(token);
 
@@ -272,23 +249,7 @@ export const verifyEmail = async (req: AuthenticatedRequest, res: Response): Pro
       .status(HTTP_STATUS.OK)
       .json(successResponse('Email verified successfully. You can now log in.'));
   } catch (error) {
-    if (error instanceof Error && 'statusCode' in error) {
-      const appError = error as { statusCode: number; message: string };
-      res
-        .status(appError.statusCode)
-        .json(errorResponse(appError.message, appError.statusCode));
-      return;
-    }
-
-    logger.error({ error }, 'Email verification error');
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json(
-        errorResponse(
-          'An unexpected error occurred during email verification',
-          HTTP_STATUS.INTERNAL_SERVER_ERROR
-        )
-      );
+    handleControllerError(error, res, 'Email verification');
   }
 };
 
@@ -298,7 +259,6 @@ export const resendVerification = async (
 ): Promise<void> => {
   try {
     const { email } = req.body;
-
     await authService.resendVerification(email);
 
     res
@@ -309,23 +269,7 @@ export const resendVerification = async (
         )
       );
   } catch (error) {
-    if (error instanceof Error && 'statusCode' in error) {
-      const appError = error as { statusCode: number; message: string };
-      res
-        .status(appError.statusCode)
-        .json(errorResponse(appError.message, appError.statusCode));
-      return;
-    }
-
-    logger.error({ error }, 'Resend verification error');
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json(
-        errorResponse(
-          'An unexpected error occurred. Please try again later.',
-          HTTP_STATUS.INTERNAL_SERVER_ERROR
-        )
-      );
+    handleControllerError(error, res, 'Resend verification');
   }
 };
 
@@ -358,6 +302,9 @@ export const me = async (req: AuthenticatedRequest, res: Response): Promise<void
         emailVerified: true,
         lastLoginAt: true,
         createdAt: true,
+        department: {
+          select: { id: true, name: true, code: true },
+        },
       },
     });
 
@@ -381,5 +328,72 @@ export const me = async (req: AuthenticatedRequest, res: Response): Promise<void
           HTTP_STATUS.INTERNAL_SERVER_ERROR
         )
       );
+  }
+};
+
+export const getSessions = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json(errorResponse('Authentication required', HTTP_STATUS.UNAUTHORIZED));
+      return;
+    }
+
+    const sessions = await authService.getSessions(userId);
+
+    res
+      .status(HTTP_STATUS.OK)
+      .json(successResponse('Sessions retrieved successfully', sessions));
+  } catch (error) {
+    handleControllerError(error, res, 'Get sessions');
+  }
+};
+
+export const deleteSession = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const id = req.params.id as string;
+
+    if (!userId) {
+      res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json(errorResponse('Authentication required', HTTP_STATUS.UNAUTHORIZED));
+      return;
+    }
+
+    await authService.deleteSession(userId, id);
+
+    res
+      .status(HTTP_STATUS.OK)
+      .json(successResponse('Session deleted successfully'));
+  } catch (error) {
+    handleControllerError(error, res, 'Delete session');
+  }
+};
+
+export const getLoginHistory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json(errorResponse('Authentication required', HTTP_STATUS.UNAUTHORIZED));
+      return;
+    }
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+
+    const result = await authService.getLoginHistory(userId, page, limit);
+
+    res
+      .status(HTTP_STATUS.OK)
+      .json(successResponse('Login history retrieved successfully', result.items, result.meta));
+  } catch (error) {
+    handleControllerError(error, res, 'Get login history');
   }
 };

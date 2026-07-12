@@ -116,6 +116,7 @@ model User {
   lastLoginAt    DateTime?
   loginAttempts  Int       @default(0)
   lockedUntil    DateTime?
+  termsAccepted  Boolean   @default(false)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
@@ -132,6 +133,10 @@ model User {
   allocations          Allocation[]
   notifications        Notification[]
   sessions             Session[]
+  refreshTokens        RefreshToken[]
+  verificationTokens   VerificationToken[]
+  passwordResetTokens  PasswordResetToken[]
+  loginHistory         LoginHistory[]
   auditLogs            AuditLog[]
   activityLogs         ActivityLog[]
   auditAssignments     AuditAssignment[]
@@ -157,8 +162,13 @@ model Session {
   refreshToken String   @unique
   userAgent    String?
   ipAddress    String?
+  browserName  String?
+  browserVersion String?
+  os           String?
+  deviceType   String?
   deviceInfo   String?
   isActive     Boolean  @default(true)
+  lastActiveAt DateTime @default(now())
   expiresAt    DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -166,6 +176,84 @@ model Session {
   @@index([userId])
   @@index([refreshToken])
   @@index([isActive])
+  @@index([userId, isActive])
+  @@index([lastActiveAt])
+}
+
+// ─── MODEL: REFRESH TOKEN ─────────────────────────────────
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token       String   @unique
+  sessionId   String?
+  isRevoked   Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([sessionId])
+  @@index([isRevoked])
+  @@index([userId, isRevoked])
+}
+
+// ─── MODEL: VERIFICATION TOKEN ────────────────────────────
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  type      String   @default("EMAIL_VERIFICATION")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([type])
+}
+
+// ─── MODEL: PASSWORD RESET TOKEN ──────────────────────────
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  isUsed    Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([isUsed])
+}
+
+// ─── MODEL: LOGIN HISTORY ─────────────────────────────────
+
+model LoginHistory {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email         String
+  ipAddress     String?
+  userAgent     String?
+  browserName   String?
+  browserVersion String?
+  os            String?
+  deviceType    String?
+  location      String?
+  status        String
+  failureReason String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId, createdAt])
 }
 
 // ─── MODEL: DEPARTMENT ────────────────────────────────────

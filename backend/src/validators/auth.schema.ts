@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/;
+const passwordMinMsg = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+
 export const registerSchema = z
   .object({
     email: z
@@ -14,10 +17,7 @@ export const registerSchema = z
       .min(1, 'Password is required')
       .min(8, 'Password must be at least 8 characters')
       .max(128, 'Password must be at most 128 characters')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-      ),
+      .regex(passwordRegex, passwordMinMsg),
     confirmPassword: z.string().min(1, 'Confirm password is required'),
     firstName: z
       .string()
@@ -49,6 +49,14 @@ export const registerSchema = z
       .uuid('Invalid department ID')
       .optional()
       .or(z.literal('')),
+    role: z
+      .enum(['SUPER_ADMIN', 'ADMIN', 'DEPARTMENT_MANAGER', 'TECHNICIAN', 'EMPLOYEE'])
+      .optional(),
+    termsAccepted: z
+      .boolean()
+      .refine((val) => val === true, {
+        message: 'You must accept the terms and conditions',
+      }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -66,6 +74,7 @@ export const loginSchema = z.object({
     .string()
     .min(1, 'Password is required')
     .max(128, 'Password must be at most 128 characters'),
+  rememberMe: z.boolean().optional().default(false),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -85,10 +94,7 @@ export const resetPasswordSchema = z
       .min(1, 'Password is required')
       .min(8, 'Password must be at least 8 characters')
       .max(128, 'Password must be at most 128 characters')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-      ),
+      .regex(passwordRegex, passwordMinMsg),
     confirmPassword: z.string().min(1, 'Confirm password is required'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -120,16 +126,25 @@ export const changePasswordSchema = z
       .min(1, 'New password is required')
       .min(8, 'New password must be at least 8 characters')
       .max(128, 'New password must be at most 128 characters')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-      ),
+      .regex(passwordRegex, passwordMinMsg),
     confirmNewPassword: z.string().min(1, 'Confirm new password is required'),
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
     message: 'Passwords do not match',
     path: ['confirmNewPassword'],
   });
+
+export const refreshTokenSchema = z.object({
+  refreshToken: z.string().optional(),
+});
+
+export const logoutSchema = z.object({
+  refreshToken: z.string().optional(),
+});
+
+export const deleteSessionSchema = z.object({
+  id: z.string().uuid('Invalid session ID'),
+});
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -138,3 +153,6 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
 export type ResendVerificationInput = z.infer<typeof resendVerificationSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
+export type LogoutInput = z.infer<typeof logoutSchema>;
+export type DeleteSessionInput = z.infer<typeof deleteSessionSchema>;
