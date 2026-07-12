@@ -6,15 +6,17 @@ import { useEffect } from "react";
 import { useDashboard } from "@/contexts/dashboard-context";
 import {
   LayoutDashboard,
+  Building2,
+  Package,
+  ArrowLeftRight,
+  CalendarClock,
+  Wrench,
+  ClipboardCheck,
   BarChart3,
-  FileText,
   Bell,
-  GitBranch,
   ScrollText,
-  Plug,
-  Settings,
   User,
-  Shield,
+  Settings,
   ChevronLeft,
   Zap,
 } from "lucide-react";
@@ -24,25 +26,43 @@ const navGroups = [
     label: "Main",
     items: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-      { icon: BarChart3, label: "Analytics", href: "/dashboard" },
-      { icon: FileText, label: "Reports", href: "/dashboard/reports" },
     ],
   },
   {
-    label: "Operations",
+    label: "Organization",
     items: [
+      { icon: Building2, label: "Organization Setup", href: "/dashboard/organization" },
+    ],
+  },
+  {
+    label: "Asset Management",
+    items: [
+      { icon: Package, label: "Asset Directory", href: "/dashboard/assets" },
+      { icon: ArrowLeftRight, label: "Asset Allocation", href: "/dashboard/allocations" },
+      { icon: CalendarClock, label: "Resource Booking", href: "/dashboard/bookings" },
+      { icon: Wrench, label: "Maintenance", href: "/dashboard/maintenance" },
+    ],
+  },
+  {
+    label: "Compliance",
+    items: [
+      { icon: ClipboardCheck, label: "Audit Module", href: "/dashboard/audit" },
+    ],
+  },
+  {
+    label: "Intelligence",
+    items: [
+      { icon: BarChart3, label: "Reports & Analytics", href: "/dashboard/reports" },
       { icon: Bell, label: "Notifications", href: "/dashboard/notifications" },
-      { icon: GitBranch, label: "Workflows", href: "/dashboard" },
-      { icon: ScrollText, label: "Audit Logs", href: "/dashboard/admin" },
+      { icon: ScrollText, label: "Activity Logs", href: "/dashboard/logs" },
     ],
   },
   {
     label: "System",
     items: [
-      { icon: Plug, label: "Integrations", href: "/dashboard" },
-      { icon: Shield, label: "Admin", href: "/dashboard/admin" },
       { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       { icon: User, label: "Profile", href: "/dashboard/profile" },
+      { icon: ScrollText, label: "Admin", href: "/dashboard/admin" },
     ],
   },
 ];
@@ -51,7 +71,6 @@ export function DashboardSidebar() {
   const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen } = useDashboard();
   const pathname = usePathname();
 
-  // Close mobile drawer on Escape key
   useEffect(() => {
     if (!mobileDrawerOpen) return;
     const handler = (e: KeyboardEvent) => {
@@ -64,7 +83,6 @@ export function DashboardSidebar() {
     return () => document.removeEventListener("keydown", handler);
   }, [mobileDrawerOpen, setMobileDrawerOpen]);
 
-  // Lock body scroll when mobile drawer is open
   useEffect(() => {
     if (mobileDrawerOpen) {
       document.body.style.overflow = "hidden";
@@ -74,7 +92,6 @@ export function DashboardSidebar() {
     return () => { document.body.style.overflow = ""; };
   }, [mobileDrawerOpen]);
 
-  // Close mobile drawer on resize to desktop
   useEffect(() => {
     const handler = () => {
       if (window.innerWidth >= 1024 && mobileDrawerOpen) {
@@ -87,19 +104,17 @@ export function DashboardSidebar() {
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
-      {/* Logo */}
       <div className={`flex h-16 items-center border-b border-border ${sidebarCollapsed ? "justify-center px-2" : "gap-2.5 px-5"}`}>
         <Link href="/dashboard" className="flex items-center gap-2.5" onClick={() => setMobileDrawerOpen(false)}>
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
             <Zap className="h-4 w-4 text-primary-foreground" aria-hidden="true" />
           </div>
           {!sidebarCollapsed && (
-            <span className="text-lg font-semibold tracking-tight text-foreground">Nexus</span>
+            <span className="text-lg font-semibold tracking-tight text-foreground">AssetFlow</span>
           )}
         </Link>
       </div>
 
-      {/* Collapse Toggle - Desktop only */}
       <button
         onClick={toggleSidebar}
         className="hidden lg:flex absolute -right-3 top-20 z-50 h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
@@ -109,7 +124,6 @@ export function DashboardSidebar() {
         <ChevronLeft className={`h-3.5 w-3.5 transition-transform duration-200 ${sidebarCollapsed ? "rotate-180" : ""}`} />
       </button>
 
-      {/* Nav Groups */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-6" aria-label="Main navigation">
         {navGroups.map((group) => (
           <div key={group.label}>
@@ -120,7 +134,7 @@ export function DashboardSidebar() {
             )}
             <div className="space-y-0.5">
               {group.items.map((item) => {
-                const isActive = pathname === item.href && item.label !== "Audit Logs" || (item.label === "Audit Logs" && pathname === "/dashboard/admin");
+                const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
                 return (
                   <Link
                     key={item.label}
@@ -140,7 +154,6 @@ export function DashboardSidebar() {
                     {!sidebarCollapsed && (
                       <span className="text-sm font-medium">{item.label}</span>
                     )}
-                    {/* Active indicator */}
                     {isActive && !sidebarCollapsed && (
                       <div className="absolute right-3 h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
                     )}
@@ -152,7 +165,6 @@ export function DashboardSidebar() {
         ))}
       </nav>
 
-      {/* User Section */}
       <div className={`border-t border-border p-3 ${sidebarCollapsed ? "px-2" : ""}`}>
         <div className={`flex items-center rounded-lg px-3 py-2.5 transition-colors hover:bg-muted ${sidebarCollapsed ? "justify-center px-2" : "gap-3"}`}>
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary" aria-hidden="true">
@@ -171,7 +183,6 @@ export function DashboardSidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
       <aside
         aria-label="Sidebar"
         className={`hidden border-r border-border bg-sidebar transition-all duration-200 lg:relative lg:flex lg:flex-col ${
@@ -181,7 +192,6 @@ export function DashboardSidebar() {
         {sidebarContent}
       </aside>
 
-      {/* Mobile Drawer */}
       {mobileDrawerOpen && (
         <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
           <div

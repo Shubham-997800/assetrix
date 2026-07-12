@@ -277,6 +277,31 @@
   animation: shimmer 1.5s infinite;
 }
 
+/* ── Custom Scrollbars (Theme-Matching) ── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
 /* ── Reduced Motion ── */
 
 @media (prefers-reduced-motion: reduce) {

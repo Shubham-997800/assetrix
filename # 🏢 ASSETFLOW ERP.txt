@@ -1,0 +1,236 @@
+# 🏢 ASSETFLOW ERP
+
+# FINAL FRONTEND PAGE TREE VIEW
+
+# ODOO HACKATHON 2026
+
+Frontend
+│
+├── 🌐 PUBLIC WEBSITE
+│   │
+│   ├── Landing Page
+│   │   ├── Hero Section
+│   │   ├── Features Overview
+│   │   ├── Workflow Visualization
+│   │   ├── Asset Lifecycle Preview
+│   │   ├── Analytics Preview
+│   │   ├── Security & RBAC Section
+│   │   ├── FAQ
+│   │   ├── CTA Banner
+│   │   └── Footer
+│   │
+│   ├── Privacy Policy
+│   ├── Terms & Conditions
+│   ├── Contact Page
+│   └── Documentation
+│
+├── 🔐 AUTH MODULE
+│   │
+│   ├── Login
+│   │   ├── Email
+│   │   ├── Password
+│   │   ├── Remember Me
+│   │   ├── Forgot Password
+│   │   └── Session Validation
+│   │
+│   ├── Signup
+│   │   ├── Full Name
+│   │   ├── Email
+│   │   ├── Password
+│   │   ├── Confirm Password
+│   │   └── Employee Account Creation
+│   │
+│   ├── Forgot Password
+│   ├── Reset Password
+│   ├── Verify Email
+│   └── Session Expired
+│
+├── 📊 DASHBOARD
+│   │
+│   ├── KPI Cards
+│   │   ├── Assets Available
+│   │   ├── Assets Allocated
+│   │   ├── Maintenance Today
+│   │   ├── Active Bookings
+│   │   ├── Pending Transfers
+│   │   └── Upcoming Returns
+│   │
+│   ├── Overdue Returns Widget
+│   ├── Quick Actions
+│   │   ├── Register Asset
+│   │   ├── Book Resource
+│   │   └── Raise Maintenance Request
+│   │
+│   ├── Recent Activities
+│   ├── Notifications Widget
+│   ├── Asset Status Chart
+│   ├── Booking Calendar Preview
+│   └── Department Summary
+│
+├── 🏢 ORGANIZATION SETUP
+│   │
+│   ├── Department Management
+│   │   ├── Department List
+│   │   ├── Create Department
+│   │   ├── Edit Department
+│   │   ├── Assign Department Head
+│   │   ├── Parent Department
+│   │   └── Activate/Deactivate
+│   │
+│   ├── Asset Category Management
+│   │   ├── Categories List
+│   │   ├── Create Category
+│   │   ├── Dynamic Fields
+│   │   └── Category Settings
+│   │
+│   └── Employee Directory
+│       ├── Employee List
+│       ├── Employee Details
+│       ├── Promote Employee
+│       ├── Assign Roles
+│       └── Employee Status
+│
+├── 📦 ASSET DIRECTORY
+│   │
+│   ├── Asset Table
+│   │   ├── Search
+│   │   ├── Filters
+│   │   ├── QR Search
+│   │   ├── Sorting
+│   │   ├── Pagination
+│   │   └── Export
+│   │
+│   ├── Register Asset
+│   │   ├── Basic Details
+│   │   ├── Asset Category
+│   │   ├── Auto Asset Tag
+│   │   ├── Serial Number
+│   │   ├── Acquisition Details
+│   │   ├── Documents Upload
+│   │   └── Bookable Resource Flag
+│   │
+│   ├── Asset Details
+│   │   ├── Asset Information
+│   │   ├── Allocation History
+│   │   ├── Maintenance History
+│   │   ├── Documents
+│   │   └── Timeline
+│   │
+│   └── Asset Lifecycle
+│       ├── Available
+│       ├── Allocated
+│       ├── Reserved
+│       ├── Under Maintenance
+│       ├── Lost
+│       ├── Retired
+│       └── Disposed
+│
+├── 🔄 ASSET ALLOCATION MODULE
+│   │
+│   ├── Allocate Asset
+│   ├── Active Allocations
+│   ├── Transfer Requests
+│   ├── Pending Approvals
+│   ├── Returned Assets
+│   ├── Overdue Returns
+│   └── Allocation History
+│
+├── 📅 RESOURCE BOOKING MODULE
+│   │
+│   ├── Resource Directory
+│   ├── Calendar View
+│   ├── Create Booking
+│   ├── Upcoming Bookings
+│   ├── Ongoing Bookings
+│   ├── Completed Bookings
+│   ├── Cancelled Bookings
+│   └── Booking History
+│
+├── 🔧 MAINTENANCE MODULE
+│   │
+│   ├── Raise Request
+│   ├── Pending Approval
+│   ├── Approved Requests
+│   ├── Rejected Requests
+│   ├── Technician Assigned
+│   ├── In Progress
+│   ├── Resolved
+│   └── Maintenance History
+│
+├── 🧾 AUDIT MODULE
+│   │
+│   ├── Audit Cycles
+│   ├── Create Audit Cycle
+│   ├── Assign Auditors
+│   ├── Verification Screen
+│   │   ├── Verified
+│   │   ├── Missing
+│   │   └── Damaged
+│   │
+│   ├── Discrepancy Reports
+│   ├── Close Audit Cycle
+│   └── Audit History
+│
+├── 📈 REPORTS & ANALYTICS
+│   │
+│   ├── Asset Utilization
+│   ├── Idle Assets
+│   ├── Maintenance Trends
+│   ├── Retirement Forecast
+│   ├── Department Allocation
+│   ├── Booking Heatmap
+│   ├── Export CSV
+│   ├── Export PDF
+│   └── Export Excel
+│
+├── 🔔 NOTIFICATIONS & LOGS
+│   │
+│   ├── All Notifications
+│   ├── Unread
+│   ├── Booking Alerts
+│   ├── Maintenance Alerts
+│   ├── Audit Alerts
+│   ├── Transfer Alerts
+│   ├── Overdue Alerts
+│   │
+│   └── Activity Logs
+│       ├── User Activity
+│       ├── Asset Activity
+│       ├── Approval Logs
+│       └── System Logs
+│
+├── 👤 PROFILE MODULE
+│   │
+│   ├── Personal Information
+│   ├── Contact Information
+│   ├── Change Password
+│   ├── Sessions
+│   ├── Devices
+│   └── Activity History
+│
+├── ⚙ SETTINGS MODULE
+│   │
+│   ├── General
+│   ├── Appearance
+│   ├── Notification Preferences
+│   ├── Security
+│   ├── Language
+│   └── Integrations
+│
+├── 🛡 ADMIN MODULE
+│   │
+│   ├── Users
+│   ├── Roles
+│   ├── Permissions
+│   ├── Feature Flags
+│   ├── System Health
+│   └── Audit Controls
+│
+└── 🚨 SYSTEM PAGES
+│
+├── 403 Forbidden
+├── 404 Not Found
+├── 500 Server Error
+├── Maintenance Mode
+├── Offline Mode
+└── Access Denied

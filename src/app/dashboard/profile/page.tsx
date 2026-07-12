@@ -28,7 +28,7 @@ const tabs = [
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile");
-  const [editMode, setEditMode] = useState(false);
+  const [editMode] = useState(false);
 
   return (
     <div className="space-y-6">

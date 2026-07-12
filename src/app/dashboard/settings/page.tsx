@@ -13,15 +13,11 @@ import {
   SlidersHorizontal,
   Save,
   Key,
-  Webhook,
   Link2,
-  Lock,
-  Clock,
   Monitor,
   Sun,
   Moon,
   CheckCircle,
-  AlertTriangle,
 } from "lucide-react";
 
 const tabs = [

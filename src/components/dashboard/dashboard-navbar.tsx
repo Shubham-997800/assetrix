@@ -21,25 +21,25 @@ import {
 
 const searchSuggestions = [
   { type: "page", label: "Dashboard", href: "/dashboard" },
-  { type: "page", label: "Analytics", href: "/dashboard" },
-  { type: "record", label: "Order #8241", href: "/dashboard" },
-  { type: "user", label: "Sarah Chen", href: "/dashboard" },
-  { type: "workflow", label: "Procurement Approval", href: "/dashboard" },
-  { type: "report", label: "Q2 Financial Report", href: "/dashboard" },
+  { type: "page", label: "Asset Directory", href: "/dashboard/assets" },
+  { type: "record", label: "AST-001 MacBook Pro", href: "/dashboard/assets" },
+  { type: "user", label: "Sarah Chen", href: "/dashboard/admin" },
+  { type: "page", label: "Asset Allocation", href: "/dashboard/allocations" },
+  { type: "page", label: "Reports & Analytics", href: "/dashboard/reports" },
 ];
 
 const notifications = [
-  { id: 1, text: "Budget approved for Q3", time: "2m ago", unread: true, priority: "high" },
-  { id: 2, text: "New vendor onboarded", time: "15m ago", unread: true, priority: "normal" },
-  { id: 3, text: "Security audit passed", time: "1h ago", unread: false, priority: "normal" },
-  { id: 4, text: "Report generated", time: "2h ago", unread: false, priority: "low" },
-  { id: 5, text: "User onboarded", time: "3h ago", unread: false, priority: "low" },
+  { id: 1, text: "Maintenance MNT-302 approved", time: "2m ago", unread: true, priority: "high" },
+  { id: 2, text: "Booking confirmed: Meeting Room A", time: "15m ago", unread: true, priority: "normal" },
+  { id: 3, text: "Transfer request TRF-201 pending", time: "1h ago", unread: false, priority: "normal" },
+  { id: 4, text: "Asset AST-045 reported missing", time: "2h ago", unread: false, priority: "low" },
+  { id: 5, text: "Overdue return: MacBook Pro", time: "3h ago", unread: false, priority: "low" },
 ];
 
 const unreadCount = notifications.filter((n) => n.unread).length;
 
 export function DashboardNavbar() {
-  const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, commandOpen, setCommandOpen } = useDashboard();
+  const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, setCommandOpen } = useDashboard();
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notifOpen, setNotifOpen] = useState(false);
@@ -221,7 +221,7 @@ export function DashboardNavbar() {
                 </div>
                 <div className="border-t border-border p-2">
                   <Link
-                    href="/dashboard"
+                    href="/dashboard/notifications"
                     className="flex items-center justify-center rounded-lg py-2 text-sm font-medium text-primary transition-colors hover:bg-muted"
                     onClick={() => setNotifOpen(false)}
                   >
@@ -258,10 +258,10 @@ export function DashboardNavbar() {
                 </div>
                 <div className="p-1.5">
                   {[
-                    { icon: User, label: "Profile", href: "/dashboard" },
-                    { icon: Settings, label: "Settings", href: "/dashboard" },
-                    { icon: Shield, label: "Security", href: "/dashboard" },
-                    { icon: Clock, label: "Activity Log", href: "/dashboard" },
+                    { icon: User, label: "Profile", href: "/dashboard/profile" },
+                    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+                    { icon: Shield, label: "Security", href: "/dashboard/settings" },
+                    { icon: Clock, label: "Activity Log", href: "/dashboard/logs" },
                   ].map((item) => (
                     <Link
                       key={item.label}
