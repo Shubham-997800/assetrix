@@ -17,7 +17,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
     const inputId = id || label.toLowerCase().replace(/\s+/g, "-");
 
     return (
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <label htmlFor={inputId} className="text-sm font-medium text-foreground">
           {label}
         </label>
@@ -31,8 +31,8 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             ref={ref}
             id={inputId}
             type={isPassword && showPassword ? "text" : type}
-            className={`input-focus-glow w-full rounded-xl border bg-card px-4 py-2.5 pr-10 text-sm text-foreground outline-none transition-all duration-150 placeholder:text-muted-foreground ${
-              icon ? "pl-10" : ""
+            className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2 pr-9 text-sm text-foreground outline-none transition-all duration-150 placeholder:text-muted-foreground ${
+              icon ? "pl-9" : "px-3"
             } ${
               error
                 ? "border-destructive focus:border-destructive focus:ring-destructive/20"
@@ -46,7 +46,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-lg"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (

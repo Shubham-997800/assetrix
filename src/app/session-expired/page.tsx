@@ -19,39 +19,31 @@ export default function SessionExpiredPage() {
 
   return (
     <AuthLayout>
-      <div className="space-y-6">
-        {/* Icon */}
-        <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-            <AlertTriangle className="h-7 w-7 text-primary" />
-          </div>
+      <div className="space-y-4 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+          <AlertTriangle className="h-6 w-6 text-primary" />
         </div>
 
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-            Session Expired
+        <div>
+          <h1 className="text-lg font-semibold tracking-tight text-foreground">
+            Session expired
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Your session has expired due to inactivity.
-            <br />
-            Please sign in again to continue.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your session has expired. Please sign in again.
           </p>
         </div>
 
-        {/* Actions */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <Link href="/login" className="block">
-            <Button className="w-full btn-enterprise" size="lg">
+            <Button className="w-full btn-enterprise">
               <ArrowLeft className="h-4 w-4" />
-              Return to Login
+              Sign in
             </Button>
           </Link>
 
           <Button
             variant="outline"
             className="w-full btn-enterprise"
-            size="lg"
             onClick={handleRefresh}
             disabled={refreshing}
           >
@@ -63,7 +55,7 @@ export default function SessionExpiredPage() {
             ) : (
               <>
                 <RefreshCw className="h-4 w-4" />
-                Refresh Session
+                Refresh session
               </>
             )}
           </Button>

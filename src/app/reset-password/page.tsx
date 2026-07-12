@@ -26,51 +26,43 @@ export default function ResetPasswordPage() {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (getPasswordStrength(password).score < 2) {
-      newErrors.password = "Password does not meet requirements";
-    }
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const e: FormErrors = {};
+    if (!password) e.password = "Password is required";
+    else if (getPasswordStrength(password).score < 2)
+      e.password = "Password too weak";
+    if (!confirmPassword) e.confirmPassword = "Confirm your password";
+    else if (password !== confirmPassword)
+      e.confirmPassword = "Passwords don't match";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (ev: FormEvent) => {
+    ev.preventDefault();
     if (!validate()) return;
-
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1500));
     setSuccess(true);
     setLoading(false);
-
     setTimeout(() => router.push("/login"), 3000);
   };
 
   return (
     <AuthLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {!success ? (
           <>
-            {/* Header */}
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              <h1 className="text-lg font-semibold tracking-tight text-foreground">
                 Set new password
               </h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">
+              <p className="mt-0.5 text-sm text-muted-foreground">
                 Choose a strong password for your account.
               </p>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              <div className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+              <div className="space-y-2">
                 <AuthInput
                   label="New password"
                   type="password"
@@ -80,7 +72,7 @@ export default function ResetPasswordPage() {
                   onChange={(e) => {
                     setPassword(e.target.value);
                     if (errors.password)
-                      setErrors((prev) => ({ ...prev, password: undefined }));
+                      setErrors((p) => ({ ...p, password: undefined }));
                   }}
                   autoComplete="new-password"
                 />
@@ -90,16 +82,13 @@ export default function ResetPasswordPage() {
               <AuthInput
                 label="Confirm password"
                 type="password"
-                placeholder="Re-enter new password"
+                placeholder="Re-enter password"
                 error={errors.confirmPassword}
                 value={confirmPassword}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
                   if (errors.confirmPassword)
-                    setErrors((prev) => ({
-                      ...prev,
-                      confirmPassword: undefined,
-                    }));
+                    setErrors((p) => ({ ...p, confirmPassword: undefined }));
                 }}
                 autoComplete="new-password"
               />
@@ -107,13 +96,12 @@ export default function ResetPasswordPage() {
               <Button
                 type="submit"
                 className="w-full btn-enterprise"
-                size="lg"
                 disabled={loading}
               >
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Resetting password...
+                    Resetting...
                   </>
                 ) : (
                   "Reset password"
@@ -122,24 +110,24 @@ export default function ResetPasswordPage() {
             </form>
           </>
         ) : (
-          /* Success State */
-          <div className="text-center animate-fade-in-up">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-              <CheckCircle className="h-7 w-7 text-primary" />
+          <div className="space-y-4 text-center animate-fade-in">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+              <CheckCircle className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="mt-5 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-              Password reset successful
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Your password has been updated. Redirecting to sign in...
-            </p>
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight text-foreground">
+                Password updated
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Redirecting to sign in...
+              </p>
+            </div>
           </div>
         )}
 
-        {/* Back to Login */}
         <Link
           href="/login"
-          className="flex items-center justify-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to sign in

@@ -19,15 +19,7 @@ interface FormErrors {
   password?: string;
   confirmPassword?: string;
   terms?: string;
-  general?: string;
 }
-
-const workflowSteps = [
-  "You create an Employee account",
-  "Admin reviews your registration",
-  "Admin assigns your role and department",
-  "You receive access to your workspace",
-];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -39,7 +31,9 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
-  const [privacyType, setPrivacyType] = useState<"privacy" | "terms">("privacy");
+  const [privacyType, setPrivacyType] = useState<"privacy" | "terms">(
+    "privacy",
+  );
 
   const openDialog = (type: "privacy" | "terms") => {
     setPrivacyType(type);
@@ -47,69 +41,54 @@ export default function RegisterPage() {
   };
 
   const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (!name.trim()) {
-      newErrors.name = "Full name is required";
-    } else if (name.trim().length < 2) {
-      newErrors.name = "Name must be at least 2 characters";
-    }
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid work email address";
-    }
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (getPasswordStrength(password).score < 2) {
-      newErrors.password = "Password does not meet requirements";
-    }
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    if (!acceptTerms) {
-      newErrors.terms = "You must accept the terms and conditions";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const e: FormErrors = {};
+    if (!name.trim()) e.name = "Name is required";
+    else if (name.trim().length < 2) e.name = "Min 2 characters";
+    if (!email) e.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      e.email = "Enter a valid email";
+    if (!password) e.password = "Password is required";
+    else if (getPasswordStrength(password).score < 2)
+      e.password = "Password too weak";
+    if (!confirmPassword) e.confirmPassword = "Confirm your password";
+    else if (password !== confirmPassword)
+      e.confirmPassword = "Passwords don't match";
+    if (!acceptTerms) e.terms = "You must accept the terms";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (ev: FormEvent) => {
+    ev.preventDefault();
     if (!validate()) return;
-
     setLoading(true);
-    setErrors({});
     await new Promise((r) => setTimeout(r, 2000));
     router.push("/verify-email");
   };
 
   return (
     <AuthLayout>
-      <div className="space-y-6">
-        {/* Header */}
+      <div className="space-y-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-            Create your account
+          <h1 className="text-lg font-semibold tracking-tight text-foreground">
+            Create account
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Join your organization&apos;s workspace
           </p>
         </div>
 
-        {/* Error Banner */}
-        {errors.general && (
-          <div
-            className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 animate-fade-in"
-            role="alert"
-          >
-            <p className="text-sm text-destructive">{errors.general}</p>
-          </div>
-        )}
+        {/* Employee notice */}
+        <div className="rounded-lg border border-border bg-muted/30 px-3 py-2">
+          <p className="text-xs text-muted-foreground">
+            All new accounts are created as{" "}
+            <span className="font-medium text-foreground">Employee</span>{" "}
+            accounts. Administrative roles are assigned internally by
+            administrators.
+          </p>
+        </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-3" noValidate>
           <AuthInput
             label="Full name"
             type="text"
@@ -119,38 +98,36 @@ export default function RegisterPage() {
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-              if (errors.name)
-                setErrors((prev) => ({ ...prev, name: undefined }));
+              if (errors.name) setErrors((p) => ({ ...p, name: undefined }));
             }}
             autoComplete="name"
           />
 
           <AuthInput
-            label="Work email"
+            label="Email"
             type="email"
-            placeholder="john@company.com"
+            placeholder="you@company.com"
             icon={<Mail className="h-4 w-4" />}
             error={errors.email}
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              if (errors.email)
-                setErrors((prev) => ({ ...prev, email: undefined }));
+              if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
             }}
             autoComplete="email"
           />
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <AuthInput
               label="Password"
               type="password"
-              placeholder="Create a strong password"
+              placeholder="Create a password"
               error={errors.password}
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
                 if (errors.password)
-                  setErrors((prev) => ({ ...prev, password: undefined }));
+                  setErrors((p) => ({ ...p, password: undefined }));
               }}
               autoComplete="new-password"
             />
@@ -160,42 +137,38 @@ export default function RegisterPage() {
           <AuthInput
             label="Confirm password"
             type="password"
-            placeholder="Re-enter your password"
+            placeholder="Re-enter password"
             error={errors.confirmPassword}
             value={confirmPassword}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
               if (errors.confirmPassword)
-                setErrors((prev) => ({
-                  ...prev,
-                  confirmPassword: undefined,
-                }));
+                setErrors((p) => ({ ...p, confirmPassword: undefined }));
             }}
             autoComplete="new-password"
           />
 
           {/* Terms */}
-          <div className="space-y-2">
-            <div className="flex items-start gap-2.5">
+          <div className="space-y-1">
+            <label className="flex items-start gap-2 text-sm text-muted-foreground">
               <input
-                id="terms"
                 type="checkbox"
                 checked={acceptTerms}
                 onChange={(e) => {
                   setAcceptTerms(e.target.checked);
                   if (errors.terms)
-                    setErrors((prev) => ({ ...prev, terms: undefined }));
+                    setErrors((p) => ({ ...p, terms: undefined }));
                 }}
-                className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
+                className="mt-0.5 h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary/20"
               />
-              <label htmlFor="terms" className="text-sm text-muted-foreground">
+              <span>
                 I agree to the{" "}
                 <button
                   type="button"
                   onClick={() => openDialog("terms")}
                   className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
                 >
-                  Terms of Service
+                  Terms
                 </button>{" "}
                 and{" "}
                 <button
@@ -205,20 +178,16 @@ export default function RegisterPage() {
                 >
                   Privacy Policy
                 </button>
-              </label>
-            </div>
+              </span>
+            </label>
             {errors.terms && (
-              <p className="text-xs text-destructive" role="alert">
-                {errors.terms}
-              </p>
+              <p className="text-xs text-destructive">{errors.terms}</p>
             )}
           </div>
 
-          {/* Submit */}
           <Button
             type="submit"
             className="w-full btn-enterprise"
-            size="lg"
             disabled={loading}
           >
             {loading ? (
@@ -232,24 +201,6 @@ export default function RegisterPage() {
           </Button>
         </form>
 
-        {/* Role Assignment Workflow */}
-        <div className="rounded-xl border border-border bg-muted/30 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            How access works
-          </p>
-          <div className="mt-3 space-y-2.5">
-            {workflowSteps.map((step, i) => (
-              <div key={i} className="flex items-center gap-2.5">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
-                  {i + 1}
-                </div>
-                <p className="text-xs text-muted-foreground">{step}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link

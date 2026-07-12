@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { AuthLayout } from "@/components/shared/auth-layout";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Mail, ArrowLeft, Loader2, Clock } from "lucide-react";
+import { Mail, ArrowLeft, Loader2, Clock, CheckCircle } from "lucide-react";
 
 export default function VerifyEmailPage() {
   const [loading, setLoading] = useState(false);
@@ -14,8 +14,8 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     if (countdown <= 0) return;
-    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setCountdown(countdown - 1), 1000);
+    return () => clearTimeout(t);
   }, [countdown]);
 
   const handleResend = useCallback(async () => {
@@ -26,96 +26,71 @@ export default function VerifyEmailPage() {
     setLoading(false);
   }, [canResend]);
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  };
+  const fmt = (s: number) =>
+    `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
   return (
     <AuthLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 animate-fade-in-up">
-            <Mail className="h-7 w-7 text-primary" />
-          </div>
-          <h1 className="mt-5 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+      <div className="space-y-4 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 animate-fade-in">
+          <Mail className="h-6 w-6 text-primary" />
+        </div>
+
+        <div>
+          <h1 className="text-lg font-semibold tracking-tight text-foreground">
             Verify your email
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            We&apos;ve sent a verification link to
+          <p className="mt-1 text-sm text-muted-foreground">
+            We sent a verification link to{" "}
+            <span className="font-medium text-foreground">{email}</span>
           </p>
-          <p className="mt-1 text-sm font-medium text-foreground">{email}</p>
         </div>
 
-        {/* Instructions */}
-        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2.5">
-          <div className="flex items-start gap-3">
-            <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                Check your inbox
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Click the verification link in the email we sent you.
-              </p>
-            </div>
+        <div className="space-y-2 rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-left">
+          <div className="flex items-start gap-2">
+            <CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+            <p className="text-xs text-muted-foreground">
+              Click the verification link in the email we sent you.
+            </p>
           </div>
-          <div className="flex items-start gap-3">
-            <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                Verify your account
-              </p>
-              <p className="text-xs text-muted-foreground">
-                The link expires in 24 hours. Check spam if you don&apos;t see
-                it.
-              </p>
-            </div>
+          <div className="flex items-start gap-2">
+            <CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+            <p className="text-xs text-muted-foreground">
+              The link expires in 24 hours. Check spam if you don&apos;t see it.
+            </p>
           </div>
         </div>
 
-        {/* Resend with Countdown */}
-        <div className="space-y-3">
-          {canResend ? (
-            <Button
-              onClick={handleResend}
-              variant="outline"
-              className="w-full btn-enterprise"
-              size="lg"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Mail className="h-4 w-4" />
-                  Resend verification email
-                </>
-              )}
-            </Button>
-          ) : (
-            <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/30 px-4 py-3">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                Resend available in{" "}
-                <span className="font-mono font-medium text-foreground">
-                  {formatTime(countdown)}
-                </span>
-              </span>
-            </div>
-          )}
-        </div>
+        {canResend ? (
+          <Button
+            onClick={handleResend}
+            variant="outline"
+            className="w-full btn-enterprise"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              "Resend verification email"
+            )}
+          </Button>
+        ) : (
+          <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
+            <Clock className="h-3.5 w-3.5" />
+            Resend in{" "}
+            <span className="font-mono font-medium text-foreground">
+              {fmt(countdown)}
+            </span>
+          </div>
+        )}
 
-        {/* Footer */}
-        <div className="space-y-3 text-center">
+        <div className="space-y-2">
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to sign in

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { AuthLayout } from "@/components/shared/auth-layout";
 import { AuthInput } from "@/components/auth/auth-input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Mail, ArrowLeft, CheckCircle, Clock } from "lucide-react";
-import { useEffect } from "react";
 
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
@@ -18,8 +17,8 @@ export default function ForgotPasswordPage() {
 
   useEffect(() => {
     if (countdown <= 0) return;
-    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setCountdown(countdown - 1), 1000);
+    return () => clearTimeout(t);
   }, [countdown]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -29,10 +28,9 @@ export default function ForgotPasswordPage() {
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Please enter a valid email address");
+      setError("Enter a valid email");
       return;
     }
-
     setLoading(true);
     setError("");
     await new Promise((r) => setTimeout(r, 1500));
@@ -49,31 +47,26 @@ export default function ForgotPasswordPage() {
     setLoading(false);
   };
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  };
+  const fmt = (s: number) =>
+    `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
   return (
     <AuthLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {!sent ? (
           <>
-            {/* Header */}
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                Reset your password
+              <h1 className="text-lg font-semibold tracking-tight text-foreground">
+                Reset password
               </h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                Enter your email and we&apos;ll send you a reset link.
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                Enter your email and we&apos;ll send a reset link.
               </p>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <form onSubmit={handleSubmit} className="space-y-3" noValidate>
               <AuthInput
-                label="Email address"
+                label="Email"
                 type="email"
                 placeholder="you@company.com"
                 icon={<Mail className="h-4 w-4" />}
@@ -89,13 +82,12 @@ export default function ForgotPasswordPage() {
               <Button
                 type="submit"
                 className="w-full btn-enterprise"
-                size="lg"
                 disabled={loading}
               >
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Sending reset link...
+                    Sending...
                   </>
                 ) : (
                   "Send reset link"
@@ -104,69 +96,54 @@ export default function ForgotPasswordPage() {
             </form>
           </>
         ) : (
-          /* Success State */
-          <div className="text-center animate-fade-in-up">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-              <CheckCircle className="h-7 w-7 text-primary" />
+          <div className="space-y-4 text-center animate-fade-in">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+              <CheckCircle className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="mt-5 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-              Check your email
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              We&apos;ve sent password reset instructions to
-            </p>
-            <p className="mt-1 text-sm font-medium text-foreground">{email}</p>
-
-            {/* Resend with Countdown */}
-            <div className="mt-4">
-              {canResend ? (
-                <Button
-                  onClick={handleResend}
-                  variant="outline"
-                  className="btn-enterprise"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    "Resend reset link"
-                  )}
-                </Button>
-              ) : (
-                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  <span>
-                    Resend in{" "}
-                    <span className="font-mono font-medium text-foreground">
-                      {formatTime(countdown)}
-                    </span>
-                  </span>
-                </div>
-              )}
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight text-foreground">
+                Check your email
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                We sent a reset link to{" "}
+                <span className="font-medium text-foreground">{email}</span>
+              </p>
             </div>
 
-            <p className="mt-4 text-xs text-muted-foreground">
-              Didn&apos;t receive the email? Check your spam folder or{" "}
-              <button
-                onClick={() => {
-                  setSent(false);
-                  setEmail("");
-                }}
-                className="font-medium text-primary hover:text-primary/80"
+            {canResend ? (
+              <Button
+                onClick={handleResend}
+                variant="outline"
+                className="btn-enterprise"
+                disabled={loading}
               >
-                try a different email
-              </button>
-            </p>
+                {loading ? "Sending..." : "Resend reset link"}
+              </Button>
+            ) : (
+              <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                Resend in{" "}
+                <span className="font-mono font-medium text-foreground">
+                  {fmt(countdown)}
+                </span>
+              </div>
+            )}
+
+            <button
+              onClick={() => {
+                setSent(false);
+                setEmail("");
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Try a different email
+            </button>
           </div>
         )}
 
-        {/* Back to Login */}
         <Link
           href="/login"
-          className="flex items-center justify-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to sign in

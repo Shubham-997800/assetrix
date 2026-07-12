@@ -4,15 +4,13 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/shared/auth-layout";
-import { AuthInput } from "@/components/auth/auth-input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Mail, Lock, Eye, EyeOff, Shield } from "lucide-react";
+import { Loader2, Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 interface FormErrors {
   email?: string;
   password?: string;
   general?: string;
-  lockout?: string;
 }
 
 export default function LoginPage() {
@@ -24,125 +22,87 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const e: FormErrors = {};
+    if (!email) e.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      e.email = "Enter a valid email";
+    if (!password) e.password = "Password is required";
+    else if (password.length < 6) e.password = "Min 6 characters";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (ev: FormEvent) => {
+    ev.preventDefault();
     if (!validate()) return;
-
     setLoading(true);
     setErrors({});
-
     await new Promise((r) => setTimeout(r, 1500));
-
     if (password === "wrong") {
-      setErrors({
-        general:
-          "Invalid email or password. Please verify your credentials and try again.",
-      });
+      setErrors({ general: "Invalid email or password." });
       setLoading(false);
       return;
     }
-
-    if (password === "locked") {
-      setErrors({
-        lockout:
-          "Too many failed attempts. Your account has been temporarily locked. Please try again in 15 minutes or contact your administrator.",
-      });
-      setLoading(false);
-      return;
-    }
-
     router.push("/dashboard");
   };
 
   return (
     <AuthLayout>
-      <div className="space-y-6">
-        {/* Header */}
+      <div className="space-y-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-            Welcome back
+          <h1 className="text-lg font-semibold tracking-tight text-foreground">
+            Sign in
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Sign in to your Assetrix account
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Enter your credentials to continue
           </p>
         </div>
 
-        {/* Error Banner */}
         {errors.general && (
           <div
-            className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 animate-fade-in"
+            className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive animate-fade-in"
             role="alert"
           >
-            <div className="flex items-start gap-2">
-              <svg
-                className="mt-0.5 h-4 w-4 shrink-0 text-destructive"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="15" y1="9" x2="9" y2="15" />
-                <line x1="9" y1="9" x2="15" y2="15" />
-              </svg>
-              <p className="text-sm text-destructive">{errors.general}</p>
-            </div>
+            {errors.general}
           </div>
         )}
 
-        {/* Lockout Banner */}
-        {errors.lockout && (
-          <div
-            className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 animate-fade-in"
-            role="alert"
-          >
-            <div className="flex items-start gap-2">
-              <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <div>
-                <p className="text-sm font-medium text-foreground">
-                  Account Temporarily Locked
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {errors.lockout}
-                </p>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+          {/* Email */}
+          <div className="space-y-1">
+            <label
+              htmlFor="email"
+              className="text-sm font-medium text-foreground"
+            >
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                id="email"
+                type="email"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email)
+                    setErrors((p) => ({ ...p, email: undefined }));
+                }}
+                className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2 pl-9 pr-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground ${
+                  errors.email
+                    ? "border-destructive focus:border-destructive"
+                    : "border-border focus:border-primary"
+                }`}
+                autoComplete="email"
+              />
             </div>
+            {errors.email && (
+              <p className="text-xs text-destructive">{errors.email}</p>
+            )}
           </div>
-        )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <AuthInput
-            label="Email address"
-            type="email"
-            placeholder="you@company.com"
-            icon={<Mail className="h-4 w-4" />}
-            error={errors.email}
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (errors.email)
-                setErrors((prev) => ({ ...prev, email: undefined }));
-            }}
-            autoComplete="email"
-          />
-
-          <div>
+          {/* Password */}
+          <div className="space-y-1">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="password"
@@ -152,40 +112,34 @@ export default function LoginPage() {
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                className="text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                Forgot password?
+                Forgot?
               </Link>
             </div>
-            <div className="relative mt-1.5">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                <Lock className="h-4 w-4" />
-              </div>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2.5 pl-10 pr-10 text-sm text-foreground outline-none transition-all duration-150 placeholder:text-muted-foreground ${
-                  errors.password
-                    ? "border-destructive focus:border-destructive"
-                    : "border-border focus:border-primary"
-                }`}
+                placeholder="Enter password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (errors.password)
-                    setErrors((prev) => ({ ...prev, password: undefined }));
+                    setErrors((p) => ({ ...p, password: undefined }));
                 }}
+                className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2 pl-9 pr-9 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground ${
+                  errors.password
+                    ? "border-destructive focus:border-destructive"
+                    : "border-border focus:border-primary"
+                }`}
                 autoComplete="current-password"
-                aria-invalid={!!errors.password}
-                aria-describedby={
-                  errors.password ? "password-error" : undefined
-                }
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-lg"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
@@ -196,33 +150,23 @@ export default function LoginPage() {
               </button>
             </div>
             {errors.password && (
-              <p
-                id="password-error"
-                className="mt-1.5 text-xs text-destructive"
-                role="alert"
-              >
-                {errors.password}
-              </p>
+              <p className="text-xs text-destructive">{errors.password}</p>
             )}
           </div>
 
-          {/* Remember Me */}
-          <div className="flex items-center gap-2">
+          {/* Remember */}
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <input
-              id="remember"
               type="checkbox"
-              className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
+              className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary/20"
             />
-            <label htmlFor="remember" className="text-sm text-muted-foreground">
-              Remember me for 30 days
-            </label>
-          </div>
+            Remember me
+          </label>
 
           {/* Submit */}
           <Button
             type="submit"
             className="w-full btn-enterprise"
-            size="lg"
             disabled={loading}
           >
             {loading ? (
@@ -236,14 +180,13 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        {/* Footer */}
         <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link
             href="/register"
             className="font-medium text-primary transition-colors hover:text-primary/80"
           >
-            Request access
+            Sign up
           </Link>
         </p>
       </div>
