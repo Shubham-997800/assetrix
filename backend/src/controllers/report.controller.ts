@@ -24,13 +24,13 @@ export const getAllReports = async (req: AuthenticatedRequest, res: Response): P
 };
 
 export const getReportById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-  const result = await reportService.getReportById(req.params.id as string);
+  const result = await reportService.getReportById(String(req.params.id));
   res.status(HTTP_STATUS.OK).json(result);
 };
 
 export const downloadReport = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-  const { id } = req.params;
-  const { format: fmt } = req.query as { format?: string };
+  const id = String(req.params.id);
+  const fmt = req.query.format as string | undefined;
 
   const report = await prisma.report.findUnique({ where: { id } });
   if (!report) {
@@ -44,7 +44,7 @@ export const downloadReport = async (req: AuthenticatedRequest, res: Response): 
     },
   });
 
-  const format = (fmt as string) || report.format?.toLowerCase() || 'csv';
+  const format = fmt || report.format?.toLowerCase() || 'csv';
 
   let reportRows: Record<string, unknown>[] = [];
   let columns: string[] = [];
@@ -147,7 +147,7 @@ export const downloadReport = async (req: AuthenticatedRequest, res: Response): 
 
 export const deleteReport = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const result = await reportService.deleteReport(
-    req.params.id as string,
+    String(req.params.id),
     req.user!.userId,
     req.ip,
     req.headers['user-agent']

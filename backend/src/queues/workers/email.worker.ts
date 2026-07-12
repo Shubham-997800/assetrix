@@ -1,6 +1,6 @@
 import { Job } from 'bullmq';
 import logger from '../../config/logger';
-import * as emailService from '../email.service';
+import * as emailService from '../../services/email.service';
 
 interface EmailJobData {
   type: 'WELCOME' | 'PASSWORD_RESET' | 'EMAIL_VERIFICATION' | 'MAINTENANCE' | 'BOOKING' | 'ALLOCATION' | 'WARRANTY' | 'CUSTOM';

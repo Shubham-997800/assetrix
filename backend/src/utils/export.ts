@@ -121,7 +121,7 @@ export const generatePDF = async (
     }
 
     doc.moveDown(1).fontSize(7).fillColor('#999999').text(
-      `Assetrix Report Engine | Page ${doc.bufferedPageRange().page + 1}`,
+      `Assetrix Report Engine | Page ${doc.bufferedPageRange().start + 1}`,
       doc.page.margins.left,
       doc.page.height - 30,
       { align: 'center', width: pageWidth }
@@ -152,7 +152,7 @@ export const generateExcel = async (
 
     const headerFill: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0891B2' } };
     const headerFont: Partial<ExcelJS.Font> = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
-    summarySheet.getRow(1).eachCell((cell) => {
+    summarySheet.getRow(1).eachCell((cell: ExcelJS.Cell) => {
       cell.fill = headerFill;
       cell.font = headerFont;
       cell.border = {
@@ -178,7 +178,7 @@ export const generateExcel = async (
   const headerFill: ExcelJS.Fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0891B2' } };
   const headerFont: Partial<ExcelJS.Font> = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
 
-  dataSheet.getRow(1).eachCell((cell) => {
+  dataSheet.getRow(1).eachCell((cell: ExcelJS.Cell) => {
     cell.fill = headerFill;
     cell.font = headerFont;
     cell.border = {
@@ -193,13 +193,13 @@ export const generateExcel = async (
     to: { row: 1, column: keys.length },
   };
 
-  dataSheet.eachRow((row, rowNumber) => {
+  dataSheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
     if (rowNumber > 1 && rowNumber % 2 === 0) {
-      row.eachCell((cell) => {
+      row.eachCell((cell: ExcelJS.Cell) => {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F9FF' } };
       });
     }
-    row.eachCell((cell) => {
+    row.eachCell((cell: ExcelJS.Cell) => {
       cell.border = {
         bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
       };

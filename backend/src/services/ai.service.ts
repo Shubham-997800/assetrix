@@ -401,7 +401,7 @@ export const getRecommendationsForAsset = async (assetId: string) => {
   recommendations.sort((a, b) => a.priority - b.priority);
 
   // Store recommendations in database
-  const storedRecommendations = [];
+  const storedRecommendations: any[] = [];
   for (const rec of recommendations) {
     const existing = await prisma.aIRecommendation.findFirst({
       where: {
@@ -691,7 +691,7 @@ export const getPredictiveMaintenance = async (assetId?: string) => {
         Math.min(95, Math.round((1 - coefficientOfVariation) * 100))
       );
 
-      const taskPredictions = [];
+      const taskPredictions: any[] = [];
       if (isOverdue) {
         taskPredictions.push({
           type: 'OVERDUE',

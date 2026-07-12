@@ -15,12 +15,12 @@ const getTransporter = (): nodemailer.Transporter => {
   if (transporter) return transporter;
 
   transporter = nodemailer.createTransport({
-    host: config.smtp.host,
-    port: config.smtp.port,
-    secure: config.smtp.port === 465,
+    host: config.email.host,
+    port: config.email.port,
+    secure: config.email.port === 465,
     auth: {
-      user: config.smtp.user,
-      pass: config.smtp.pass,
+      user: config.email.user,
+      pass: config.email.pass,
     },
     tls: {
       rejectUnauthorized: false,
@@ -34,7 +34,7 @@ export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
   try {
     const transport = getTransporter();
     const info = await transport.sendMail({
-      from: config.smtp.from || `"Assetrix" <${config.smtp.user}>`,
+      from: config.email.from || `"Assetrix" <${config.email.user}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,

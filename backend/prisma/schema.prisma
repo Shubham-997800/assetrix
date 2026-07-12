@@ -144,6 +144,7 @@ model User {
   auditReportedDiscrepancies AuditDiscrepancy[] @relation("ReportedByDiscrepancy")
   auditResolvedDiscrepancies AuditDiscrepancy[] @relation("ResolvedByDiscrepancy")
   notificationPreference NotificationPreference?
+  generatedReports       Report[]
 
   @@index([email])
   @@index([employeeId])
@@ -689,10 +690,11 @@ model Report {
   fileUrl     String?
   parameters  Json?
   generatedById String
-  status      String   @default("PENDING")
-  fileSize    Int?
-  createdAt   DateTime @default(now())
-  completedAt DateTime?
+  generatedBy  User     @relation(fields: [generatedById], references: [id], onDelete: Cascade)
+  status       String   @default("PENDING")
+  fileSize     Int?
+  createdAt    DateTime @default(now())
+  completedAt  DateTime?
 
   @@index([generatedById])
   @@index([type])
