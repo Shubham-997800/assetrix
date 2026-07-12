@@ -1,6 +1,10 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState, useEffect, useCallback } from "react";
+=======
+import React, { useState, useCallback, useMemo } from "react";
+>>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { PersonalInfo } from "@/components/profile/personal-info";
 import { ContactInfo } from "@/components/profile/contact-info";
@@ -25,8 +29,9 @@ const tabs = [
   { id: "sessions", label: "Sessions", icon: Monitor },
   { id: "activity", label: "Activity", icon: Clock },
   { id: "notifications", label: "Notifications", icon: Bell },
-];
+] as const;
 
+<<<<<<< HEAD
 interface UserProfile {
   id: string;
   firstName: string;
@@ -51,6 +56,28 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function ProfilePage() {
+=======
+const accountSummaryItems = [
+  { label: "Role", value: "Operations Manager", color: undefined },
+  { label: "Department", value: "Procurement", color: undefined },
+  { label: "User ID", value: "USR-284719", color: undefined },
+  { label: "Status", value: "Active", color: "text-emerald-600 dark:text-emerald-400" },
+] as const;
+
+const quickActions = [
+  { label: "Download My Data", desc: "Export all your data", danger: false },
+  { label: "Delete Account", desc: "Permanently delete account", danger: true },
+] as const;
+
+const securityTips = [
+  "Enable two-factor authentication",
+  "Use a unique, strong password",
+  "Review active sessions regularly",
+  "Keep your recovery email updated",
+] as const;
+
+function ProfilePage() {
+>>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
   const [activeTab, setActiveTab] = useState("profile");
   const [editMode, setEditMode] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars -- editMode controls UI toggle
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -82,6 +109,24 @@ export default function ProfilePage() {
   const deptName = user?.department?.name ?? "—";
   const joinDate = user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "—";
 
+  const handleTabChange = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+  }, []);
+
+  const tabNavigation = useMemo(
+    () =>
+      tabs.map((tab) => {
+        const isActive = activeTab === tab.id;
+        const className = `flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+          isActive
+            ? "border-primary text-primary"
+            : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+        }`;
+        return { ...tab, isActive, className };
+      }),
+    [activeTab]
+  );
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -90,9 +135,62 @@ export default function ProfilePage() {
         <p className="mt-1 text-sm text-muted-foreground">Manage your account settings and preferences</p>
       </div>
 
+<<<<<<< HEAD
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+=======
+      {/* Profile Header */}
+      <ProfileHeader
+        name="John Smith"
+        role="Operations Manager"
+        department="Procurement"
+        status="online"
+        joinDate="January 2025"
+        initials="JS"
+      />
+
+      {/* Tab Navigation */}
+      <div className="border-b border-border">
+        <nav className="flex gap-1 overflow-x-auto" aria-label="Profile tabs">
+          {tabNavigation.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={tab.className}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {activeTab === "profile" && (
+            <>
+              <PersonalInfo editMode={editMode} />
+              <ContactInfo editMode={editMode} />
+            </>
+          )}
+          {activeTab === "security" && (
+            <>
+              <ChangePassword />
+              <AccountInfo />
+            </>
+          )}
+          {activeTab === "sessions" && (
+            <>
+              <ActiveSessions />
+              <Devices />
+            </>
+          )}
+          {activeTab === "activity" && <ActivityLog />}
+          {activeTab === "notifications" && <NotificationSettings />}
+>>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
         </div>
       ) : error ? (
         <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center text-sm text-destructive">
@@ -110,10 +208,33 @@ export default function ProfilePage() {
             initials={initials}
           />
 
+<<<<<<< HEAD
           {/* Tab Navigation */}
           <div className="border-b border-border">
             <nav className="flex gap-1 overflow-x-auto" aria-label="Profile tabs">
               {tabs.map((tab) => (
+=======
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Account Summary */}
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h3 className="text-sm font-semibold text-foreground">Account Summary</h3>
+            <div className="mt-4 space-y-3">
+              {accountSummaryItems.map((item) => (
+                <div key={item.label} className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{item.label}</span>
+                  <span className={`text-xs font-medium ${item.color || "text-foreground"}`}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h3 className="text-sm font-semibold text-foreground">Quick Actions</h3>
+            <div className="mt-4 space-y-2">
+              {quickActions.map((action) => (
+>>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -130,6 +251,7 @@ export default function ProfilePage() {
             </nav>
           </div>
 
+<<<<<<< HEAD
           {/* Tab Content */}
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Main Content */}
@@ -222,9 +344,24 @@ export default function ProfilePage() {
                 </ul>
               </div>
             </div>
+=======
+          {/* Security Tips */}
+          <div className="rounded-xl border border-border bg-primary/5 p-6">
+            <h3 className="text-sm font-semibold text-primary">Security Tips</h3>
+            <ul className="mt-3 space-y-2 text-xs text-muted-foreground">
+              {securityTips.map((tip) => (
+                <li key={tip} className="flex items-start gap-2">
+                  <span className="mt-0.5 h-1 w-1 flex-shrink-0 rounded-full bg-primary" />
+                  {tip}
+                </li>
+              ))}
+            </ul>
+>>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
           </div>
         </>
       ) : null}
     </div>
   );
 }
+
+export default React.memo(ProfilePage);

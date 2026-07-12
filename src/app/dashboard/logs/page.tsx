@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ScrollText,
@@ -27,23 +27,23 @@ const allActivity = [
   { id: 6, time: "04:15 PM", date: "Yesterday", user: "J. Lee", action: "Raised maintenance request for AC", entity: "MNT-302", type: "user", icon: User, iconBg: "bg-violet-500/10 text-violet-600 dark:text-violet-400" },
   { id: 7, time: "03:00 PM", date: "Yesterday", user: "K. Tanaka", action: "Booked conference room for Jul 15", entity: "BK-101", type: "user", icon: User, iconBg: "bg-violet-500/10 text-violet-600 dark:text-violet-400" },
   { id: 8, time: "02:00 PM", date: "Yesterday", user: "System", action: "Scheduled maintenance window completed", entity: "System", type: "system", icon: Server, iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-];
+] as const;
 
 const approvalLogs = [
-  { id: 1, action: "Laptop allocation request", requestedBy: "S. Chen", approvedBy: "M. Webb", date: "12 Jul 2026", status: "Approved" },
-  { id: 2, action: "Budget increase for procurement", requestedBy: "A. Rivera", approvedBy: "Finance Dept", date: "11 Jul 2026", status: "Approved" },
-  { id: 3, action: "Server room access request", requestedBy: "P. Sharma", approvedBy: "IT Admin", date: "10 Jul 2026", status: "Pending" },
-  { id: 4, action: "New vendor onboarding", requestedBy: "K. Tanaka", approvedBy: "Procurement Lead", date: "09 Jul 2026", status: "Rejected" },
-];
+  { id: 1, action: "Laptop allocation request", requestedBy: "S. Chen", approvedBy: "M. Webb", date: "12 Jul 2026", status: "Approved" as const },
+  { id: 2, action: "Budget increase for procurement", requestedBy: "A. Rivera", approvedBy: "Finance Dept", date: "11 Jul 2026", status: "Approved" as const },
+  { id: 3, action: "Server room access request", requestedBy: "P. Sharma", approvedBy: "IT Admin", date: "10 Jul 2026", status: "Pending" as const },
+  { id: 4, action: "New vendor onboarding", requestedBy: "K. Tanaka", approvedBy: "Procurement Lead", date: "09 Jul 2026", status: "Rejected" as const },
+] as const;
 
 const systemLogs = [
-  { id: 1, timestamp: "12 Jul 2026 10:42:15 AM", level: "Info", message: "Database backup completed successfully", source: "Scheduler" },
-  { id: 2, timestamp: "12 Jul 2026 09:15:03 AM", level: "Warning", message: "Disk usage exceeded 80% threshold", source: "Monitor" },
-  { id: 3, timestamp: "12 Jul 2026 08:30:22 AM", level: "Info", message: "User session cache cleared", source: "Cache Service" },
-  { id: 4, timestamp: "12 Jul 2026 07:45:10 AM", level: "Error", message: "Email service connection timeout", source: "Mailer" },
-  { id: 5, timestamp: "11 Jul 2026 11:20:00 PM", level: "Info", message: "Scheduled maintenance window started", source: "Scheduler" },
-  { id: 6, timestamp: "11 Jul 2026 06:10:45 PM", level: "Warning", message: "Failed login attempt from unknown IP", source: "Auth Service" },
-];
+  { id: 1, timestamp: "12 Jul 2026 10:42:15 AM", level: "Info" as const, message: "Database backup completed successfully", source: "Scheduler" },
+  { id: 2, timestamp: "12 Jul 2026 09:15:03 AM", level: "Warning" as const, message: "Disk usage exceeded 80% threshold", source: "Monitor" },
+  { id: 3, timestamp: "12 Jul 2026 08:30:22 AM", level: "Info" as const, message: "User session cache cleared", source: "Cache Service" },
+  { id: 4, timestamp: "12 Jul 2026 07:45:10 AM", level: "Error" as const, message: "Email service connection timeout", source: "Mailer" },
+  { id: 5, timestamp: "11 Jul 2026 11:20:00 PM", level: "Info" as const, message: "Scheduled maintenance window started", source: "Scheduler" },
+  { id: 6, timestamp: "11 Jul 2026 06:10:45 PM", level: "Warning" as const, message: "Failed login attempt from unknown IP", source: "Auth Service" },
+] as const;
 
 /* ── Tabs ── */
 
@@ -53,11 +53,23 @@ const tabs = [
   { id: "asset", label: "Asset Activity", icon: Package },
   { id: "approval", label: "Approval Logs", icon: CheckCircle },
   { id: "system", label: "System Logs", icon: Server },
-];
+] as const;
+
+const APPROVAL_HEADERS = ["Action", "Requested By", "Approved By", "Date", "Status"] as const;
+const SYSTEM_HEADERS = ["Timestamp", "Level", "Message", "Source"] as const;
+
+const placeholderByTab: Record<string, string> = {
+  approval: "Search approvals...",
+  system: "Search system logs...",
+};
+
+const defaultPlaceholder = "Search activity logs...";
 
 /* ── Timeline Item ── */
 
-function TimelineItem({ entry }: { entry: (typeof allActivity)[0] }) {
+const TimelineItem = React.memo(function TimelineItem({ entry }: { entry: (typeof allActivity)[number] }) {
+  const timeLabel = entry.date === "Today" ? `Today, ${entry.time}` : `${entry.date}, ${entry.time}`;
+
   return (
     <div className="flex gap-4">
       <div className="flex flex-col items-center">
@@ -74,16 +86,23 @@ function TimelineItem({ entry }: { entry: (typeof allActivity)[0] }) {
         </div>
         <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground/60">
           <Clock className="h-3 w-3" />
-          {entry.date === "Today" ? `Today, ${entry.time}` : `${entry.date}, ${entry.time}`}
+          {timeLabel}
         </div>
       </div>
     </div>
   );
-}
+});
 
 /* ── Filter Bar ── */
 
-function FilterBar({ search, setSearch, placeholder }: { search: string; setSearch: (v: string) => void; placeholder: string }) {
+const FilterBar = React.memo(function FilterBar({ search, setSearch, placeholder }: { search: string; setSearch: (v: string) => void; placeholder: string }) {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearch(e.target.value);
+    },
+    [setSearch]
+  );
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
       <div className="relative flex-1">
@@ -92,7 +111,7 @@ function FilterBar({ search, setSearch, placeholder }: { search: string; setSear
           type="text"
           placeholder={placeholder}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={handleChange}
           className="h-8 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary"
         />
       </div>
@@ -114,36 +133,74 @@ function FilterBar({ search, setSearch, placeholder }: { search: string; setSear
       </div>
     </div>
   );
-}
+});
 
 /* ── Page ── */
 
-export default function LogsPage() {
+function LogsPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
 
-  const filteredAll = allActivity.filter(
-    (e) =>
-      e.action.toLowerCase().includes(search.toLowerCase()) ||
-      e.user.toLowerCase().includes(search.toLowerCase()) ||
-      e.entity.toLowerCase().includes(search.toLowerCase())
+  const searchLower = useMemo(() => search.toLowerCase(), [search]);
+
+  const filteredAll = useMemo(
+    () =>
+      allActivity.filter(
+        (e) =>
+          e.action.toLowerCase().includes(searchLower) ||
+          e.user.toLowerCase().includes(searchLower) ||
+          e.entity.toLowerCase().includes(searchLower)
+      ),
+    [searchLower]
   );
 
-  const userActivity = filteredAll.filter((e) => e.type === "user");
-  const assetActivity = filteredAll.filter((e) => e.type === "asset");
+  const userActivity = useMemo(() => filteredAll.filter((e) => e.type === "user"), [filteredAll]);
+  const assetActivity = useMemo(() => filteredAll.filter((e) => e.type === "asset"), [filteredAll]);
 
-  const filteredApprovals = approvalLogs.filter(
-    (r) =>
-      r.action.toLowerCase().includes(search.toLowerCase()) ||
-      r.requestedBy.toLowerCase().includes(search.toLowerCase()) ||
-      r.approvedBy.toLowerCase().includes(search.toLowerCase())
+  const filteredApprovals = useMemo(
+    () =>
+      approvalLogs.filter(
+        (r) =>
+          r.action.toLowerCase().includes(searchLower) ||
+          r.requestedBy.toLowerCase().includes(searchLower) ||
+          r.approvedBy.toLowerCase().includes(searchLower)
+      ),
+    [searchLower]
   );
 
-  const filteredSystem = systemLogs.filter(
-    (l) =>
-      l.message.toLowerCase().includes(search.toLowerCase()) ||
-      l.source.toLowerCase().includes(search.toLowerCase()) ||
-      l.level.toLowerCase().includes(search.toLowerCase())
+  const filteredSystem = useMemo(
+    () =>
+      systemLogs.filter(
+        (l) =>
+          l.message.toLowerCase().includes(searchLower) ||
+          l.source.toLowerCase().includes(searchLower) ||
+          l.level.toLowerCase().includes(searchLower)
+      ),
+    [searchLower]
+  );
+
+  const handleTabChange = useCallback(
+    (tabId: string) => {
+      setActiveTab(tabId);
+      setSearch("");
+    },
+    []
+  );
+
+  const placeholder = useMemo(() => placeholderByTab[activeTab] ?? defaultPlaceholder, [activeTab]);
+
+  const tabNavigation = useMemo(
+    () =>
+      tabs.map((tab) => {
+        const isActive = activeTab === tab.id;
+        const className = `flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+          isActive
+            ? "border-primary text-primary"
+            : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+        }`;
+        return { ...tab, isActive, className };
+      }),
+    [activeTab]
   );
 
   return (
@@ -163,15 +220,11 @@ export default function LogsPage() {
       {/* Tabs */}
       <div className="border-b border-border">
         <nav className="flex gap-1 overflow-x-auto" aria-label="Log tabs">
-          {tabs.map((tab) => (
+          {tabNavigation.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setSearch(""); }}
-              className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-              }`}
+              onClick={() => handleTabChange(tab.id)}
+              className={tab.className}
             >
               <tab.icon className="h-4 w-4" />
               {tab.label}
@@ -184,13 +237,7 @@ export default function LogsPage() {
       <FilterBar
         search={search}
         setSearch={setSearch}
-        placeholder={
-          activeTab === "approval"
-            ? "Search approvals..."
-            : activeTab === "system"
-            ? "Search system logs..."
-            : "Search activity logs..."
-        }
+        placeholder={placeholder}
       />
 
       {/* All Activity Tab */}
@@ -261,7 +308,7 @@ export default function LogsPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  {["Action", "Requested By", "Approved By", "Date", "Status"].map((h) => (
+                  {APPROVAL_HEADERS.map((h) => (
                     <th key={h} className="px-6 py-3 text-xs font-medium text-muted-foreground">
                       {h}
                     </th>
@@ -314,7 +361,7 @@ export default function LogsPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  {["Timestamp", "Level", "Message", "Source"].map((h) => (
+                  {SYSTEM_HEADERS.map((h) => (
                     <th key={h} className="px-6 py-3 text-xs font-medium text-muted-foreground">
                       {h}
                     </th>
@@ -360,3 +407,5 @@ export default function LogsPage() {
     </div>
   );
 }
+
+export default React.memo(LogsPage);
