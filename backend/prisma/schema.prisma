@@ -822,9 +822,9 @@ model AuditDiscrepancy {
   status          DiscrepancyStatus   @default(OPEN)
   description     String
   reportedById    String
-  reportedBy      User                @relation(fields: [reportedById], references: [id], onDelete: Cascade)
+  reportedBy      User                @relation("ReportedByDiscrepancy", fields: [reportedById], references: [id], onDelete: Cascade)
   resolvedById    String?
-  resolvedBy      User?               @relation(fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolvedBy      User?               @relation("ResolvedByDiscrepancy", fields: [resolvedById], references: [id], onDelete: SetNull)
   resolutionNotes String?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
