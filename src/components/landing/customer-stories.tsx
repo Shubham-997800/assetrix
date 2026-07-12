@@ -5,26 +5,26 @@ import { Star, Quote } from "lucide-react";
 const stories = [
   {
     quote:
-      "Nexus replaced four separate tools for our team. The unified dashboard alone saved us 20 hours per week in reporting overhead.",
-    name: "Catherine Morales",
-    role: "VP of Operations",
+      "Assetrix replaced four separate tracking systems for our hospital. We now manage 12,000+ medical devices from a single dashboard with 99.8% audit accuracy.",
+    name: "Dr. Catherine Morales",
+    role: "Chief Operations Officer",
     company: "Meridian Health Systems",
     initials: "CM",
   },
   {
     quote:
-      "The approval workflow engine is the most flexible we have evaluated. It handled our 12-step procurement process out of the box.",
-    name: "David Okafor",
-    role: "Chief Technology Officer",
-    company: "Atlas Manufacturing",
+      "The allocation engine eliminated our double-booking issues overnight. We manage 8,000+ lab equipment across 6 departments without a single conflict in 6 months.",
+    name: "Prof. David Okafor",
+    role: "Head of Infrastructure",
+    company: "Atlas University",
     initials: "DO",
   },
   {
     quote:
-      "We migrated from a legacy ERP in under 8 weeks. The onboarding team and API integration layer made it remarkably smooth.",
+      "We migrated from a legacy ERP in under 8 weeks. The maintenance workflow automation reduced our repair turnaround time by 40% in the first quarter.",
     name: "Anika Patel",
-    role: "Director of Finance",
-    company: "Vanguard Logistics Group",
+    role: "Director of Operations",
+    company: "Vanguard Manufacturing",
     initials: "AP",
   },
 ];

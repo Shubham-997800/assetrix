@@ -2,65 +2,65 @@
 
 import { useInView } from "@/hooks/use-in-view";
 import {
-  Workflow,
-  Brain,
+  ClipboardList,
+  ArrowLeftRight,
+  CalendarCheck,
+  Wrench,
+  ShieldCheck,
   BarChart3,
-  CheckCircle,
-  Shield,
-  MessageSquare,
-  Plug,
+  Bell,
   ScrollText,
   ArrowRight,
 } from "lucide-react";
 
 const features = [
   {
-    icon: Workflow,
-    title: "Workflow Automation",
+    icon: ClipboardList,
+    title: "Asset Registration",
     description:
-      "Automate repetitive business processes with configurable rules and triggers.",
+      "Register assets with full lifecycle tracking. Capture purchase details, warranty, location, and assign ownership from day one.",
   },
   {
-    icon: Brain,
-    title: "AI Insights",
+    icon: ArrowLeftRight,
+    title: "Asset Allocation Engine",
     description:
-      "Receive intelligent recommendations and predictions powered by machine learning.",
+      "Allocate assets to departments, projects, or employees. Prevent conflicts with real-time availability checks and approval workflows.",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Resource Booking",
+    description:
+      "Book shared resources with calendar views. Overlap validation prevents double-booking and optimizes utilization across teams.",
+  },
+  {
+    icon: Wrench,
+    title: "Maintenance Workflow",
+    description:
+      "Schedule preventive maintenance, track repairs, and manage service requests. Automated escalation for overdue maintenance tasks.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Audit Management",
+    description:
+      "Run audit cycles with physical verification. Track discrepancies, generate compliance reports, and maintain audit trails.",
   },
   {
     icon: BarChart3,
-    title: "Analytics",
+    title: "Reports & Analytics",
     description:
-      "Real-time dashboards, customizable reports, and drillable data visualizations.",
-  },
-  {
-    icon: CheckCircle,
-    title: "Approvals",
-    description:
-      "Multi-level enterprise approval workflows with role-based routing and SLAs.",
-  },
-  {
-    icon: Shield,
-    title: "Security",
-    description:
-      "Enterprise grade access control with RBAC, encryption, and audit logging.",
-  },
-  {
-    icon: MessageSquare,
-    title: "Collaboration",
-    description:
-      "Comments, mentions and activity feeds built into every workflow and record.",
-  },
-  {
-    icon: Plug,
-    title: "Integrations",
-    description:
-      "Connect external systems with pre-built connectors and a REST API.",
+      "Real-time dashboards with asset utilization, maintenance trends, and department allocation. Exportable reports for stakeholders.",
   },
   {
     icon: ScrollText,
-    title: "Audit Logs",
+    title: "Transfer Workflow",
     description:
-      "Complete traceability of every action with immutable, filterable audit trails.",
+      "Multi-level approval for asset transfers. Track movement history, update custodianship, and maintain chain of custody records.",
+  },
+  {
+    icon: Bell,
+    title: "Notifications",
+    description:
+      "Real-time alerts for maintenance schedules, booking confirmations, transfer approvals, and overdue returns across all channels.",
   },
 ];
 
@@ -81,11 +81,11 @@ export function Features() {
             Platform
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Everything you need to operate at scale
+            Everything you need to manage assets at scale
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Every module is designed to integrate seamlessly, perform under
-            pressure, and grow with your organization.
+            Every module is designed to eliminate manual tracking, prevent
+            allocation conflicts, and automate maintenance lifecycle.
           </p>
         </div>
 

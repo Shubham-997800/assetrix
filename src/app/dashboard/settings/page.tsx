@@ -72,7 +72,7 @@ function GeneralTab() {
         <h3 className="text-sm font-semibold text-foreground">Organization Settings</h3>
         <p className="text-xs text-muted-foreground">Basic configuration for your workspace</p>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <Field label="Organization Name"><input className={inputCls} defaultValue="Nexus Corp" /></Field>
+          <Field label="Organization Name"><input className={inputCls} defaultValue="Assetrix Corp" /></Field>
           <Field label="Time Zone"><select className={selectCls} defaultValue="Asia/Kolkata">
             <option>Asia/Kolkata (IST)</option><option>America/New_York (EST)</option><option>Europe/London (GMT)</option><option>Asia/Tokyo (JST)</option>
           </select></Field>

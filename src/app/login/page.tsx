@@ -69,7 +69,7 @@ export default function LoginPage() {
             Welcome back
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sign in to your Nexus account to continue
+            Sign in to your Assetrix account to continue
           </p>
         </div>
 

@@ -10,9 +10,22 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus Platform — Enterprise Business Operating System",
+  title: "Assetrix — Enterprise Asset & Resource Management Platform",
   description:
-    "The enterprise-grade platform for workflow automation, AI insights, and real-time analytics.",
+    "Track assets, eliminate allocation conflicts, automate maintenance workflows and manage resource bookings from a single operational platform.",
+  keywords: ["asset management", "ERP", "resource management", "maintenance", "audit", "enterprise"],
+  openGraph: {
+    title: "Assetrix — Enterprise Asset & Resource Management Platform",
+    description: "Track assets, eliminate allocation conflicts, automate maintenance workflows and manage resource bookings from a single operational platform.",
+    type: "website",
+    siteName: "Assetrix",
+    url: "https://assetrix.vercel.app",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Assetrix — Enterprise Asset & Resource Management Platform",
+    description: "Track assets, eliminate allocation conflicts, automate maintenance workflows and manage resource bookings from a single operational platform.",
+  },
 };
 
 export default function RootLayout({

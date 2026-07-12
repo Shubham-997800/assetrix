@@ -18,7 +18,7 @@ const securityFeatures = [
     icon: KeyRound,
     title: "Role-Based Access Control",
     description:
-      "Granular permissions with predefined and custom roles. Assign access at module, feature, and data level.",
+      "Granular permissions with predefined and custom roles. Assign access at module, asset, and data level.",
   },
   {
     icon: Lock,
@@ -30,19 +30,19 @@ const securityFeatures = [
     icon: ScrollText,
     title: "Audit Logs",
     description:
-      "Immutable audit trail capturing every action. Filterable by user, module, timestamp, and action type.",
+      "Immutable audit trail capturing every asset action. Filterable by user, module, timestamp, and action type.",
   },
   {
     icon: BadgeCheck,
     title: "Compliance",
     description:
-      "SOC 2 Type II, GDPR, HIPAA, and ISO 27001 compliant. Automated compliance reporting.",
+      "SOC 2 Type II, GDPR, HIPAA, and ISO 27001 compliant. Automated compliance reporting for asset audits.",
   },
   {
     icon: ShieldCheck,
-    title: "Access Policies",
+    title: "Approval Workflows",
     description:
-      "IP allowlisting, device fingerprinting, geo-restrictions, and conditional access rules per role.",
+      "Multi-level approval chains for asset allocation, transfers, and disposal. Customizable routing rules.",
   },
   {
     icon: Fingerprint,
@@ -53,7 +53,7 @@ const securityFeatures = [
 ];
 
 const metrics = [
-  { icon: Activity, value: "99.99%", label: "Availability" },
+  { icon: Activity, value: "99.8%", label: "Audit Accuracy" },
   { icon: Lock, value: "256-bit", label: "Encryption" },
   { icon: Users, value: "Role Based", label: "Access Control" },
   { icon: Server, value: "Full", label: "Traceability" },

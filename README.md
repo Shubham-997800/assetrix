@@ -2,18 +2,18 @@
 
 <div align="center">
 
-<img src="https://img.shields.io/badge/STATUS-PRODUCTION%20READY-10B981?style=for-the-badge&labelColor=0F172A&color=10B981&labelColor=0F172A" />
+<img src="https://img.shields.io/badge/STATUS-PRODUCTION%20READY-10B981?style=for-the-badge&labelColor=0F172A&color=10B981" />
 
 <br />
 <br />
 
-<img src="https://img.shields.io/badge/⚡_Nexus-PLATFORM-0891B2?style=for-the-badge&logoColor=white&labelColor=0F172A" />
+<img src="https://img.shields.io/badge/⚡_Assetrix-ERP-0891B2?style=for-the-badge&logoColor=white&labelColor=0F172A" />
 
 <br />
 
-### Enterprise Business Operating System
+### Enterprise Asset & Resource Management Platform
 
-*AI-Powered Workflow Automation · Real-Time Analytics · Intelligent Decision Support*
+*Track Assets · Automate Maintenance · Manage Bookings · Audit Compliance*
 
 <br />
 
@@ -21,12 +21,13 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![shadcn/ui](https://img.shields.io/badge/shadcn/ui-4-FFFFFF?style=flat-square&labelColor=0F172A)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-10B981?style=flat-square)
 
 <br />
 <br />
 
-[**Live Demo**](https://nexus-odoo.vercel.app) · [**GitHub**](https://github.com/Shubham-997800/demo-) · [**Quick Start**](#-quick-start) · [**Features**](#-features) · [**Architecture**](#-architecture)
+[**Live Demo**](https://assetrix.vercel.app) · [**GitHub**](https://github.com/Shubham-997800/assetrix) · [**Quick Start**](#-quick-start) · [**Features**](#-features) · [**Architecture**](#-architecture)
 
 </div>
 
@@ -36,9 +37,9 @@
 
 ## Overview
 
-Nexus is a production-grade enterprise SaaS platform built for the ODOO Hackathon 2026. It combines workflow automation, AI-powered decision support, and real-time analytics into a unified operating system.
+Assetrix is a production-grade enterprise ERP platform for asset and resource management. It combines asset tracking, allocation workflows, maintenance automation, and audit compliance into a unified operational platform.
 
-This is not a prototype. This is not a hackathon demo. This is engineering.
+This is not a prototype. This is not a demo. This is engineering.
 
 <br />
 
@@ -64,10 +65,10 @@ Inter Font          →  Enterprise typography
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Shubham-997800/demo-.git
+git clone https://github.com/Shubham-997800/assetrix.git
 
 # 2. Navigate to project
-cd demo-
+cd assetrix
 
 # 3. Install dependencies
 npm install
@@ -89,7 +90,7 @@ open http://localhost:5173
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | **Landing Page** | 17-section enterprise SaaS landing page with animations |
+| `/` | **Landing Page** | 16-section enterprise ERP landing page with animations |
 | `/login` | **Login** | Social login (Google/GitHub/Microsoft) + email/password + validation |
 | `/register` | **Register** | Full registration with password strength meter + terms |
 | `/forgot-password` | **Forgot Password** | Email input → success state with resend option |
@@ -113,17 +114,13 @@ open http://localhost:5173
 
 <div align="center">
 
-```
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   PRIMARY      #0891B2      ████████████████████             ║
-║   ACCENT       #22D3EE      ████████████████████             ║
-║   SUCCESS      #10B981      ████████████████████             ║
-║   WARNING      #F59E0B      ████████████████████             ║
-║   ERROR        #EF4444      ████████████████████             ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-```
+| Color | Hex | Preview |
+|-------|-----|---------|
+| Primary | `#0891B2` | ![#0891B2](https://img.shields.io/badge/-0891B2-0891B2?style=flat-square) |
+| Accent | `#22D3EE` | ![#22D3EE](https://img.shields.io/badge/-22D3EE-22D3EE?style=flat-square) |
+| Success | `#10B981` | ![#10B981](https://img.shields.io/badge/-10B981-10B981?style=flat-square) |
+| Warning | `#F59E0B` | ![#F59E0B](https://img.shields.io/badge/-F59E0B-F59E0B?style=flat-square) |
+| Error | `#EF4444` | ![#EF4444](https://img.shields.io/badge/-EF4444-EF4444?style=flat-square) |
 
 </div>
 
@@ -155,61 +152,27 @@ open http://localhost:5173
 
 <br />
 
-## Landing Page — 17 Sections
+## Landing Page — 16 Sections
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    NAVBAR (64px)                         │
-│  Logo · Features · Solutions · Integrations · Docs       │
-│              Theme Toggle · Login · Start Free           │
-│              Scroll Shadow on Scroll                     │
-├─────────────────────────────────────────────────────────┤
-│                                                          │
-│   ╔═══════════════════╗    ╔══════════════════════╗     │
-│   ║                   ║    ║  ┌──────────────────┐║     │
-│   ║   Hero Section    ║    ║  │  Dashboard Mockup │║     │
-│   ║   Staggered Fade  ║    ║  │  KPI · Charts     │║     │
-│   ║   0ms → 100ms     ║    ║  │  Activity · Table  │║     │
-│   ║   → 200ms → 500ms ║    ║  └──────────────────┘║     │
-│   ║                   ║    ║  ┌────┐  ┌────┐      ║     │
-│   ║   [Start Building]║    ║  │+24%│  │92% │      ║     │
-│   ║   [Book Demo]     ║    ║  └────┘  └────┘      ║     │
-│   ╚═══════════════════╝    ╚══════════════════════╝     │
-├─────────────────────────────────────────────────────────┤
-│   TRUST BAR · Counter Animations                         │
-│   250K+ Users · 5M+ Transactions · 99.99% · 42 Countries│
-├─────────────────────────────────────────────────────────┤
-│   8 FEATURE CARDS · Scroll Reveal + 60ms Stagger         │
-│   Workflow · AI · Analytics · Approvals                   │
-│   Security · Collab · Integrations · Audit               │
-├─────────────────────────────────────────────────────────┤
-│   PLATFORM ARCHITECTURE · 7-Step Pipeline                │
-├─────────────────────────────────────────────────────────┤
-│   AI INTELLIGENCE · Pipeline + AI Card                   │
-├─────────────────────────────────────────────────────────┤
-│   DASHBOARD SHOWCASE · Full Preview                      │
-├─────────────────────────────────────────────────────────┤
-│   WORKFLOW · 5-Step Timeline + Progressive Line Draw     │
-├─────────────────────────────────────────────────────────┤
-│   SECURITY · 6 Cards + 4 Metrics · Hover Effects        │
-├─────────────────────────────────────────────────────────┤
-│   DEVELOPER EXPERIENCE · Code Preview + 5 Cards          │
-├─────────────────────────────────────────────────────────┤
-│   PERFORMANCE · 5 Cards + 4 Stats                        │
-├─────────────────────────────────────────────────────────┤
-│   ACCESSIBILITY · 5 Commitment Cards                     │
-├─────────────────────────────────────────────────────────┤
-│   ANALYTICS · 5 Metrics + 4 Charts                       │
-├─────────────────────────────────────────────────────────┤
-│   CUSTOMER STORIES · 3 Testimonial Cards                 │
-├─────────────────────────────────────────────────────────┤
-│   FAQ · 6 Accordion Items                                │
-├─────────────────────────────────────────────────────────┤
-│   FINAL CTA · Start Building + Contact Sales             │
-├─────────────────────────────────────────────────────────┤
-│   FOOTER · Product · Company · Legal · Social            │
-└─────────────────────────────────────────────────────────┘
-```
+| Section | Description |
+|---------|-------------|
+| **Navbar** | Sticky header with logo, nav links, theme toggle, login/register CTA |
+| **Hero** | Enterprise headline, metrics (Assets, Bookings, Maintenance, Audit), floating widgets, dashboard preview |
+| **Trusted By** | Industry logos (Hospitals, Universities, Government, Corporate, Manufacturing) + counter animations |
+| **Features** | 8 asset management modules with scroll reveal + stagger animations |
+| **Architecture** | 7-step pipeline (Departments → Employees → Assets → Allocation → Maintenance → Audit → Analytics) |
+| **AI Intelligence** | Maintenance prediction pipeline + AI recommendation card with confidence scores |
+| **Dashboard Showcase** | Full dashboard preview with KPIs, utilization chart, maintenance queue, asset table |
+| **Workflow** | 6-step lifecycle timeline (Registration → Allocation → Transfer → Maintenance → Audit → Reports) |
+| **Security** | 6 security cards (RBAC, Encryption, Audit, Compliance, Approvals, Sessions) + 4 metrics |
+| **Developer Experience** | Code preview + 5 cards (Modular Architecture, Workflow Engine, Reusable Components, Role Routing, Scalable DB) |
+| **Performance** | 5 feature cards + 4 stats (Latency, Cache, Edge, Events) |
+| **Accessibility** | 5 commitment cards (Keyboard, Screen Readers, Contrast, Semantic HTML, Standards) |
+| **Analytics** | 5 metrics + 4 charts (Utilization, Maintenance, Department Allocation, Retirement Forecast) |
+| **Customer Stories** | 3 testimonial cards (Hospital, University, Manufacturing case studies) |
+| **FAQ** | 6 accordion items (Allocation conflicts, Maintenance approval, Audit cycles, Booking validation) |
+| **CTA Banner** | "Bring Visibility To Every Asset" with Explore Dashboard + Request Demo buttons |
+| **Footer** | Product, Company, Legal links + social media |
 
 <br />
 
@@ -227,7 +190,7 @@ open http://localhost:5173
 ║   Left Panel           ║   Right Panel                ║
 ║   (Branding)           ║   (Auth Form)                ║
 ║                        ║                              ║
-║   Nexus Logo           ║   max-width: 480px           ║
+║   Assetrix Logo        ║   max-width: 480px           ║
 ║   Tagline              ║   padding: 40px              ║
 ║   5 Feature Icons      ║   vertical-center            ║
 ║   4 Metrics            ║                              ║
@@ -271,7 +234,7 @@ open http://localhost:5173
 ┌─────────────────────────────────────────────────────────┐
 │ Top Navbar (64px, z-40)                                  │
 │ ┌──────┬─────────────────┬─────────────────────────────┐│
-│ │Toggle│ Nexus / Overview│ 🔍 Search  🔔 👤 ☀️          ││
+│ │Toggle│Assetrix/Overview│ 🔍 Search  🔔 👤 ☀️          ││
 │ │      │                 │    Ctrl+K    2   Theme  Menu ││
 │ └──────┴─────────────────┴─────────────────────────────┘│
 ├────────┬────────────────────────────────────────────────┤
@@ -279,28 +242,23 @@ open http://localhost:5173
 │ Side-  │  Dashboard Workspace                            │
 │ bar    │                                                 │
 │        │  ┌────────┐┌────────┐┌────────┐┌────────┐      │
-│ 280px  │  │Revenue ││ Users  ││ Tasks  ││ AI Recs│      │
-│ (72px  │  │₹4.2Cr  ││24,589  ││1,482   ││ 342    │      │
+│ 280px  │  │Assets  ││Bookings││Maint.  ││Audit   │      │
+│ (72px  │  │12,450  ││3,200   ││24      ││99.8%   │      │
 │  col-  │  └────────┘└────────┘└────────┘└────────┘      │
 │  lpsd) │                                                 │
 │ □ Dash │  ┌──────────────────┐┌──────────────────┐      │
-│ □ Anal │  │ Revenue Trend    ││ Workflow Status   │      │
-│ □ Repo │  │ (Bar Chart)      ││ (Donut Chart)     │      │
+│ □ Anal │  │ Asset Utilization││ Maintenance Queue  │      │
+│ □ Repo │  │ (Bar Chart)      ││ (List)             │      │
 │ □ Noti │  └──────────────────┘└──────────────────┘      │
 │ □ Work │                                                 │
 │ □ Audi │  ┌──────────────────┐┌──────────────────┐      │
-│ □ Inte │  │ Performance      ││ Distribution      │      │
-│ □ Admi │  │ (Area Chart)     ││ (Bar Chart)       │      │
+│ □ Inte │  │ Booking Calendar ││ Transfer Status    │      │
+│ □ Admi │  │ (Calendar)       ││ (Status Cards)     │      │
 │ □ Sett │  └──────────────────┘└──────────────────┘      │
 │ □ Prof │                                                 │
-│ ────── │  ┌──────────────────┐┌─────┐┌─────────┐       │
-│ JD     │  │ Activity Timeline││Quick││ System  │       │
-│ john@. │  │ (6 items)        ││Actns││ Status  │       │
-│        │  └──────────────────┘└─────┘└─────────┘       │
-│        │                                                 │
-│        │  ┌─────────────────────────────────────────┐   │
-│        │  │ Recent Orders Table                      │   │
-│        │  │ ORD-8241 │ ₹12,45,000 │ Approved │ S.C. │   │
+│ ────── │  ┌─────────────────────────────────────────┐   │
+│ JD     │  │ Recent Asset Activity Table              │   │
+│ john@. │  │ AST-8241 │ Engineering │ Active │ S.C.   │   │
 │        │  └─────────────────────────────────────────┘   │
 └────────┴────────────────────────────────────────────────┘
 ```
@@ -309,11 +267,11 @@ open http://localhost:5173
 
 | Feature | Implementation |
 |---------|---------------|
-| Global Search | `Ctrl+K` shortcut, dropdown with suggestions (pages, records, users, workflows) |
+| Global Search | `Ctrl+K` shortcut, dropdown with suggestions (pages, records, assets) |
 | Notifications | Dropdown with 5 items, unread badge, mark all read, `z-50` |
 | Theme Toggle | Light/Dark/System with persistence (44px touch target) |
 | Profile Menu | Profile, Settings, Security, Activity Log, Logout, `z-50` |
-| Breadcrumb | Nexus / Current Page (hidden on mobile) |
+| Breadcrumb | Assetrix / Current Page (hidden on mobile) |
 | Mobile Menu | Hamburger → Sheet overlay (`z-[55]`) |
 
 ### Sidebar Features
@@ -331,15 +289,12 @@ open http://localhost:5173
 
 | Section | Description |
 |---------|-------------|
-| **KPI Cards** | 6 cards with animated counters (₹4.2Cr, 24,589, 1,482, 342, 18, 99.99%) |
-| **Revenue Trend** | 12-month bar chart with hover tooltips, responsive height |
-| **Workflow Status** | SVG donut chart (Completed/In Progress/Pending/Failed) |
-| **Performance** | SVG area chart with gradient fill |
-| **Category Distribution** | Horizontal bar chart (5 departments) |
-| **Activity Timeline** | 6 items with colored avatars, timestamps |
-| **Quick Actions** | 6 compact cards, 2-col on mobile |
-| **System Status** | 5-item health list (API, Database, Workers, Queue, Cache) |
-| **Orders Table** | Responsive — Department/Assignee hidden on mobile, 3-col padding |
+| **KPI Cards** | 6 cards with animated counters (Assets: 12,450, Bookings: 3,200, Maintenance: 24, Audit: 99.8%) |
+| **Asset Utilization** | 12-month bar chart with hover tooltips, responsive height |
+| **Maintenance Queue** | List of scheduled maintenance items |
+| **Booking Calendar** | Calendar view of active bookings |
+| **Transfer Status** | Status cards for pending transfers |
+| **Asset Activity** | Responsive table with status badges |
 
 <br />
 
@@ -394,14 +349,14 @@ All animations respect `prefers-reduced-motion: reduce` — uses `0s` duration f
 ## Project Structure
 
 ```
-demo-/
+assetrix/
 ├── public/                          # Static assets
 │
 ├── src/
 │   ├── app/                         # Next.js App Router
 │   │   ├── globals.css              # Aura Cyan Theme + Animation System
 │   │   ├── layout.tsx               # Root Layout + ThemeProvider + CommandPalette
-│   │   ├── page.tsx                 # Landing Page (17 sections)
+│   │   ├── page.tsx                 # Landing Page (16 sections)
 │   │   ├── not-found.tsx            # 404 Handler (semantic, 44px targets)
 │   │   │
 │   │   ├── login/page.tsx           # Login (social + email/password)
@@ -453,7 +408,7 @@ demo-/
 │   │   │   ├── activity-log.tsx     # Timeline (truncate + justify-between)
 │   │   │   └── notification-settings.tsx # 44px toggles + aria-label
 │   │   │
-│   │   ├── landing/                 # 17 Landing Page Sections
+│   │   ├── landing/                 # 16 Landing Page Sections
 │   │   │   ├── navbar.tsx           # + scroll shadow, z-40
 │   │   │   ├── hero.tsx             # + stagger animations, flex-wrap CTAs
 │   │   │   ├── trusted-by.tsx       # + counter animations
@@ -652,136 +607,12 @@ All monetary values use **Indian Rupees (₹)** with Indian number formatting:
 
 <br />
 
-## Reviewer Experience Flow
-
-```
-╔══════════════════════════════════════════════════════════╗
-║                                                          ║
-║   Reviewer Opens GitHub Repository                       ║
-║              ↓                                           ║
-║   README Looks Impressive                                ║
-║              ↓                                           ║
-║   npm install → npm run dev                              ║
-║              ↓                                           ║
-║   Landing Page Loads (17 sections + animations)          ║
-║              ↓                                           ║
-║   Scroll Animations Trigger (fade, counters, hovers)     ║
-║              ↓                                           ║
-║   Theme Toggle Works (Dark ↔ Light)                      ║
-║              ↓                                           ║
-║   Click "Start Free" → Register Page                     ║
-║              ↓                                           ║
-║   50/50 Auth Layout · Password Strength Meter            ║
-║              ↓                                           ║
-║   Social Login Buttons (Google/GitHub/Microsoft)         ║
-║              ↓                                           ║
-║   Navigate to Login → Forgot Password → Reset            ║
-║              ↓                                           ║
-║   Login → Dashboard Loads                                ║
-║              ↓                                           ║
-║   Collapsible Sidebar (280px → 72px)                     ║
-║              ↓                                           ║
-║   Global Search (Ctrl+K)                                 ║
-║              ↓                                           ║
-║   6 KPI Cards with Animated Counters                     ║
-║              ↓                                           ║
-║   4 Charts (Bar, Donut, Area, Horizontal)                ║
-║              ↓                                           ║
-║   Activity Timeline + Quick Actions + System Status      ║
-║              ↓                                           ║
-║   Orders Table with Status Badges                        ║
-║              ↓                                           ║
-║   Notifications Dropdown · Profile Menu                  ║
-║              ↓                                           ║
-║   Navigate → Profile (5 tabs, avatar upload)            ║
-║              ↓                                           ║
-║   Navigate → Settings (7 tabs, theme switcher)          ║
-║              ↓                                           ║
-║   Navigate → Notifications (5 tabs, priority badges)   ║
-║              ↓                                           ║
-║   Navigate → Reports (KPIs, charts, data table)        ║
-║              ↓                                           ║
-║   Navigate → Admin (users, roles, audit, flags, health)║
-║              ↓                                           ║
-║   Test Mobile → Drawer nav, responsive tables, 44px     ║
-║              ↓                                           ║
-║   404 Page Works                                         ║
-║              ↓                                           ║
-║   ╔══════════════════════════════════════════════════╗   ║
-║   ║                                                  ║   ║
-║   ║   "This team understands enterprise software     ║   ║
-║   ║    engineering. They can build production         ║   ║
-║   ║    systems that scale."                          ║   ║
-║   ║                                                  ║   ║
-║   ╚══════════════════════════════════════════════════╝   ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
-```
-
-<br />
-
----
-
-<br />
-
-## Production Audit
-
-Full enterprise audit performed across all 16 routes, 30+ files changed:
-
-### Accessibility Audit
-
-| Category | Issues Found | Fixed |
-|----------|-------------|-------|
-| Hydration (Math.random) | 4 Critical | All fixed |
-| Broken interactive elements | 3 Critical | All fixed |
-| ARIA / Label association | 25+ High | All fixed |
-| Touch targets (< 44px) | 20+ High | All fixed |
-| Focus traps / keyboard nav | 6 High | All fixed |
-| SVG chart colors (dark mode) | 4 Medium | All fixed |
-| Skeleton accessibility | 3 Medium | Fixed |
-| Shimmer colors (dark mode) | 2 Medium | Fixed |
-| Reduced motion (0s) | 1 Low | Fixed |
-| Z-index conflicts | 6 High | Fixed (hierarchy established) |
-| Password meter ARIA | 1 Medium | Fixed (`role="meter"`) |
-
-### Responsiveness Audit
-
-| Category | Issues Found | Fixed |
-|----------|-------------|-------|
-| Body scroll lock (mobile drawer) | 1 High | Fixed |
-| Navbar touch targets (36→44px) | 3 High | Fixed |
-| Notification dropdown overflow (320px) | 1 High | Fixed |
-| Hero CTA wrap on mobile | 1 High | Fixed |
-| QuickActions grid 3→2 col on mobile | 1 High | Fixed |
-| Orders table column hiding | 1 High | Fixed |
-| Reports table column hiding | 1 High | Fixed |
-| Admin table column hiding | 1 High | Fixed |
-| Command palette mobile keyboard | 2 High | Fixed |
-| Profile/device touch targets | 3 High | Fixed |
-| Dashboard showcase touch targets | 2 Medium | Fixed |
-| Landing section spacing (py-24) | 16 sections | All reduced on mobile |
-| Grid gaps (gap-16 on mobile) | 3 sections | All reduced on mobile |
-| Settings theme grid (3-col) | 1 Medium | Fixed (1-col mobile) |
-| Settings security grid (2-col) | 1 Medium | Fixed (1-col mobile) |
-| Sidebar drawer (280px fixed) | 1 High | Fixed (85vw max 280) |
-| Auth password toggle (16px) | 2 High | Fixed (44px) |
-| Social buttons (36px) | 1 High | Fixed (44px) |
-| Notification action buttons (28px) | 3 High | Fixed (44px) |
-| Notification preference toggles (24px) | 1 High | Fixed (44px) |
-| Settings toggle switches (24px) | 1 High | Fixed (44px) |
-| Profile save/cancel buttons (28px) | 3 High | Fixed (44px) |
-| Admin action buttons (36px) | 3 High | Fixed (44px) |
-| Dashboard chart height (fixed px) | 1 Medium | Fixed (responsive) |
-| 404 page buttons (no stack) | 1 Medium | Fixed (flex-col mobile) |
-| Architecture mobile width (fixed 256px) | 1 Medium | Fixed (max-w) |
-| Theme toggle touch target (36px) | 1 Medium | Fixed (44px) |
-
-### Deployment
+## Deployment
 
 | Platform | URL |
 |----------|-----|
-| **Vercel (Production)** | https://nexus-odoo.vercel.app |
-| **GitHub** | https://github.com/Shubham-997800/demo- |
+| **Vercel (Production)** | https://assetrix.vercel.app |
+| **GitHub** | https://github.com/Shubham-997800/assetrix |
 
 <br />
 
@@ -791,7 +622,7 @@ Full enterprise audit performed across all 16 routes, 30+ files changed:
 
 ## License
 
-MIT License — Built for ODOO Hackathon 2026
+MIT License — Built for Enterprise ERP Solutions
 
 <br />
 

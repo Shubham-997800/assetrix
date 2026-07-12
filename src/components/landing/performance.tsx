@@ -31,19 +31,19 @@ const perfFeatures = [
     icon: Clock,
     title: "Background Processing",
     description:
-      "Asynchronous job queues for heavy operations. Scheduled reports, bulk imports, and data pipelines run without blocking.",
+      "Asynchronous job queues for heavy operations. Scheduled reports, bulk imports, and audit cycles run without blocking.",
   },
   {
     icon: Radio,
     title: "Real-Time Updates",
     description:
-      "WebSocket-based live updates across dashboards. Instant notifications, live counters, and streaming data feeds.",
+      "WebSocket-based live updates across dashboards. Instant notifications, live counters, and streaming maintenance feeds.",
   },
 ];
 
 const stats = [
   { value: "<50ms", label: "P95 Latency" },
-  { value: "99.99%", label: "Cache Hit Rate" },
+  { value: "99.9%", label: "Cache Hit Rate" },
   { value: "200+", label: "Edge Locations" },
   { value: "10M+", label: "Events/Second" },
 ];

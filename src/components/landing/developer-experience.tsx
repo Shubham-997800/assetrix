@@ -5,33 +5,33 @@ import { Code2, Webhook, Package, FileText, Plug, ArrowRight } from "lucide-reac
 const devFeatures = [
   {
     icon: Code2,
-    title: "REST APIs",
+    title: "Modular ERP Architecture",
     description:
-      "Comprehensive RESTful APIs with OpenAPI specs, pagination, filtering, and rate limiting. Full CRUD for every resource.",
+      "Cleanly separated modules for assets, bookings, maintenance, and audits. Each module is independently scalable and extensible.",
   },
   {
     icon: Webhook,
-    title: "Webhooks",
+    title: "Workflow Engine",
     description:
-      "Event-driven webhooks for real-time notifications. Configurable retry logic, payload signing, and delivery monitoring.",
+      "Event-driven workflow engine with configurable approval chains, escalation rules, and SLA timers for every business process.",
   },
   {
     icon: Package,
-    title: "SDK Support",
+    title: "Reusable Components",
     description:
-      "Official SDKs for JavaScript, Python, Go, and Ruby. Type-safe clients with auto-generated models from our API schema.",
+      "Shared UI component library with consistent design patterns. Type-safe props and accessible by default across all modules.",
   },
   {
     icon: FileText,
-    title: "Documentation",
+    title: "Role-Based Routing",
     description:
-      "Interactive API docs with live testing, code samples in 8 languages, and guided tutorials for common integrations.",
+      "Automatic route protection based on user roles. Department-level access control with granular permission inheritance.",
   },
   {
     icon: Plug,
-    title: "Integrations",
+    title: "Scalable Database Design",
     description:
-      "Pre-built connectors for 50+ platforms including SAP, Oracle, Salesforce, Slack, and custom OAuth2 flows.",
+      "Normalized schema supporting multi-tenant deployments. Optimized queries with automatic index suggestions for complex joins.",
   },
 ];
 
@@ -46,12 +46,11 @@ export function DeveloperExperience() {
               Developer Experience
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Built for developers who ship
+              Built for teams who ship
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              First-class API access, comprehensive documentation, and
-              tooling that makes integration effortless. Every endpoint is
-              documented, typed, and tested.
+              Modular ERP architecture with reusable components, role-based
+              routing, and a workflow engine that scales with your organization.
             </p>
 
             {/* Code Preview */}
@@ -61,30 +60,30 @@ export function DeveloperExperience() {
                 <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
                 <div className="h-2.5 w-2.5 rounded-full bg-green-400" />
                 <span className="ml-2 text-[10px] text-muted-foreground">
-                  api-example.ts
+                  asset-api.ts
                 </span>
               </div>
               <pre className="p-4 text-xs leading-relaxed overflow-x-auto">
                 <code>
                   <span className="text-violet-600 dark:text-violet-400">const</span>{" "}
-                  <span className="text-foreground">workflows</span>{" "}
+                  <span className="text-foreground">assets</span>{" "}
                   <span className="text-muted-foreground">=</span>{" "}
                   <span className="text-muted-foreground">await</span>{" "}
-                  <span className="text-foreground">nexus</span>
+                  <span className="text-foreground">assetrix</span>
                   <span className="text-muted-foreground">.</span>
-                  <span className="text-primary">workflows</span>
+                  <span className="text-primary">assets</span>
                   <span className="text-muted-foreground">.</span>
                   <span className="text-amber-600 dark:text-amber-400">list</span>
                   <span className="text-muted-foreground">({"{"}</span>
                   {"\n"}
                   {"  "}<span className="text-foreground">status</span>
                   <span className="text-muted-foreground">:</span>{" "}
-                  <span className="text-emerald-600 dark:text-emerald-400">&quot;active&quot;</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">&quot;available&quot;</span>
                   <span className="text-muted-foreground">,</span>
                   {"\n"}
                   {"  "}<span className="text-foreground">department</span>
                   <span className="text-muted-foreground">:</span>{" "}
-                  <span className="text-emerald-600 dark:text-emerald-400">&quot;procurement&quot;</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">&quot;engineering&quot;</span>
                   <span className="text-muted-foreground">,</span>
                   {"\n"}
                   {"  "}<span className="text-foreground">page</span>
@@ -95,21 +94,21 @@ export function DeveloperExperience() {
                   {"\n\n"}
                   <span className="text-violet-600 dark:text-violet-400">for</span>{" "}
                   <span className="text-muted-foreground">(</span>
-                  <span className="text-foreground">wf</span>{" "}
+                  <span className="text-foreground">asset</span>{" "}
                   <span className="text-violet-600 dark:text-violet-400">of</span>{" "}
-                  <span className="text-foreground">workflows</span>
+                  <span className="text-foreground">assets</span>
                   <span className="text-muted-foreground">.</span>
                   <span className="text-foreground">data</span>
                   <span className="text-muted-foreground">) {"{"}</span>
                   {"\n"}
                   {"  "}<span className="text-muted-foreground">await</span>{" "}
-                  <span className="text-foreground">nexus</span>
+                  <span className="text-foreground">assetrix</span>
                   <span className="text-muted-foreground">.</span>
-                  <span className="text-primary">approvals</span>
+                  <span className="text-primary">maintenance</span>
                   <span className="text-muted-foreground">.</span>
-                  <span className="text-amber-600 dark:text-amber-400">submit</span>
+                  <span className="text-amber-600 dark:text-amber-400">schedule</span>
                   <span className="text-muted-foreground">(</span>
-                  <span className="text-foreground">wf</span>
+                  <span className="text-foreground">asset</span>
                   <span className="text-muted-foreground">.</span>
                   <span className="text-foreground">id</span>
                   <span className="text-muted-foreground">)</span>

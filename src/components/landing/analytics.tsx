@@ -4,16 +4,16 @@ import {
   TrendingUp,
   Clock,
   Gauge,
-  DollarSign,
-  ShieldAlert,
+  Wrench,
+  CalendarCheck,
 } from "lucide-react";
 
 const metrics = [
-  { label: "Revenue Growth", value: "+24%", icon: TrendingUp, color: "text-emerald-600 dark:text-emerald-400" },
-  { label: "Approval Time", value: "-60%", icon: Clock, color: "text-blue-600 dark:text-blue-400" },
-  { label: "Operational Efficiency", value: "+35%", icon: Gauge, color: "text-violet-600 dark:text-violet-400" },
-  { label: "Cost Reduction", value: "-18%", icon: DollarSign, color: "text-amber-600 dark:text-amber-400" },
-  { label: "Risk Detection", value: "99.2%", icon: ShieldAlert, color: "text-rose-600 dark:text-rose-400" },
+  { label: "Asset Utilization", value: "+24%", icon: TrendingUp, color: "text-emerald-600 dark:text-emerald-400" },
+  { label: "Maintenance Time", value: "-40%", icon: Clock, color: "text-blue-600 dark:text-blue-400" },
+  { label: "Allocation Success", value: "+35%", icon: Gauge, color: "text-violet-600 dark:text-violet-400" },
+  { label: "Audit Compliance", value: "99.8%", icon: Wrench, color: "text-amber-600 dark:text-amber-400" },
+  { label: "Booking Efficiency", value: "+28%", icon: CalendarCheck, color: "text-rose-600 dark:text-rose-400" },
 ];
 
 export function Analytics() {
@@ -29,7 +29,7 @@ export function Analytics() {
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             Real-time analytics dashboards with drillable charts, exportable
-            reports, and automated insights.
+            reports, and automated insights for asset operations.
           </p>
         </div>
 
@@ -51,10 +51,10 @@ export function Analytics() {
 
         {/* Charts Grid */}
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          {/* Line Chart - Revenue Growth */}
+          {/* Line Chart - Asset Utilization */}
           <div className="rounded-2xl border border-border bg-card p-6">
             <h3 className="text-sm font-semibold text-foreground">
-              Revenue Growth
+              Asset Utilization
             </h3>
             <p className="text-xs text-muted-foreground">Year over year</p>
             <div className="mt-6 flex items-end gap-1 h-40 sm:h-48">
@@ -76,10 +76,10 @@ export function Analytics() {
             </div>
           </div>
 
-          {/* Area Chart - Efficiency */}
+          {/* Area Chart - Maintenance Frequency */}
           <div className="rounded-2xl border border-border bg-card p-6">
             <h3 className="text-sm font-semibold text-foreground">
-              Operational Efficiency
+              Maintenance Frequency
             </h3>
             <p className="text-xs text-muted-foreground">Monthly average</p>
             <div className="mt-6 relative h-40 sm:h-48">
@@ -104,17 +104,17 @@ export function Analytics() {
             </div>
           </div>
 
-          {/* Bar Chart - Cost Reduction */}
+          {/* Bar Chart - Department Allocation */}
           <div className="rounded-2xl border border-border bg-card p-6">
             <h3 className="text-sm font-semibold text-foreground">
-              Cost Reduction by Department
+              Department Allocation
             </h3>
-            <p className="text-xs text-muted-foreground">Quarterly savings</p>
+            <p className="text-xs text-muted-foreground">Asset distribution</p>
             <div className="mt-6 space-y-3">
               {[
-                { dept: "Procurement", pct: 78 },
+                { dept: "Engineering", pct: 78 },
                 { dept: "Operations", pct: 65 },
-                { dept: "Finance", pct: 52 },
+                { dept: "Marketing", pct: 52 },
                 { dept: "HR", pct: 40 },
               ].map((d) => (
                 <div key={d.dept}>
@@ -135,12 +135,12 @@ export function Analytics() {
             </div>
           </div>
 
-          {/* Donut Chart - Risk Distribution */}
+          {/* Donut Chart - Retirement Forecast */}
           <div className="rounded-2xl border border-border bg-card p-6">
             <h3 className="text-sm font-semibold text-foreground">
-              Risk Distribution
+              Retirement Forecast
             </h3>
-            <p className="text-xs text-muted-foreground">Current assessment</p>
+            <p className="text-xs text-muted-foreground">Next 12 months</p>
             <div className="mt-6 flex items-center justify-center">
               <div className="relative h-36 w-36">
                 <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
@@ -151,17 +151,17 @@ export function Analytics() {
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <p className="text-xl font-bold text-foreground">99.2%</p>
-                    <p className="text-[10px] text-muted-foreground">Detected</p>
+                    <p className="text-xl font-bold text-foreground">2,450</p>
+                    <p className="text-[10px] text-muted-foreground">Assets</p>
                   </div>
                 </div>
               </div>
             </div>
             <div className="mt-4 flex justify-center gap-4">
               {[
-                { label: "Low", color: "bg-emerald-500" },
-                { label: "Medium", color: "bg-yellow-500" },
-                { label: "High", color: "bg-red-500" },
+                { label: "Retain", color: "bg-emerald-500" },
+                { label: "Replace", color: "bg-yellow-500" },
+                { label: "Dispose", color: "bg-red-500" },
               ].map((r) => (
                 <div key={r.label} className="flex items-center gap-1.5">
                   <div className={`h-2 w-2 rounded-full ${r.color}`} />

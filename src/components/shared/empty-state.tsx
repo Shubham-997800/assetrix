@@ -34,8 +34,8 @@ const configs: Record<EmptyStateType, {
   },
   "first-time": {
     icon: Rocket,
-    title: "Welcome to Nexus",
-    description: "Get started by connecting your first data source and creating a workflow.",
+    title: "Welcome to Assetrix",
+    description: "Get started by registering your first asset and creating a maintenance workflow.",
     action: "Get Started",
   },
 };

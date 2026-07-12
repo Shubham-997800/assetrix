@@ -5,12 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
-  DollarSign,
+  Box,
+  CalendarCheck,
+  Wrench,
+  ShieldCheck,
   Users,
-  TrendingUp,
-  Activity,
-  CheckCircle,
-  Bell,
+  ArrowUpRight,
+  ArrowDownRight,
+  Clock,
+  AlertTriangle,
+  RotateCcw,
 } from "lucide-react";
 
 export function Hero() {
@@ -25,38 +29,39 @@ export function Hero() {
               className="mb-6 gap-1.5 px-3 py-1 text-xs font-medium animate-fade-in-up delay-0"
             >
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Trusted by modern businesses
+              Trusted by hospitals, universities & enterprises
             </Badge>
 
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1] animate-fade-in-up delay-50">
-              The Operating System For Modern Business Workflows
+              Enterprise Asset & Resource Management Platform
             </h1>
 
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground animate-fade-in-up delay-100">
-              Automate approvals, analyze data, manage operations and make
-              faster business decisions using AI powered workflows.
+              Track assets, eliminate allocation conflicts, automate maintenance
+              workflows and manage resource bookings from a single operational
+              platform.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4 animate-fade-in-up delay-200">
               <Link href="/register">
                 <Button size="lg" className="gap-2 px-6 btn-enterprise">
-                  Start Building
+                  Explore Dashboard
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/login">
                 <Button variant="outline" size="lg" className="px-6 btn-enterprise">
-                  Book Demo
+                  Request Demo
                 </Button>
               </Link>
             </div>
 
             <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
               {[
-                { value: "99.99%", label: "Uptime" },
-                { value: "10M+", label: "Events Processed" },
-                { value: "500+", label: "Teams" },
-                { value: "24/7", label: "Monitoring" },
+                { value: "24,580+", label: "Assets Managed" },
+                { value: "3,200+", label: "Active Bookings" },
+                { value: "1,847", label: "Maintenance Requests" },
+                { value: "99.8%", label: "Audit Accuracy" },
               ].map((m, i) => (
                 <div key={m.label} className={`animate-fade-in-up`} style={{ animationDelay: `${300 + i * 50}ms` }}>
                   <p className="text-lg font-bold text-foreground">{m.value}</p>
@@ -72,68 +77,68 @@ export function Hero() {
             <div className="absolute -left-4 top-8 z-10 hidden rounded-xl border border-border bg-card p-3 shadow-md xl:block animate-fade-in-up delay-500">
               <div className="flex items-center gap-2">
                 <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10">
-                  <TrendingUp className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <ArrowUpRight className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-foreground">+24% Growth</p>
-                  <p className="text-[10px] text-muted-foreground">vs last quarter</p>
+                  <p className="text-xs font-bold text-foreground">12,450 Available</p>
+                  <p className="text-[10px] text-muted-foreground">Assets</p>
                 </div>
               </div>
             </div>
 
             <div className="absolute -right-2 top-32 z-10 hidden rounded-xl border border-border bg-card p-3 shadow-md xl:block animate-fade-in-up delay-600">
               <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10">
-                  <Activity className="h-3.5 w-3.5 text-primary" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-500/10">
+                  <Wrench className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-foreground">92% Accuracy</p>
-                  <p className="text-[10px] text-muted-foreground">AI prediction</p>
+                  <p className="text-xs font-bold text-foreground">8 Under Maintenance</p>
+                  <p className="text-[10px] text-muted-foreground">Active</p>
                 </div>
               </div>
             </div>
 
             <div className="absolute -left-2 bottom-28 z-10 hidden rounded-xl border border-border bg-card p-3 shadow-md xl:block animate-fade-in-up delay-700">
               <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-500/10">
-                  <CheckCircle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/10">
+                  <RotateCcw className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-foreground">12 Pending</p>
-                  <p className="text-[10px] text-muted-foreground">Approvals</p>
+                  <p className="text-xs font-bold text-foreground">15 Transfers</p>
+                  <p className="text-[10px] text-muted-foreground">This Week</p>
                 </div>
               </div>
             </div>
 
             <div className="absolute -right-4 bottom-16 z-10 hidden rounded-xl border border-border bg-card p-3 shadow-md xl:block animate-fade-in-up delay-700">
               <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-500/10">
-                  <Bell className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-rose-500/10">
+                  <AlertTriangle className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-foreground">AI Insight</p>
-                  <p className="text-[10px] text-muted-foreground">Generated</p>
+                  <p className="text-xs font-bold text-foreground">3 Conflicts</p>
+                  <p className="text-[10px] text-muted-foreground">Prevented</p>
                 </div>
               </div>
             </div>
 
             {/* Dashboard */}
-            <div className="rounded-2xl border border-border bg-card shadow-lg" role="img" aria-label="Nexus dashboard preview showing revenue metrics, charts, and activity feed">
+            <div className="rounded-2xl border border-border bg-card shadow-lg" role="img" aria-label="Assetrix dashboard preview showing asset status, booking calendar, and maintenance queue">
               <div className="rounded-t-2xl border-b border-border bg-muted/30 px-4 py-3">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full bg-red-400" aria-hidden="true" />
                   <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" aria-hidden="true" />
                   <div className="h-2.5 w-2.5 rounded-full bg-green-400" aria-hidden="true" />
-                  <span className="ml-2 text-xs text-muted-foreground">nexus.platform/dashboard</span>
+                  <span className="ml-2 text-xs text-muted-foreground">assetrix.app/dashboard</span>
                 </div>
               </div>
               <div className="p-5">
                 <div className="mb-4 grid grid-cols-2 gap-3">
                   {[
-                    { label: "Revenue", value: "₹2.4Cr", icon: DollarSign, change: "+18%" },
-                    { label: "Users", value: "18,249", icon: Users, change: "+7%" },
-                    { label: "Approvals", value: "1,482", icon: CheckCircle, change: "98% rate" },
-                    { label: "Events", value: "10.2M", icon: Activity, change: "Live" },
+                    { label: "Available", value: "12,450", icon: Box, change: "+2.4%" },
+                    { label: "Bookings", value: "3,200", icon: CalendarCheck, change: "Active" },
+                    { label: "Maintenance", value: "1,847", icon: Wrench, change: "98% rate" },
+                    { label: "Audit Score", value: "99.8%", icon: ShieldCheck, change: "Pass" },
                   ].map((stat) => (
                     <div key={stat.label} className="rounded-xl border border-border bg-background p-3">
                       <div className="flex items-center justify-between">
@@ -148,7 +153,7 @@ export function Hero() {
 
                 <div className="mb-4 rounded-xl border border-border bg-background p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-foreground">Revenue Trend</span>
+                    <span className="text-xs font-semibold text-foreground">Asset Utilization</span>
                     <span className="text-[10px] text-muted-foreground">Last 12 months</span>
                   </div>
                   <div className="flex items-end gap-1" style={{ height: 100 }}>
@@ -162,12 +167,12 @@ export function Hero() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl border border-border bg-background p-3">
-                    <p className="text-[10px] font-semibold text-foreground">Approval Queue</p>
+                    <p className="text-[10px] font-semibold text-foreground">Upcoming Returns</p>
                     <div className="mt-2 space-y-2">
-                      {[{ name: "PO #4821", status: "Pending" }, { name: "Budget #127", status: "Review" }, { name: "Vendor #89", status: "Pending" }].map((item) => (
+                      {[{ name: "Laptop #4821", dept: "Engineering" }, { name: "Projector #127", dept: "Marketing" }, { name: "Camera #89", dept: "Media" }].map((item) => (
                         <div key={item.name} className="flex items-center justify-between">
                           <span className="text-[10px] text-muted-foreground">{item.name}</span>
-                          <span className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-medium text-amber-600 dark:text-amber-400">{item.status}</span>
+                          <span className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-medium text-amber-600 dark:text-amber-400">{item.dept}</span>
                         </div>
                       ))}
                     </div>
@@ -175,7 +180,7 @@ export function Hero() {
                   <div className="rounded-xl border border-border bg-background p-3">
                     <p className="text-[10px] font-semibold text-foreground">Recent Activity</p>
                     <div className="mt-2 space-y-2">
-                      {[{ action: "Order approved", time: "2m" }, { action: "Report generated", time: "5m" }, { action: "User onboarded", time: "8m" }].map((item) => (
+                      {[{ action: "Asset allocated", time: "2m" }, { action: "Maintenance done", time: "5m" }, { action: "Audit passed", time: "8m" }].map((item) => (
                         <div key={item.action} className="flex items-center justify-between">
                           <span className="text-[10px] text-muted-foreground">{item.action}</span>
                           <span className="text-[8px] text-muted-foreground/60">{item.time}</span>

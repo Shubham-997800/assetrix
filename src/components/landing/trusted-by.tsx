@@ -3,18 +3,18 @@
 import { useInView } from "@/hooks/use-in-view";
 import { useCountUp } from "@/hooks/use-count-up";
 
-const companies = [
-  "Enterprise Corp",
-  "Global Manufacturing",
-  "Tech Startup Inc",
-  "Financial Group",
-  "Healthcare Network",
+const industries = [
+  "Hospitals",
+  "Universities",
+  "Government Agencies",
+  "Corporate Offices",
+  "Manufacturing Plants",
 ];
 
 const metricsData = [
-  { target: 250, suffix: "K+", label: "Users" },
-  { target: 5, suffix: "M+", label: "Transactions" },
-  { target: 99.99, suffix: "%", label: "Availability" },
+  { target: 250, suffix: "K+", label: "Assets Managed" },
+  { target: 8, suffix: "M+", label: "Maintenance Records" },
+  { target: 99.8, suffix: "%", label: "Audit Accuracy" },
   { target: 42, suffix: "", label: "Countries" },
 ];
 
@@ -25,7 +25,7 @@ function MetricItem({ target, suffix, label }: { target: number; suffix: string;
   return (
     <div ref={ref} className="text-center">
       <p className="text-xl font-bold text-foreground sm:text-2xl">
-        {isInView ? (target === 99.99 ? "99.99" : count.toLocaleString("en-IN")) : "0"}
+        {isInView ? (target === 99.8 ? "99.8" : count.toLocaleString("en-IN")) : "0"}
         {suffix}
       </p>
       <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
@@ -44,10 +44,10 @@ export function TrustedBy() {
             isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
           }`}
         >
-          Used by teams building the future
+          Trusted by institutions managing critical assets
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
-          {companies.map((name, i) => (
+          {industries.map((name, i) => (
             <div
               key={name}
               className={`text-base font-semibold text-muted-foreground/40 transition-all duration-500 hover:text-muted-foreground/70 ${

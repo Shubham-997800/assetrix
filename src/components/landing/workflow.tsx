@@ -2,10 +2,11 @@
 
 import { useInView } from "@/hooks/use-in-view";
 import {
-  FilePlus,
+  ClipboardList,
+  ArrowLeftRight,
   CheckCircle,
-  Brain,
-  Rocket,
+  Wrench,
+  ShieldCheck,
   BarChart3,
   ArrowRight,
 } from "lucide-react";
@@ -13,33 +14,39 @@ import {
 const steps = [
   {
     number: "01",
-    icon: FilePlus,
-    title: "Request Created",
-    description: "Employee submits a request through the portal.",
+    icon: ClipboardList,
+    title: "Asset Registration",
+    description: "Register assets with lifecycle tracking and ownership assignment.",
   },
   {
     number: "02",
-    icon: CheckCircle,
-    title: "Approval",
-    description: "Route to the right manager based on rules.",
+    icon: ArrowLeftRight,
+    title: "Allocation",
+    description: "Assign assets to departments with real-time availability checks.",
   },
   {
     number: "03",
-    icon: Brain,
-    title: "AI Analysis",
-    description: "ML model evaluates risk, cost and compliance.",
+    icon: CheckCircle,
+    title: "Transfer Request",
+    description: "Multi-level approval workflow for asset movement between teams.",
   },
   {
     number: "04",
-    icon: Rocket,
-    title: "Execution",
-    description: "Approved actions are triggered automatically.",
+    icon: Wrench,
+    title: "Maintenance",
+    description: "Schedule preventive maintenance and track repair history.",
   },
   {
     number: "05",
+    icon: ShieldCheck,
+    title: "Audit",
+    description: "Run audit cycles with physical verification and compliance reports.",
+  },
+  {
+    number: "06",
     icon: BarChart3,
-    title: "Reporting",
-    description: "Results feed into analytics and audit logs.",
+    title: "Reports",
+    description: "Generate utilization reports and retirement forecasts.",
   },
 ];
 
@@ -60,11 +67,11 @@ export function Workflow() {
             Workflow
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            From request to result
+            From registration to retirement
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            A five-stage pipeline that handles the full lifecycle of any
-            business process.
+            A complete lifecycle pipeline that handles every stage of asset
+            management from day one to disposal.
           </p>
         </div>
 
@@ -79,11 +86,11 @@ export function Workflow() {
             style={{ transitionDelay: "300ms" }}
           />
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-0">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6 lg:gap-0">
             {steps.map((step, i) => (
               <div
                 key={step.number}
-                className={`relative flex flex-col items-center text-center transition-all duration-400 lg:px-4 ${
+                className={`relative flex flex-col items-center text-center transition-all duration-400 lg:px-3 ${
                   timelineVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-4"

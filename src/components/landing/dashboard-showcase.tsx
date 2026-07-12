@@ -1,11 +1,12 @@
 "use client";
 
 import {
-  DollarSign,
-  Users,
-  TrendingUp,
-  Activity,
-  CheckCircle,
+  Box,
+  CalendarCheck,
+  Wrench,
+  RotateCcw,
+  Clock,
+  AlertTriangle,
   Bell,
   MoreHorizontal,
 } from "lucide-react";
@@ -19,11 +20,11 @@ export function DashboardShowcase() {
             Dashboard
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            A command center for your operations
+            A command center for your assets
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Monitor every aspect of your business from a unified, real-time
-            dashboard designed for decision makers.
+            Monitor every asset from allocation to retirement from a unified,
+            real-time dashboard designed for operations managers.
           </p>
         </div>
 
@@ -36,7 +37,7 @@ export function DashboardShowcase() {
               <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
               <div className="h-2.5 w-2.5 rounded-full bg-green-400" />
               <span className="ml-3 text-xs text-muted-foreground">
-                nexus.platform/dashboard
+                assetrix.app/dashboard
               </span>
             </div>
           </div>
@@ -45,10 +46,10 @@ export function DashboardShowcase() {
             {/* Top KPI Row */}
             <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {[
-                { label: "Total Revenue", value: "₹4.2Cr", change: "+18.2%", icon: DollarSign },
-                { label: "Active Users", value: "24,589", change: "+7.1%", icon: Users },
-                { label: "Conversion", value: "4.12%", change: "+1.3%", icon: TrendingUp },
-                { label: "System Uptime", value: "99.99%", change: "0.0%", icon: Activity },
+                { label: "Assets Available", value: "12,450", change: "+2.4%", icon: Box },
+                { label: "Active Bookings", value: "3,200", change: "+12%", icon: CalendarCheck },
+                { label: "Maintenance Today", value: "24", change: "On Track", icon: Wrench },
+                { label: "Pending Transfers", value: "18", change: "Awaiting", icon: RotateCcw },
               ].map((kpi) => (
                 <div
                   key={kpi.label}
@@ -71,15 +72,15 @@ export function DashboardShowcase() {
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
-              {/* Revenue Chart */}
+              {/* Asset Utilization Chart */}
               <div className="rounded-xl border border-border bg-background p-5 lg:col-span-2">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-foreground">
-                      Revenue Overview
+                      Asset Utilization
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Monthly recurring revenue
+                      Monthly allocation vs available
                     </p>
                   </div>
                   <button className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
@@ -103,29 +104,29 @@ export function DashboardShowcase() {
                     )
                   )}
                 </div>
-                  <div className="mt-2 flex justify-between text-[10px] text-muted-foreground overflow-hidden">
-                    {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map(
-                      (m, i) => (
-                        <span key={m} className={i % 2 === 1 ? "hidden sm:inline" : ""}>{m}</span>
-                      )
-                    )}
-                  </div>
+                <div className="mt-2 flex justify-between text-[10px] text-muted-foreground overflow-hidden">
+                  {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map(
+                    (m, i) => (
+                      <span key={m} className={i % 2 === 1 ? "hidden sm:inline" : ""}>{m}</span>
+                    )
+                  )}
+                </div>
               </div>
 
-              {/* Activity Feed + Notifications */}
+              {/* Notifications + Maintenance Queue */}
               <div className="space-y-4">
                 <div className="rounded-xl border border-border bg-background p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-xs font-semibold text-foreground">
-                      Notifications
+                      Upcoming Returns
                     </p>
-                    <Bell className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
                   <div className="space-y-2.5">
                     {[
-                      { text: "Budget approved for Q3", time: "2m ago" },
-                      { text: "New vendor onboarded", time: "15m ago" },
-                      { text: "Security audit passed", time: "1h ago" },
+                      { text: "Laptop #4821 - Engineering", time: "Due in 2 days" },
+                      { text: "Projector #127 - Marketing", time: "Due tomorrow" },
+                      { text: "Camera #89 - Media", time: "Overdue 1 day" },
                     ].map((n) => (
                       <div key={n.text} className="flex items-start gap-2">
                         <div className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
@@ -143,15 +144,15 @@ export function DashboardShowcase() {
                 <div className="rounded-xl border border-border bg-background p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-xs font-semibold text-foreground">
-                      Approval Queue
+                      Maintenance Queue
                     </p>
-                    <CheckCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
                   <div className="space-y-2.5">
                     {[
-                      { name: "PO #4821", dept: "Procurement" },
-                      { name: "Budget #127", dept: "Finance" },
-                      { name: "Vendor #89", dept: "Operations" },
+                      { name: "AC Unit #203", dept: "Floor 2" },
+                      { name: "Printer #156", dept: "Admin Wing" },
+                      { name: "Server Rack B3", dept: "Data Center" },
                     ].map((item) => (
                       <div
                         key={item.name}
@@ -166,7 +167,7 @@ export function DashboardShowcase() {
                           </p>
                         </div>
                         <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
-                          Pending
+                          Scheduled
                         </span>
                       </div>
                     ))}
@@ -175,11 +176,11 @@ export function DashboardShowcase() {
               </div>
             </div>
 
-            {/* Data Table */}
+            {/* Asset Table */}
               <div className="rounded-xl border border-border bg-background p-5">
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-sm font-semibold text-foreground">
-                  Recent Transactions
+                  Recent Asset Activity
                 </p>
                 <button className="min-h-[44px] min-w-[44px] rounded-lg px-3 py-2 text-xs font-medium text-primary hover:bg-primary/5">
                   Export CSV
@@ -189,7 +190,7 @@ export function DashboardShowcase() {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      {["ID", "Department", "Amount", "Status", "Assigned To", "Date"].map(
+                      {["Asset ID", "Department", "Status", "Custodian", "Last Audit", "Next Due"].map(
                         (h) => (
                           <th
                             key={h}
@@ -203,11 +204,11 @@ export function DashboardShowcase() {
                   </thead>
                   <tbody>
                     {[
-                      { id: "TXN-8241", dept: "Procurement", amount: "₹12,45,000", status: "Approved", assignee: "S. Chen", date: "Jul 10" },
-                      { id: "TXN-8240", dept: "Engineering", amount: "₹8,92,000", status: "Pending", assignee: "M. Webb", date: "Jul 10" },
-                      { id: "TXN-8239", dept: "Marketing", amount: "₹5,68,000", status: "Approved", assignee: "P. Sharma", date: "Jul 9" },
-                      { id: "TXN-8238", dept: "Operations", amount: "₹20,13,000", status: "Review", assignee: "A. Rivera", date: "Jul 9" },
-                      { id: "TXN-8237", dept: "Finance", amount: "₹7,34,000", status: "Approved", assignee: "J. Lee", date: "Jul 8" },
+                      { id: "AST-8241", dept: "Engineering", status: "Active", custodian: "S. Chen", audit: "Jul 10", next: "Oct 10" },
+                      { id: "AST-8240", dept: "Marketing", status: "Maintenance", custodian: "M. Webb", audit: "Jul 9", next: "Jul 20" },
+                      { id: "AST-8239", dept: "Finance", status: "Active", custodian: "P. Sharma", audit: "Jul 8", next: "Oct 8" },
+                      { id: "AST-8238", dept: "Operations", status: "Transfer", custodian: "A. Rivera", audit: "Jul 7", next: "Oct 7" },
+                      { id: "AST-8237", dept: "HR", status: "Active", custodian: "J. Lee", audit: "Jul 6", next: "Oct 6" },
                     ].map((row) => (
                       <tr
                         key={row.id}
@@ -219,15 +220,12 @@ export function DashboardShowcase() {
                         <td className="py-3 pr-4 text-muted-foreground">
                           {row.dept}
                         </td>
-                        <td className="py-3 pr-4 font-medium text-foreground">
-                          {row.amount}
-                        </td>
                         <td className="py-3 pr-4">
                           <span
                             className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                              row.status === "Approved"
+                              row.status === "Active"
                                 ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                : row.status === "Pending"
+                                : row.status === "Maintenance"
                                 ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                                 : "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                             }`}
@@ -236,9 +234,10 @@ export function DashboardShowcase() {
                           </span>
                         </td>
                         <td className="py-3 pr-4 text-muted-foreground">
-                          {row.assignee}
+                          {row.custodian}
                         </td>
-                        <td className="py-3 text-muted-foreground">{row.date}</td>
+                        <td className="py-3 pr-4 text-muted-foreground">{row.audit}</td>
+                        <td className="py-3 text-muted-foreground">{row.next}</td>
                       </tr>
                     ))}
                   </tbody>

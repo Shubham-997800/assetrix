@@ -30,7 +30,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
               <Zap className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold tracking-tight text-foreground">
-              Nexus
+              Assetrix
             </span>
           </Link>
 
@@ -77,7 +77,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
                 <Zap className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold tracking-tight text-foreground">
-                Nexus
+                Assetrix
               </span>
             </Link>
           </div>

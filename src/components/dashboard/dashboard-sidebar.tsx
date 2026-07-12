@@ -89,12 +89,12 @@ export function DashboardSidebar() {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className={`flex h-16 items-center border-b border-border ${sidebarCollapsed ? "justify-center px-2" : "gap-2.5 px-5"}`}>
-        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={() => setMobileDrawerOpen(false)}>
+          <Link href="/dashboard" className="flex items-center gap-2.5" onClick={() => setMobileDrawerOpen(false)}>
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
             <Zap className="h-4 w-4 text-primary-foreground" aria-hidden="true" />
           </div>
           {!sidebarCollapsed && (
-            <span className="text-lg font-semibold tracking-tight text-foreground">Nexus</span>
+            <span className="text-lg font-semibold tracking-tight text-foreground">Assetrix</span>
           )}
         </Link>
       </div>

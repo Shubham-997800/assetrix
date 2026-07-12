@@ -3,7 +3,7 @@
 import { Brain, Database, Sparkles, Target, Lightbulb, ArrowRight } from "lucide-react";
 
 const pipelineSteps = [
-  { icon: Database, label: "Data Sources" },
+  { icon: Database, label: "Asset Data" },
   { icon: Brain, label: "AI Engine" },
   { icon: Sparkles, label: "Prediction" },
   { icon: Lightbulb, label: "Recommendation" },
@@ -18,15 +18,15 @@ export function AIIntelligence() {
           {/* Left Side - Pipeline */}
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-              AI Intelligence
+              AI Operational Intelligence
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               Decisions powered by intelligence
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Our AI layer processes your business data through a multi-stage
-              pipeline to deliver actionable recommendations with measurable
-              confidence scores.
+              Our AI layer processes your asset and operational data through a
+              multi-stage pipeline to deliver actionable recommendations with
+              measurable confidence scores.
             </p>
 
             {/* Visual Pipeline */}
@@ -58,7 +58,7 @@ export function AIIntelligence() {
                   AI Recommendation
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Vendor Selection Analysis
+                  Maintenance Prediction Analysis
                 </p>
               </div>
             </div>
@@ -69,7 +69,7 @@ export function AIIntelligence() {
                   Recommendation
                 </p>
                 <p className="mt-1 text-lg font-bold text-foreground">
-                  Select Vendor C
+                  Schedule preventive maintenance for Server Rack B3
                 </p>
               </div>
 
@@ -78,14 +78,14 @@ export function AIIntelligence() {
                   <p className="text-xs font-medium text-muted-foreground">
                     Confidence
                   </p>
-                  <p className="mt-1 text-2xl font-bold text-primary">93%</p>
+                  <p className="mt-1 text-2xl font-bold text-primary">87%</p>
                 </div>
                 <div className="rounded-xl border border-border bg-background p-4">
                   <p className="text-xs font-medium text-muted-foreground">
                     Risk Score
                   </p>
-                  <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                    Low
+                  <p className="mt-1 text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    Medium
                   </p>
                 </div>
               </div>
@@ -96,9 +96,9 @@ export function AIIntelligence() {
                 </p>
                 <ul className="mt-2 space-y-1.5">
                   {[
-                    "18% faster delivery time",
-                    "32% lower risk profile",
-                    "Best value score across criteria",
+                    "Predicted failure within 14 days based on usage patterns",
+                    "High utilization assets require priority maintenance",
+                    "Historical data shows similar models failed at 8,200 hours",
                   ].map((r) => (
                     <li
                       key={r}

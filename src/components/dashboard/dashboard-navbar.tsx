@@ -107,7 +107,7 @@ export function DashboardNavbar() {
           {/* Breadcrumb */}
           <nav className="hidden items-center gap-1.5 text-sm md:flex" aria-label="Breadcrumb">
             <Link href="/dashboard" className="text-muted-foreground transition-colors hover:text-foreground">
-              Nexus
+              Assetrix
             </Link>
             <span className="text-muted-foreground/40">/</span>
             <span className="font-medium text-foreground capitalize">{breadcrumb}</span>

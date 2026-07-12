@@ -1,23 +1,23 @@
 "use client";
 
 import {
+  Building2,
   Users,
-  Cpu,
-  Workflow,
-  Brain,
-  Target,
+  Box,
+  ArrowLeftRight,
+  Wrench,
+  ShieldCheck,
   BarChart3,
-  TrendingUp,
 } from "lucide-react";
 
 const steps = [
-  { icon: Users, label: "Users", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
-  { icon: Cpu, label: "Platform", color: "bg-violet-500/10 text-violet-600 dark:text-violet-400" },
-  { icon: Workflow, label: "Workflow Engine", color: "bg-primary/10 text-primary" },
-  { icon: Brain, label: "AI Layer", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
-  { icon: Target, label: "Decision Engine", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-  { icon: BarChart3, label: "Analytics", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
-  { icon: TrendingUp, label: "Business Outcome", color: "bg-primary/10 text-primary" },
+  { icon: Building2, label: "Departments", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
+  { icon: Users, label: "Employees", color: "bg-violet-500/10 text-violet-600 dark:text-violet-400" },
+  { icon: Box, label: "Assets", color: "bg-primary/10 text-primary" },
+  { icon: ArrowLeftRight, label: "Allocation Engine", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+  { icon: Wrench, label: "Maintenance", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  { icon: ShieldCheck, label: "Audit Engine", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
+  { icon: BarChart3, label: "Analytics", color: "bg-primary/10 text-primary" },
 ];
 
 export function PlatformArchitecture() {
@@ -29,11 +29,11 @@ export function PlatformArchitecture() {
             Architecture
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Platform architecture built for enterprise
+            ERP architecture built for enterprise
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            A layered architecture that ensures data flows cleanly from input to
-            insight to action.
+            A layered architecture that ensures data flows cleanly from
+            department registration to analytics and compliance reporting.
           </p>
         </div>
 
