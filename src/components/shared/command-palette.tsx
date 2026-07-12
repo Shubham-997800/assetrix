@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
 import {
@@ -53,7 +53,7 @@ const COMMAND_ITEMS: Omit<CommandItem, "action">[] = [
   { id: "c4", category: "Commands", label: "Sign Out", icon: LogOut, href: "/login" },
 ];
 
-export function CommandPalette() {
+function CommandPaletteInner() {
   const { commandOpen, setCommandOpen } = useDashboard();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -81,6 +81,19 @@ export function CommandPalette() {
     }
     return groups;
   }, [filtered]);
+
+  const categoryOffsets = useMemo(() => {
+    const entries = Object.entries(grouped);
+    return entries.reduce<Record<string, number>>((acc, [category], i) => {
+      if (i === 0) {
+        acc[category] = 0;
+      } else {
+        const [prevCategory] = entries[i - 1];
+        acc[category] = acc[prevCategory] + grouped[prevCategory].length;
+      }
+      return acc;
+    }, {});
+  }, [grouped]);
 
   useEffect(() => {
     if (prevOpen.current && !commandOpen) {
@@ -120,12 +133,12 @@ export function CommandPalette() {
     return () => document.removeEventListener("keydown", trap);
   }, [commandOpen]);
 
-  const executeItem = (item: (typeof COMMAND_ITEMS)[number]) => {
+  const executeItem = useCallback((item: (typeof COMMAND_ITEMS)[number]) => {
     if (item.href) router.push(item.href);
     setCommandOpen(false);
-  };
+  }, [router, setCommandOpen]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex((p) => (p + 1) % Math.max(filtered.length, 1));
@@ -135,11 +148,9 @@ export function CommandPalette() {
     } else if (e.key === "Enter" && filtered[selectedIndex]) {
       executeItem(filtered[selectedIndex]);
     }
-  };
+  }, [filtered, selectedIndex, executeItem]);
 
   if (!commandOpen) return null;
-
-  let runningIndex = -1;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] sm:pt-[18vh]" role="dialog" aria-modal="true" aria-label="Command palette">
@@ -160,12 +171,12 @@ export function CommandPalette() {
 
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
           {Object.entries(grouped).map(([category, items]) => {
+            const offset = categoryOffsets[category];
             return (
               <div key={category} className="mb-2">
                 <p className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{category}</p>
-                {items.map((item) => {
-                  runningIndex++;
-                  const idx = runningIndex;
+                {items.map((item, localIdx) => {
+                  const idx = offset + localIdx;
                   return (
                     <button
                       key={item.id}
@@ -211,3 +222,5 @@ export function CommandPalette() {
     </div>
   );
 }
+
+export const CommandPalette = React.memo(CommandPaletteInner);
