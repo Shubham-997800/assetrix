@@ -9,8 +9,9 @@ import {
   PasswordStrength,
   getPasswordStrength,
 } from "@/components/auth/password-strength";
+import { PrivacyDialog } from "@/components/shared/privacy-dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Mail, User, Shield, ArrowRight, CheckCircle } from "lucide-react";
+import { Loader2, Mail, User } from "lucide-react";
 
 interface FormErrors {
   name?: string;
@@ -37,6 +38,13 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [privacyType, setPrivacyType] = useState<"privacy" | "terms">("privacy");
+
+  const openDialog = (type: "privacy" | "terms") => {
+    setPrivacyType(type);
+    setPrivacyOpen(true);
+  };
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -79,32 +87,14 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout>
-      <div className="space-y-8">
-        {/* Employee Only Notice */}
-        <div className="rounded-xl border border-border bg-muted/30 px-4 py-3">
-          <div className="flex items-start gap-3">
-            <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                Employee Accounts Only
-              </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                All new registrations are created as Employee accounts.
-                Administrative roles are assigned internally by system
-                administrators.
-              </p>
-            </div>
-          </div>
-        </div>
-
+      <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
             Create your account
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Join your organization&apos;s workspace. Your admin will assign
-            roles after registration.
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Join your organization&apos;s workspace
           </p>
         </div>
 
@@ -119,7 +109,7 @@ export default function RegisterPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <AuthInput
             label="Full name"
             type="text"
@@ -200,19 +190,21 @@ export default function RegisterPage() {
               />
               <label htmlFor="terms" className="text-sm text-muted-foreground">
                 I agree to the{" "}
-                <Link
-                  href="#"
-                  className="font-medium text-foreground underline hover:text-primary"
+                <button
+                  type="button"
+                  onClick={() => openDialog("terms")}
+                  className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
                 >
                   Terms of Service
-                </Link>{" "}
+                </button>{" "}
                 and{" "}
-                <Link
-                  href="#"
-                  className="font-medium text-foreground underline hover:text-primary"
+                <button
+                  type="button"
+                  onClick={() => openDialog("privacy")}
+                  className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
                 >
                   Privacy Policy
-                </Link>
+                </button>
               </label>
             </div>
             {errors.terms && (
@@ -268,6 +260,12 @@ export default function RegisterPage() {
           </Link>
         </p>
       </div>
+
+      <PrivacyDialog
+        open={privacyOpen}
+        onClose={() => setPrivacyOpen(false)}
+        type={privacyType}
+      />
     </AuthLayout>
   );
 }

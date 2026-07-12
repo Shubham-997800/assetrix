@@ -71,26 +71,14 @@ export default function LoginPage() {
 
   return (
     <AuthLayout>
-      <div className="space-y-8">
-        {/* Environment Badge */}
-        <div className="flex items-center justify-center gap-2 lg:justify-start">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            Production Environment
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            <Shield className="h-2.5 w-2.5" />
-            Secure Connection
-          </span>
-        </div>
-
+      <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Sign in to Assetrix
+          <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+            Welcome back
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enter your credentials to access the platform
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Sign in to your Assetrix account
           </p>
         </div>
 
@@ -138,7 +126,7 @@ export default function LoginPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <AuthInput
             label="Email address"
             type="email"
@@ -177,7 +165,7 @@ export default function LoginPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
-                className={`input-focus-glow w-full rounded-xl border bg-card py-2.5 pl-10 pr-10 text-sm text-foreground outline-none transition-all duration-150 placeholder:text-muted-foreground ${
+                className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2.5 pl-10 pr-10 text-sm text-foreground outline-none transition-all duration-150 placeholder:text-muted-foreground ${
                   errors.password
                     ? "border-destructive focus:border-destructive"
                     : "border-border focus:border-primary"
@@ -258,21 +246,6 @@ export default function LoginPage() {
             Request access
           </Link>
         </p>
-
-        {/* Security Notice */}
-        <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground/60">
-          <svg
-            className="h-3 w-3"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0110 0v4" />
-          </svg>
-          <span>Secured with 256-bit TLS encryption</span>
-        </div>
       </div>
     </AuthLayout>
   );

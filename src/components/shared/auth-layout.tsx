@@ -27,7 +27,7 @@ const metrics = [
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       {/* Left Panel - Branding */}
       <div className="hidden w-1/2 items-center justify-center border-r border-border bg-muted/20 lg:flex xl:w-[55%]">
         <div className="max-w-lg px-12">
@@ -94,10 +94,10 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex flex-1 items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-[480px] animate-fade-in-up">
+      <div className="flex flex-1 items-center justify-center overflow-y-auto px-4 py-8 sm:px-6 lg:px-10">
+        <div className="w-full max-w-[440px] animate-fade-in-up">
           {/* Mobile Logo */}
-          <div className="mb-8 flex items-center justify-center lg:hidden">
+          <div className="mb-6 flex items-center justify-center lg:hidden">
             <Link href="/" className="flex items-center gap-2.5">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
                 <Zap className="h-5 w-5 text-primary-foreground" />
@@ -108,7 +108,15 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
 
-          {children}
+          {/* Form Card */}
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-lg shadow-black/5 sm:p-8 dark:shadow-black/20">
+            {children}
+          </div>
+
+          {/* Footer Links */}
+          <p className="mt-6 text-center text-xs text-muted-foreground/50">
+            &copy; {new Date().getFullYear()} Assetrix, Inc.
+          </p>
         </div>
       </div>
     </div>

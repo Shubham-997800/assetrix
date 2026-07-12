@@ -9,14 +9,11 @@ import { CheckCircle, Mail, ArrowLeft, Loader2, Clock } from "lucide-react";
 export default function VerifyEmailPage() {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(60);
-  const [canResend, setCanResend] = useState(false);
+  const canResend = countdown <= 0;
   const email = "john@company.com";
 
   useEffect(() => {
-    if (countdown <= 0) {
-      setCanResend(true);
-      return;
-    }
+    if (countdown <= 0) return;
     const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
     return () => clearTimeout(timer);
   }, [countdown]);
@@ -24,7 +21,6 @@ export default function VerifyEmailPage() {
   const handleResend = useCallback(async () => {
     if (!canResend) return;
     setLoading(true);
-    setCanResend(false);
     await new Promise((r) => setTimeout(r, 1500));
     setCountdown(60);
     setLoading(false);
@@ -38,23 +34,23 @@ export default function VerifyEmailPage() {
 
   return (
     <AuthLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 animate-fade-in-up">
-            <Mail className="h-8 w-8 text-primary" />
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 animate-fade-in-up">
+            <Mail className="h-7 w-7 text-primary" />
           </div>
-          <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="mt-5 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
             Verify your email
           </h1>
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground">
             We&apos;ve sent a verification link to
           </p>
           <p className="mt-1 text-sm font-medium text-foreground">{email}</p>
         </div>
 
         {/* Instructions */}
-        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2.5">
           <div className="flex items-start gap-3">
             <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <div>

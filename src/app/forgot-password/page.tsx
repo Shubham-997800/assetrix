@@ -14,13 +14,10 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(0);
-  const [canResend, setCanResend] = useState(false);
+  const canResend = countdown <= 0;
 
   useEffect(() => {
-    if (countdown <= 0) {
-      setCanResend(true);
-      return;
-    }
+    if (countdown <= 0) return;
     const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
     return () => clearTimeout(timer);
   }, [countdown]);
@@ -41,14 +38,12 @@ export default function ForgotPasswordPage() {
     await new Promise((r) => setTimeout(r, 1500));
     setSent(true);
     setCountdown(60);
-    setCanResend(false);
     setLoading(false);
   };
 
   const handleResend = async () => {
     if (!canResend) return;
     setLoading(true);
-    setCanResend(false);
     await new Promise((r) => setTimeout(r, 1500));
     setCountdown(60);
     setLoading(false);
@@ -62,22 +57,21 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         {!sent ? (
           <>
             {/* Header */}
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
                 Reset your password
               </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Enter your email and we&apos;ll send you a link to reset your
-                password.
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Enter your email and we&apos;ll send you a reset link.
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <AuthInput
                 label="Email address"
                 type="email"
@@ -112,19 +106,19 @@ export default function ForgotPasswordPage() {
         ) : (
           /* Success State */
           <div className="text-center animate-fade-in-up">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-              <CheckCircle className="h-8 w-8 text-primary" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+              <CheckCircle className="h-7 w-7 text-primary" />
             </div>
-            <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">
+            <h1 className="mt-5 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               Check your email
             </h1>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               We&apos;ve sent password reset instructions to
             </p>
             <p className="mt-1 text-sm font-medium text-foreground">{email}</p>
 
             {/* Resend with Countdown */}
-            <div className="mt-6">
+            <div className="mt-4">
               {canResend ? (
                 <Button
                   onClick={handleResend}

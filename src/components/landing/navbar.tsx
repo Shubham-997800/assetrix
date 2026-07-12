@@ -9,11 +9,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useScrollShadow } from "@/hooks/use-scroll-shadow";
 
 const navLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Architecture", href: "#architecture" },
+  { label: "Platform", href: "#features" },
+  { label: "How It Works", href: "#architecture" },
   { label: "AI Intelligence", href: "#ai" },
-  { label: "Security", href: "#security" },
   { label: "Workflow", href: "#workflow" },
+  { label: "Insights", href: "#analytics" },
 ];
 
 export function Navbar() {
@@ -59,12 +59,12 @@ export function Navbar() {
           <ThemeToggle />
           <Link href="/login">
             <Button variant="ghost" size="sm" className="hidden btn-enterprise sm:inline-flex">
-              Log in
+              Sign in
             </Button>
           </Link>
           <Link href="/register">
             <Button size="sm" className="hidden btn-enterprise sm:inline-flex">
-              Start Free
+              Create Account
             </Button>
           </Link>
 
@@ -97,10 +97,10 @@ export function Navbar() {
                 ))}
                 <div className="my-2 h-px bg-border" />
                 <Link href="/login" onClick={() => setOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start btn-enterprise">Log in</Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start btn-enterprise">Sign in</Button>
                 </Link>
                 <Link href="/register" onClick={() => setOpen(false)}>
-                  <Button size="sm" className="w-full btn-enterprise">Start Free</Button>
+                  <Button size="sm" className="w-full btn-enterprise">Create Account</Button>
                 </Link>
               </nav>
             </SheetContent>

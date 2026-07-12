@@ -55,22 +55,21 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         {!success ? (
           <>
             {/* Header */}
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
                 Set new password
               </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Choose a strong password for your account. It must include
-                uppercase, lowercase, numbers, and special characters.
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Choose a strong password for your account.
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <div className="space-y-3">
                 <AuthInput
                   label="New password"
@@ -125,13 +124,13 @@ export default function ResetPasswordPage() {
         ) : (
           /* Success State */
           <div className="text-center animate-fade-in-up">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-              <CheckCircle className="h-8 w-8 text-primary" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+              <CheckCircle className="h-7 w-7 text-primary" />
             </div>
-            <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">
+            <h1 className="mt-5 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               Password reset successful
             </h1>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               Your password has been updated. Redirecting to sign in...
             </p>
           </div>

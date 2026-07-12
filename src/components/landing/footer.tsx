@@ -1,9 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import { Zap } from "lucide-react";
 import Link from "next/link";
+import { PrivacyDialog } from "@/components/shared/privacy-dialog";
 
 export function Footer() {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [privacyType, setPrivacyType] = useState<"privacy" | "terms">("privacy");
+
+  const openDialog = (type: "privacy" | "terms") => {
+    setPrivacyType(type);
+    setPrivacyOpen(true);
+  };
+
   return (
     <footer className="border-t border-border bg-background" role="contentinfo">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -24,13 +34,35 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Copyright */}
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Assetrix, Inc. All rights
-            reserved.
-          </p>
+          {/* Links & Copyright */}
+          <div className="flex flex-col items-center gap-3 sm:items-end">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <button
+                onClick={() => openDialog("privacy")}
+                className="transition-colors hover:text-foreground"
+              >
+                Privacy Policy
+              </button>
+              <button
+                onClick={() => openDialog("terms")}
+                className="transition-colors hover:text-foreground"
+              >
+                Terms of Service
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              &copy; {new Date().getFullYear()} Assetrix, Inc. All rights
+              reserved.
+            </p>
+          </div>
         </div>
       </div>
+
+      <PrivacyDialog
+        open={privacyOpen}
+        onClose={() => setPrivacyOpen(false)}
+        type={privacyType}
+      />
     </footer>
   );
 }
