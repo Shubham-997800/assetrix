@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
-import { TrustedBy } from "@/components/landing/trusted-by";
 import { Features } from "@/components/landing/features";
 import { PlatformArchitecture } from "@/components/landing/architecture";
 import { AIIntelligence } from "@/components/landing/ai-intelligence";
@@ -15,7 +14,6 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         <Hero />
-        <TrustedBy />
         <Features />
         <PlatformArchitecture />
         <AIIntelligence />
