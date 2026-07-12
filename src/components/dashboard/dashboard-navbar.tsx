@@ -55,17 +55,17 @@ export function DashboardNavbar() {
       {/* Left */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
         {/* Mobile sidebar toggle */}
-        <button onClick={toggleSidebar} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden">
+        <button onClick={toggleSidebar} className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden">
           <Menu className="h-5 w-5" />
         </button>
         {/* Desktop sidebar toggle */}
-        <button onClick={toggleSidebar} className="hidden lg:flex rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+        <button onClick={toggleSidebar} className="hidden lg:flex rounded-lg p-2 min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground">
           {sidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
         </button>
         {/* Search trigger */}
         <button
           onClick={() => setSearchOpen(true)}
-          className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+          className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 min-h-[44px] text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
         >
           <Search className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Search...</span>
@@ -82,7 +82,7 @@ export function DashboardNavbar() {
         {/* AI Assistant toggle */}
         <button
           onClick={() => setAiPanelOpen(!aiPanelOpen)}
-          className={`relative rounded-lg p-2 transition-colors ${aiPanelOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+          className={`relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors ${aiPanelOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
           title="AI Assistant"
         >
           <Sparkles className="h-4 w-4" />
@@ -92,7 +92,7 @@ export function DashboardNavbar() {
         <div ref={tasksRef} className="relative">
         <button
           onClick={() => setTasksOpen(!tasksOpen)}
-          className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
           title="Tasks"
           aria-label={`Pending tasks: ${TASK_QUEUE.length}`}
           aria-expanded={tasksOpen}
@@ -105,7 +105,7 @@ export function DashboardNavbar() {
             )}
           </button>
           {tasksOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-80 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <p className="text-xs font-semibold text-foreground">Pending Tasks</p>
                 <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-medium text-orange-500">{TASK_QUEUE.length} pending</span>
@@ -126,7 +126,7 @@ export function DashboardNavbar() {
         <div ref={notifRef} className="relative">
         <button
           onClick={() => setNotificationsOpen(!notificationsOpen)}
-          className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
           title="Notifications"
           aria-label={`Notifications: ${unreadCount} unread`}
           aria-expanded={notificationsOpen}
@@ -139,7 +139,7 @@ export function DashboardNavbar() {
             )}
           </button>
           {notificationsOpen && (
-            <div className="absolute right-0 top-full mt-2 w-96 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-96 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <p className="text-xs font-semibold text-foreground">Notifications</p>
                 <Link href="/dashboard/notifications" onClick={() => setNotificationsOpen(false)} className="text-[10px] text-primary hover:underline">View all</Link>
@@ -166,7 +166,7 @@ export function DashboardNavbar() {
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
           title="Toggle theme"
         >
           {isLight ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
@@ -175,7 +175,7 @@ export function DashboardNavbar() {
         {/* Help/shortcuts */}
         <button
           onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "?", ctrlKey: true }))}
-          className="hidden sm:flex rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="hidden sm:flex rounded-lg p-2 min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
           title="Keyboard shortcuts"
         >
           <HelpCircle className="h-4 w-4" />
@@ -185,7 +185,7 @@ export function DashboardNavbar() {
         <div ref={profileRef} className="relative ml-1">
           <button
             onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted"
+            className="flex items-center gap-2 rounded-lg p-1.5 min-h-[44px] hover:bg-muted"
             aria-label="User menu"
             aria-expanded={profileOpen}
           >

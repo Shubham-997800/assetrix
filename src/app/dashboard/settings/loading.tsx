@@ -1,6 +1,6 @@
 export default function SettingsLoading() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6 animate-pulse p-6">
       <div className="space-y-2">
         <div className="h-7 w-28 rounded-lg bg-muted" />
         <div className="h-4 w-56 rounded bg-muted/60" />

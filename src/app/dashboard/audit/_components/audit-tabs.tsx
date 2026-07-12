@@ -251,7 +251,7 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
 }) {
   return (
     <>
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
@@ -404,7 +404,7 @@ function VerificationTab({ assets, total, page, totalPages, setPage, selectedAss
 
   return (
     <>
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
@@ -463,7 +463,7 @@ function DiscrepanciesTab({ discrepancies, total, page, totalPages, setPage, bad
 }) {
   return (
     <>
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
@@ -525,7 +525,7 @@ function CloseCycleTab({ cycles, onClose }: { cycles: AuditCycle[]; onClose: (id
     <div className="space-y-3">
       {cycles.map((cycle) => (
         <div key={cycle.id} className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h4 className="text-sm font-semibold text-foreground">{cycle.name}</h4>
               <p className="text-xs text-muted-foreground mt-0.5">{cycle.departmentScope} — {cycle.startDate} to {cycle.endDate}</p>
@@ -535,7 +535,7 @@ function CloseCycleTab({ cycles, onClose }: { cycles: AuditCycle[]; onClose: (id
                 <p className="text-xs text-muted-foreground">Progress</p>
                 <p className="text-sm font-medium text-foreground">{cycle.verifiedCount}/{cycle.totalAssets} verified</p>
               </div>
-              <Button size="sm" className="btn-enterprise" onClick={() => onClose(cycle.id)}>
+              <Button size="sm" className="btn-enterprise min-h-[44px]" onClick={() => onClose(cycle.id)}>
                 <CheckCircle className="h-3.5 w-3.5" /> Close Cycle
               </Button>
             </div>

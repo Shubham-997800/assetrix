@@ -88,7 +88,7 @@ export default function LoginPage() {
                   if (errors.email)
                     setErrors((p) => ({ ...p, email: undefined }));
                 }}
-                className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2 pl-9 pr-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground ${
+                className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2.5 pl-9 pr-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground min-h-[44px] ${
                   errors.email
                     ? "border-destructive focus:border-destructive"
                     : "border-border focus:border-primary"
@@ -129,7 +129,7 @@ export default function LoginPage() {
                   if (errors.password)
                     setErrors((p) => ({ ...p, password: undefined }));
                 }}
-                className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2 pl-9 pr-9 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground ${
+                className={`input-focus-glow w-full rounded-xl border bg-muted/30 py-2.5 pl-9 pr-9 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground min-h-[44px] ${
                   errors.password
                     ? "border-destructive focus:border-destructive"
                     : "border-border focus:border-primary"
@@ -158,7 +158,7 @@ export default function LoginPage() {
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <input
               type="checkbox"
-              className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary/20"
+              className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
             />
             Remember me
           </label>
@@ -166,7 +166,7 @@ export default function LoginPage() {
           {/* Submit */}
           <Button
             type="submit"
-            className="w-full btn-enterprise"
+            className="w-full btn-enterprise min-h-[44px]"
             disabled={loading}
           >
             {loading ? (

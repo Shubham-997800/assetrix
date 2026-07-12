@@ -130,11 +130,43 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
   html {
     @apply font-sans scroll-smooth;
     overflow-x: hidden;
   }
+}
+
+/* Safe area insets for notch / Dynamic Island / rounded corners */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Fluid typography */
+@media (min-width: 640px) {
+  html {
+    font-size: clamp(14px, 0.9375rem + 0.25vw, 16px);
+  }
+}
+
+/* Scroll lock for modals */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* ── Keyframes ── */

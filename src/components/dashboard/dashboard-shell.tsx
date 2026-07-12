@@ -18,9 +18,9 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
       <DashboardSidebar />
 
       {/* Main area offset by sidebar */}
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:pl-[80px]" : "lg:pl-[280px]"} ${aiPanelOpen ? "lg:pr-[380px]" : ""}`}>
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:pl-[80px]" : "lg:pl-[280px]"}`}>
         <DashboardNavbar />
-        <main id="main-content" className="min-h-[calc(100vh-64px)] pb-20 lg:pb-6" role="main">
+        <main id="main-content" className={`min-h-[calc(100vh-64px)] pb-24 sm:pb-20 lg:pb-6 ${aiPanelOpen ? "hidden sm:block" : ""}`} role="main">
           {children}
         </main>
       </div>

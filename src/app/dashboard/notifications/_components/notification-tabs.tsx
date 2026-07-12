@@ -144,7 +144,7 @@ export function NotificationTabs() {
             <TableDropdown label="" options={["All", "user", "asset", "approval", "system"].map((c) => ({ label: c.charAt(0).toUpperCase() + c.slice(1), value: c }))} value={activityCategoryFilter} onChange={(v) => { setActivityCategoryFilter(v); setActivityPage(1); }} placeholder="All Types" />
           </div>
         </div>
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
           <Table>
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">

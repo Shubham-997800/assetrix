@@ -130,7 +130,7 @@ export function AIPanel() {
   if (!aiPanelOpen) return null;
 
   return (
-    <div className="fixed right-0 top-0 z-50 h-screen w-[380px] border-l border-border bg-card shadow-2xl flex flex-col" role="complementary" aria-label="AI Assistant panel">
+    <div className="fixed inset-0 z-50 flex flex-col border-l border-border bg-card shadow-2xl sm:inset-y-0 sm:right-0 sm:left-auto sm:w-[380px] sm:max-w-full" role="complementary" aria-label="AI Assistant panel">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">

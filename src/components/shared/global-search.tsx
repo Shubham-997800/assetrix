@@ -156,7 +156,7 @@ export function GlobalSearch() {
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh]" role="dialog" aria-modal="true" aria-label="Global search">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={closeSearch} />
-      <div className="relative z-10 w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
         <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
           <Search className="h-5 w-5 text-muted-foreground" />
           <input

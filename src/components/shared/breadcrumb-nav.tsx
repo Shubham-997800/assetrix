@@ -36,7 +36,7 @@ export function BreadcrumbNav() {
   if (crumbs.length <= 1) return null;
 
   return (
-    <nav className="flex items-center gap-1 text-xs" aria-label="Breadcrumb">
+    <nav className="flex items-center gap-1 text-xs overflow-x-auto max-w-full scrollbar-none" aria-label="Breadcrumb">
       <Link
         href="/dashboard"
         className="flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"

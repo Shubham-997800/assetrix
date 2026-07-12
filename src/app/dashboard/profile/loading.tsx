@@ -1,6 +1,6 @@
 export default function ProfileLoading() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6 animate-pulse p-6">
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6">
           <div className="h-20 w-20 rounded-2xl bg-muted flex-shrink-0" />
@@ -12,7 +12,7 @@ export default function ProfileLoading() {
           <div className="h-8 w-28 rounded-lg bg-muted mt-4 sm:mt-0" />
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="h-7 w-24 rounded-lg bg-muted" />
         ))}
