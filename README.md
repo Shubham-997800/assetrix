@@ -61,25 +61,6 @@ Inter Font          →  Enterprise typography
 
 <br />
 
-## Quick Start
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Shubham-997800/assetrix.git
-
-# 2. Navigate to project
-cd assetrix
-
-# 3. Install dependencies
-npm install
-
-# 4. Start development server
-npm run dev
-
-# 5. Open in browser
-open http://localhost:5173
-```
-
 <br />
 
 ---
