@@ -1,161 +1,191 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useDashboard } from "@/contexts/dashboard-context";
 import {
-  Search,
-  LayoutDashboard,
-  Settings,
-  Users,
-  FileText,
-  BarChart3,
-  Bell,
-  Shield,
-  LogOut,
-  ChevronUp,
-  ChevronDown,
+  Search, LayoutDashboard, Package, Users, Building2, CalendarClock,
+  Wrench, ClipboardCheck, BarChart3, Bell, FileText, Settings, LogOut,
+  ArrowLeftRight, ChevronRight, Plus, Download, RefreshCw, UserPlus,
+  Upload,
 } from "lucide-react";
 
-const commands = [
-  { icon: LayoutDashboard, label: "Go to Dashboard", path: "/dashboard" },
-  { icon: Users, label: "Go to Users", path: "/dashboard/admin" },
-  { icon: FileText, label: "Go to Reports", path: "/dashboard/reports" },
-  { icon: BarChart3, label: "Go to Analytics", path: "/dashboard" },
-  { icon: Bell, label: "View Notifications", path: "/dashboard/notifications" },
-  { icon: Shield, label: "Security Settings", path: "/dashboard/settings" },
-  { icon: Settings, label: "Account Settings", path: "/dashboard/settings" },
-  { icon: LogOut, label: "Log Out", path: "/login" },
+interface CommandItem {
+  id: string;
+  category: string;
+  label: string;
+  sublabel?: string;
+  icon: React.ElementType;
+  href?: string;
+  action?: () => void;
+  shortcut?: string;
+}
+
+const COMMAND_ITEMS: Omit<CommandItem, "action">[] = [
+  { id: "p1", category: "Pages", label: "Dashboard", sublabel: "Overview & KPIs", icon: LayoutDashboard, href: "/dashboard" },
+  { id: "p2", category: "Pages", label: "Organization Setup", icon: Building2, href: "/dashboard/organization" },
+  { id: "p3", category: "Pages", label: "Asset Directory", icon: Package, href: "/dashboard/assets" },
+  { id: "p4", category: "Pages", label: "Asset Allocation", icon: ArrowLeftRight, href: "/dashboard/allocations" },
+  { id: "p5", category: "Pages", label: "Resource Booking", icon: CalendarClock, href: "/dashboard/bookings" },
+  { id: "p6", category: "Pages", label: "Maintenance", icon: Wrench, href: "/dashboard/maintenance" },
+  { id: "p7", category: "Pages", label: "Audit Module", icon: ClipboardCheck, href: "/dashboard/audit" },
+  { id: "p8", category: "Pages", label: "Reports & Analytics", icon: BarChart3, href: "/dashboard/reports" },
+  { id: "p9", category: "Pages", label: "Notifications", icon: Bell, href: "/dashboard/notifications" },
+  { id: "p10", category: "Pages", label: "Activity Logs", icon: FileText, href: "/dashboard/logs" },
+  { id: "p11", category: "Pages", label: "Settings", icon: Settings, href: "/dashboard/settings" },
+  { id: "a1", category: "Actions", label: "Register New Asset", icon: Plus, href: "/dashboard/assets", shortcut: "A+R" },
+  { id: "a2", category: "Actions", label: "New Maintenance Task", icon: Plus, href: "/dashboard/maintenance", shortcut: "M+N" },
+  { id: "a3", category: "Actions", label: "New Booking", icon: Plus, href: "/dashboard/bookings", shortcut: "B+N" },
+  { id: "a4", category: "Actions", label: "Transfer Asset", icon: ArrowLeftRight, href: "/dashboard/allocations", shortcut: "A+T" },
+  { id: "a5", category: "Actions", label: "Create Audit Cycle", icon: Plus, href: "/dashboard/audit" },
+  { id: "a6", category: "Actions", label: "Export Report", icon: Download, href: "/dashboard/reports" },
+  { id: "a7", category: "Actions", label: "Add Employee", icon: UserPlus, href: "/dashboard/organization" },
+  { id: "a8", category: "Actions", label: "Bulk Import Assets", icon: Upload, href: "/dashboard/assets" },
+  { id: "e1", category: "Employees", label: "Priya Shah", sublabel: "Engineering Manager", icon: Users, href: "/dashboard/organization" },
+  { id: "e2", category: "Employees", label: "Rahul Verma", sublabel: "IT Administrator", icon: Users, href: "/dashboard/organization" },
+  { id: "e3", category: "Employees", label: "Amit Patel", sublabel: "Maintenance Lead", icon: Users, href: "/dashboard/organization" },
+  { id: "e4", category: "Employees", label: "Sneha Reddy", sublabel: "Finance Analyst", icon: Users, href: "/dashboard/organization" },
+  { id: "e5", category: "Employees", label: "Kavita Nair", sublabel: "Operations Head", icon: Users, href: "/dashboard/organization" },
+  { id: "e6", category: "Employees", label: "Devendra Joshi", sublabel: "Audit Manager", icon: Users, href: "/dashboard/organization" },
+  { id: "c1", category: "Commands", label: "Toggle Sidebar", icon: LayoutDashboard, shortcut: "Ctrl+B" },
+  { id: "c2", category: "Commands", label: "Toggle Theme", icon: RefreshCw, shortcut: "Ctrl+Shift+T" },
+  { id: "c3", category: "Commands", label: "View Profile", icon: Users, href: "/dashboard/profile", shortcut: "Ctrl+Shift+P" },
+  { id: "c4", category: "Commands", label: "Sign Out", icon: LogOut, href: "/login" },
 ];
 
 export function CommandPalette() {
-  const [open, setOpen] = useState(false);
+  const { commandOpen, setCommandOpen } = useDashboard();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const prevOpen = useRef(commandOpen);
 
-  const filtered = commands.filter((c) =>
-    c.label.toLowerCase().includes(query.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    if (!query.trim()) return COMMAND_ITEMS;
+    const q = query.toLowerCase();
+    return COMMAND_ITEMS.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) ||
+        (item.sublabel && item.sublabel.toLowerCase().includes(q)) ||
+        item.category.toLowerCase().includes(q)
+    );
+  }, [query]);
 
-  const safeIndex = Math.min(selectedIndex, Math.max(filtered.length - 1, 0));
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setOpen((prev) => !prev);
-      }
-      if (e.key === "Escape" && open) {
-        e.preventDefault();
-        setOpen(false);
-      }
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % filtered.length);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + filtered.length) % filtered.length);
-      } else if (e.key === "Enter" && filtered[safeIndex]) {
-        e.preventDefault();
-        router.push(filtered[safeIndex].path);
-        setOpen(false);
-      }
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [open, filtered, safeIndex, router]);
-
-  useEffect(() => {
-    if (open && listRef.current) {
-      const selected = listRef.current.children[safeIndex] as HTMLElement;
-      selected?.scrollIntoView({ block: "nearest" });
+  const grouped = useMemo(() => {
+    const groups: Record<string, typeof filtered> = {};
+    for (const item of filtered) {
+      if (!groups[item.category]) groups[item.category] = [];
+      groups[item.category].push(item);
     }
-  }, [safeIndex, open]);
+    return groups;
+  }, [filtered]);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (prevOpen.current && !commandOpen) {
+      setQuery("");
+      setSelectedIndex(0);
+    }
+    prevOpen.current = commandOpen;
+  }, [commandOpen]);
+
+  useEffect(() => {
+    if (commandOpen) setTimeout(() => inputRef.current?.focus(), 50);
+  }, [commandOpen]);
+
+  useEffect(() => {
+    if (!listRef.current) return;
+    const el = listRef.current.children[selectedIndex] as HTMLElement;
+    el?.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex]);
+
+  const executeItem = (item: (typeof COMMAND_ITEMS)[number]) => {
+    if (item.href) router.push(item.href);
+    setCommandOpen(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((p) => (p + 1) % Math.max(filtered.length, 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((p) => (p - 1 + filtered.length) % Math.max(filtered.length, 1));
+    } else if (e.key === "Enter" && filtered[selectedIndex]) {
+      executeItem(filtered[selectedIndex]);
+    }
+  };
+
+  if (!commandOpen) return null;
+
+  let runningIndex = -1;
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] sm:pt-[20vh]"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Command palette"
-    >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={() => setOpen(false)}
-        aria-hidden="true"
-      />
-
-      {/* Palette */}
-      <div className="relative z-10 w-full max-w-lg rounded-2xl border border-border bg-card shadow-2xl">
-        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-          <Search className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] sm:pt-[18vh]" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setCommandOpen(false)} />
+      <div className="relative z-10 w-full max-w-xl rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
+          <Search className="h-4 w-4 text-muted-foreground" />
           <input
             ref={inputRef}
-            autoFocus
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Type a command or search..."
-            aria-label="Search commands"
-            aria-controls="command-list"
-            aria-activedescendant={filtered[safeIndex] ? `command-${safeIndex}` : undefined}
+            onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a command, page, or action..."
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
-          <kbd className="hidden rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
-            ESC
-          </kbd>
+          <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">ESC</kbd>
         </div>
-        <div id="command-list" ref={listRef} role="listbox" aria-label="Commands" className="max-h-[50vh] overflow-y-auto p-2 sm:max-h-72">
-          {filtered.map((cmd, i) => (
-            <button
-              key={cmd.label}
-              id={`command-${i}`}
-              role="option"
-              aria-selected={i === safeIndex}
-              onClick={() => {
-                router.push(cmd.path);
-                setOpen(false);
-              }}
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                i === safeIndex
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <cmd.icon className="h-4 w-4" aria-hidden="true" />
-              {cmd.label}
-            </button>
-          ))}
-          {filtered.length === 0 && (
-            <p role="status" className="py-6 text-center text-sm text-muted-foreground">
-              No commands found
-            </p>
+
+        <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
+          {Object.entries(grouped).map(([category, items]) => {
+            return (
+              <div key={category} className="mb-2">
+                <p className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{category}</p>
+                {items.map((item) => {
+                  runningIndex++;
+                  const idx = runningIndex;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => executeItem(item)}
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                        idx === selectedIndex ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-muted">
+                        <item.icon className="h-3.5 w-3.5" />
+                      </span>
+                      <div className="flex-1 min-w-0 text-left">
+                        <p className="font-medium truncate text-xs">{item.label}</p>
+                        {item.sublabel && <p className="text-[10px] text-muted-foreground truncate">{item.sublabel}</p>}
+                      </div>
+                      {item.shortcut && (
+                        <span className="text-[9px] text-muted-foreground/40 font-mono">{item.shortcut}</span>
+                      )}
+                      <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-30" />
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
+          {query.trim() && filtered.length === 0 && (
+            <div className="py-8 text-center">
+              <Search className="mx-auto mb-2 h-8 w-8 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground">No results for &ldquo;{query}&rdquo;</p>
+            </div>
           )}
         </div>
+
         <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-            <span className="inline-flex items-center gap-0.5">
-              <ChevronUp className="h-3 w-3" /><ChevronDown className="h-3 w-3" />
-            </span>
-            <span>navigate</span>
-            <span className="ml-1 rounded border border-border bg-muted px-1 py-0.5">↵</span>
-            <span>select</span>
+          <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1"><kbd className="rounded border border-border bg-muted px-1 py-0.5">↑↓</kbd> navigate</span>
+            <span className="inline-flex items-center gap-1"><kbd className="rounded border border-border bg-muted px-1 py-0.5">↵</kbd> execute</span>
+            <span className="inline-flex items-center gap-1"><kbd className="rounded border border-border bg-muted px-1 py-0.5">ESC</kbd> close</span>
           </div>
-          <span className="text-[10px] text-muted-foreground">
-            {filtered.length} commands
-          </span>
+          <span className="text-[10px] text-muted-foreground">{filtered.length} items</span>
         </div>
       </div>
     </div>

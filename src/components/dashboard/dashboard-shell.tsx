@@ -1,29 +1,43 @@
 "use client";
 
-import { DashboardProvider } from "@/contexts/dashboard-context";
-import { DashboardNavbar } from "./dashboard-navbar";
+import { DashboardProvider, useDashboard } from "@/contexts/dashboard-context";
 import { DashboardSidebar } from "./dashboard-sidebar";
+import { DashboardNavbar } from "./dashboard-navbar";
+import { GlobalSearch } from "@/components/shared/global-search";
+import { AIPanel } from "@/components/shared/ai-panel";
+import { MobileNav } from "@/components/shared/mobile-nav";
+import { KeyboardShortcutsHelp } from "@/components/shared/keyboard-shortcuts-help";
+
+function DashboardShellInner({ children }: { children: React.ReactNode }) {
+  const { sidebarCollapsed, aiPanelOpen } = useDashboard();
+
+  return (
+    <div className="relative min-h-screen bg-background">
+      <GlobalSearch />
+      <KeyboardShortcutsHelp />
+      <DashboardSidebar />
+
+      {/* Main area offset by sidebar */}
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:pl-[80px]" : "lg:pl-[280px]"} ${aiPanelOpen ? "lg:pr-[380px]" : ""}`}>
+        <DashboardNavbar />
+        <main className="min-h-[calc(100vh-64px)] pb-20 lg:pb-6">
+          {children}
+        </main>
+      </div>
+
+      {/* AI Panel floats over main content */}
+      <AIPanel />
+
+      {/* Mobile bottom nav */}
+      <MobileNav />
+    </div>
+  );
+}
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <DashboardProvider>
-      <div className="flex h-screen overflow-hidden bg-background">
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:z-[200] focus:m-2 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-foreground"
-        >
-          Skip to content
-        </a>
-        <DashboardSidebar />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <DashboardNavbar />
-          <main id="main-content" className="flex-1 overflow-y-auto overflow-x-hidden" role="main">
-            <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-              {children}
-            </div>
-          </main>
-        </div>
-      </div>
+      <DashboardShellInner>{children}</DashboardShellInner>
     </DashboardProvider>
   );
 }

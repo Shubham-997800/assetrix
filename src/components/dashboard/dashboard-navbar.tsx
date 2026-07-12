@@ -1,292 +1,214 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { BreadcrumbNav } from "@/components/shared/breadcrumb-nav";
 import {
-  Search,
-  Bell,
-  ChevronDown,
-  Menu,
-  LogOut,
-  Settings,
-  User,
-  Shield,
-  Clock,
-  HelpCircle,
-  Command,
+  Search, Bell, Menu, PanelLeft, Sun, Moon, CheckCircle, AlertTriangle,
+  Clock, User, LogOut, Settings, ChevronDown, Zap, HelpCircle, Sparkles,
 } from "lucide-react";
 
-const searchSuggestions = [
-  { type: "page", label: "Dashboard", href: "/dashboard" },
-  { type: "page", label: "Asset Directory", href: "/dashboard/assets" },
-  { type: "record", label: "AST-001 MacBook Pro", href: "/dashboard/assets" },
-  { type: "user", label: "Sarah Chen", href: "/dashboard/admin" },
-  { type: "page", label: "Asset Allocation", href: "/dashboard/allocations" },
-  { type: "page", label: "Reports & Analytics", href: "/dashboard/reports" },
+const DUMMY_NOTIFICATIONS = [
+  { id: "1", title: "Maintenance Overdue", desc: "MNT-042 laptop screen repair is 2 days overdue", time: "2h ago", type: "warning", read: false },
+  { id: "2", title: "Booking Approved", desc: "Meeting Room A booking confirmed for today 2PM", time: "3h ago", type: "success", read: false },
+  { id: "3", title: "Warranty Expiring", desc: "AF-0008 warranty expires in 30 days", time: "1d ago", type: "warning", read: true },
+  { id: "4", title: "Asset Allocated", desc: "MacBook Pro AF-0001 allocated to Priya Shah", time: "2d ago", type: "info", read: true },
+  { id: "5", title: "Audit Complete", desc: "Q3 audit cycle completed — 92% verified", time: "3d ago", type: "success", read: true },
 ];
 
-const notifications = [
-  { id: 1, text: "Maintenance MNT-302 approved", time: "2m ago", unread: true, priority: "high" },
-  { id: 2, text: "Booking confirmed: Meeting Room A", time: "15m ago", unread: true, priority: "normal" },
-  { id: 3, text: "Transfer request TRF-201 pending", time: "1h ago", unread: false, priority: "normal" },
-  { id: 4, text: "Asset AST-045 reported missing", time: "2h ago", unread: false, priority: "low" },
-  { id: 5, text: "Overdue return: MacBook Pro", time: "3h ago", unread: false, priority: "low" },
+const TASK_QUEUE = [
+  { id: "t1", label: "Approve 3 allocation transfers", href: "/dashboard/allocations", priority: "high" },
+  { id: "t2", label: "Review MNT-042 maintenance task", href: "/dashboard/maintenance", priority: "high" },
+  { id: "t3", label: "Complete Q3 audit verification (14 assets)", href: "/dashboard/audit", priority: "medium" },
 ];
 
-const unreadCount = notifications.filter((n) => n.unread).length;
+const TYPE_COLORS: Record<string, string> = {
+  warning: "text-orange-500",
+  success: "text-emerald-500",
+  info: "text-primary",
+};
 
 export function DashboardNavbar() {
-  const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, setCommandOpen } = useDashboard();
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [notifOpen, setNotifOpen] = useState(false);
+  const { setSearchOpen, sidebarCollapsed, toggleSidebar, isLight, toggleTheme, aiPanelOpen, setAiPanelOpen } = useDashboard();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
+  const [tasksOpen, setTasksOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const pathname = usePathname();
+  const tasksRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdowns on outside click
+  const unreadCount = DUMMY_NOTIFICATIONS.filter((n) => !n.read).length;
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchFocused(false);
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotificationsOpen(false);
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
+      if (tasksRef.current && !tasksRef.current.contains(e.target as Node)) setTasksOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Ctrl+K handler
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setCommandOpen(true);
-      }
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [setCommandOpen]);
-
-  const breadcrumb = pathname === "/dashboard" ? "Overview" : pathname.split("/").pop()?.replace(/-/g, " ");
-
-  const filtered = searchQuery
-    ? searchSuggestions.filter((s) => s.label.toLowerCase().includes(searchQuery.toLowerCase()))
-    : searchSuggestions;
-
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-full w-full items-center justify-between px-4 sm:px-6">
-        {/* Left */}
-        <div className="flex items-center gap-3">
-          {/* Mobile Menu */}
-          <button
-            onClick={() => setMobileDrawerOpen(true)}
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
-            aria-label="Open navigation"
-            aria-expanded={mobileDrawerOpen}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-
-          {/* Desktop Sidebar Toggle */}
-          <button
-            onClick={toggleSidebar}
-            className="hidden h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:flex"
-            aria-label="Toggle sidebar"
-            aria-expanded={!sidebarCollapsed}
-          >
-            <Menu className="h-4 w-4" />
-          </button>
-
-          {/* Breadcrumb */}
-          <nav className="hidden items-center gap-1.5 text-sm md:flex" aria-label="Breadcrumb">
-            <Link href="/dashboard" className="text-muted-foreground transition-colors hover:text-foreground">
-              Assetrix
-            </Link>
-            <span className="text-muted-foreground/40">/</span>
-            <span className="font-medium text-foreground capitalize">{breadcrumb}</span>
-          </nav>
+    <header className="sticky top-0 z-20 flex h-16 items-center border-b border-border bg-card/80 backdrop-blur-md px-4 lg:px-6">
+      {/* Left */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        {/* Mobile sidebar toggle */}
+        <button onClick={toggleSidebar} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden">
+          <Menu className="h-5 w-5" />
+        </button>
+        {/* Desktop sidebar toggle */}
+        <button onClick={toggleSidebar} className="hidden lg:flex rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+          {sidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
+        </button>
+        {/* Search trigger */}
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Search...</span>
+          <kbd className="hidden sm:inline-flex ml-2 rounded border border-border bg-background px-1 py-0.5 text-[9px] font-medium">Ctrl K</kbd>
+        </button>
+        {/* Breadcrumbs */}
+        <div className="hidden md:block ml-2">
+          <BreadcrumbNav />
         </div>
+      </div>
 
-        {/* Center - Search */}
-        <div ref={searchRef} className="relative hidden max-w-md flex-1 px-4 md:block">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              className="input-focus-glow h-9 w-full rounded-lg border border-border bg-muted/40 pl-9 pr-20 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:bg-background"
-            />
-            <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
-              <kbd className="hidden h-5 items-center gap-0.5 rounded border border-border bg-muted px-1.5 text-[10px] font-medium text-muted-foreground sm:inline-flex">
-                <Command className="h-2.5 w-2.5" />K
-              </kbd>
-            </div>
-          </div>
+      {/* Right */}
+      <div className="flex items-center gap-1">
+        {/* AI Assistant toggle */}
+        <button
+          onClick={() => setAiPanelOpen(!aiPanelOpen)}
+          className={`relative rounded-lg p-2 transition-colors ${aiPanelOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+          title="AI Assistant"
+        >
+          <Sparkles className="h-4 w-4" />
+        </button>
 
-          {/* Search Dropdown */}
-          {searchFocused && (
-            <div className="absolute left-4 right-4 top-full mt-1 rounded-xl border border-border bg-card p-2 shadow-lg animate-slide-down">
-              {filtered.length > 0 ? (
-                <>
-                  <p className="px-2 py-1 text-xs font-medium text-muted-foreground">Suggestions</p>
-                  {filtered.map((item, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        router.push(item.href);
-                        setSearchFocused(false);
-                        setSearchQuery("");
-                      }}
-                      className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm text-foreground transition-colors hover:bg-muted"
-                    >
-                      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-[10px] font-medium text-muted-foreground uppercase">
-                        {item.type[0]}
-                      </span>
-                      {item.label}
-                      <span className="ml-auto text-xs text-muted-foreground/60 capitalize">{item.type}</span>
-                    </button>
-                  ))}
-                </>
-              ) : (
-                <p className="px-2 py-4 text-center text-sm text-muted-foreground">No results found</p>
-              )}
+        {/* Task Queue */}
+        <div ref={tasksRef} className="relative">
+          <button
+            onClick={() => setTasksOpen(!tasksOpen)}
+            className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Tasks"
+          >
+            <Zap className="h-4 w-4" />
+            {TASK_QUEUE.length > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white">
+                {TASK_QUEUE.length}
+              </span>
+            )}
+          </button>
+          {tasksOpen && (
+            <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <p className="text-xs font-semibold text-foreground">Pending Tasks</p>
+                <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-medium text-orange-500">{TASK_QUEUE.length} pending</span>
+              </div>
+              <div className="max-h-60 overflow-y-auto p-2">
+                {TASK_QUEUE.map((task) => (
+                  <Link key={task.id} href={task.href} onClick={() => setTasksOpen(false)} className="flex items-start gap-2.5 rounded-lg px-3 py-2.5 text-xs hover:bg-muted">
+                    <span className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${task.priority === "high" ? "bg-orange-500" : "bg-primary"}`} />
+                    <span className="text-foreground">{task.label}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Right */}
-        <div className="flex items-center gap-1">
-          {/* Command Palette Button */}
+        {/* Notifications */}
+        <div ref={notifRef} className="relative">
           <button
-            onClick={() => setCommandOpen(true)}
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label="Command palette"
+            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Notifications"
           >
-            <Command className="h-4 w-4" />
+            <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+                {unreadCount}
+              </span>
+            )}
           </button>
+          {notificationsOpen && (
+            <div className="absolute right-0 top-full mt-2 w-96 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <p className="text-xs font-semibold text-foreground">Notifications</p>
+                <Link href="/dashboard/notifications" onClick={() => setNotificationsOpen(false)} className="text-[10px] text-primary hover:underline">View all</Link>
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {DUMMY_NOTIFICATIONS.map((n) => (
+                  <div key={n.id} className={`flex items-start gap-3 border-b border-border/50 px-4 py-3 transition-colors hover:bg-muted/50 ${!n.read ? "bg-primary/5" : ""}`}>
+                    <span className={`mt-0.5 flex-shrink-0 ${TYPE_COLORS[n.type] || "text-muted-foreground"}`}>
+                      {n.type === "warning" ? <AlertTriangle className="h-4 w-4" /> : n.type === "success" ? <CheckCircle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-foreground">{n.title}</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground truncate">{n.desc}</p>
+                      <p className="mt-1 text-[10px] text-muted-foreground/60">{n.time}</p>
+                    </div>
+                    {!n.read && <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
-          {/* Help */}
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          title="Toggle theme"
+        >
+          {isLight ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+        </button>
+
+        {/* Help/shortcuts */}
+        <button
+          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "?", ctrlKey: true }))}
+          className="hidden sm:flex rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          title="Keyboard shortcuts"
+        >
+          <HelpCircle className="h-4 w-4" />
+        </button>
+
+        {/* Profile dropdown */}
+        <div ref={profileRef} className="relative ml-1">
           <button
-            className="hidden h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
-            aria-label="Help center"
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted"
           >
-            <HelpCircle className="h-4 w-4" />
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">RS</span>
+            <div className="hidden sm:block text-left">
+              <p className="text-xs font-medium text-foreground leading-tight">Rahul Shah</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">IT Administrator</p>
+            </div>
+            <ChevronDown className="hidden sm:block h-3 w-3 text-muted-foreground" />
           </button>
-
-          {/* Notifications */}
-          <div ref={notifRef} className="relative">
-            <button
-              onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
-              className="relative flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              aria-label="Notifications"
-            >
-              <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <span className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-            {notifOpen && (
-              <div className="absolute right-0 top-full z-50 mt-1 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-lg animate-slide-down">
-                <div className="flex items-center justify-between border-b border-border px-4 py-3">
-                  <span className="text-sm font-semibold text-foreground">Notifications</span>
-                  <span className="text-xs text-primary cursor-pointer hover:underline" role="button" tabIndex={0}>Mark all read</span>
-                </div>
-                <div className="max-h-80 overflow-y-auto p-2">
-                  {notifications.map((n) => (
-                    <button
-                      key={n.id}
-                      className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-muted"
-                    >
-                      <div className={`mt-1 h-2 w-2 flex-shrink-0 rounded-full ${n.unread ? "bg-primary" : "bg-border"}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${n.unread ? "font-medium text-foreground" : "text-muted-foreground"}`}>
-                          {n.text}
-                        </p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">{n.time}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <div className="border-t border-border p-2">
-                  <Link
-                    href="/dashboard/notifications"
-                    className="flex items-center justify-center rounded-lg py-2 text-sm font-medium text-primary transition-colors hover:bg-muted"
-                    onClick={() => setNotifOpen(false)}
-                  >
-                    View all notifications
-                  </Link>
-                </div>
+          {profileOpen && (
+            <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+              <div className="border-b border-border px-4 py-3">
+                <p className="text-xs font-semibold text-foreground">Rahul Shah</p>
+                <p className="text-[10px] text-muted-foreground">rahul@assetrix.com</p>
               </div>
-            )}
-          </div>
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
-
-          {/* Profile */}
-          <div ref={profileRef} className="relative">
-              <button
-                onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
-                className="flex min-h-[44px] items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
-              >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                JD
+              <div className="p-1.5">
+                <Link href="/dashboard/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                  <User className="h-3.5 w-3.5" /> Profile
+                </Link>
+                <Link href="/dashboard/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                  <Settings className="h-3.5 w-3.5" /> Settings
+                </Link>
+                <Link href="/login" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                  <LogOut className="h-3.5 w-3.5" /> Sign out
+                </Link>
               </div>
-              <div className="hidden text-left sm:block">
-                <p className="text-sm font-medium text-foreground leading-tight">John Doe</p>
-                <p className="text-xs text-muted-foreground leading-tight">john@company.com</p>
-              </div>
-              <ChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
-            </button>
-            {profileOpen && (
-              <div className="absolute right-0 top-full z-50 mt-1 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-lg animate-slide-down">
-                <div className="border-b border-border px-4 py-3">
-                  <p className="text-sm font-medium text-foreground">John Doe</p>
-                  <p className="text-xs text-muted-foreground">john@company.com</p>
-                </div>
-                <div className="p-1.5">
-                  {[
-                    { icon: User, label: "Profile", href: "/dashboard/profile" },
-                    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-                    { icon: Shield, label: "Security", href: "/dashboard/settings" },
-                    { icon: Clock, label: "Activity Log", href: "/dashboard/logs" },
-                  ].map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-                <div className="border-t border-border p-1.5">
-                  <Link
-                    href="/login"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/5"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Log out
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </header>
