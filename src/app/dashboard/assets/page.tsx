@@ -1,7 +1,12 @@
 "use client";
 
+<<<<<<< HEAD
 import { useEffect, useState, useCallback } from "react";
 import { assetApi } from "@/lib/api";
+=======
+import { useState, useCallback, memo } from "react";
+import { MOCK_ASSETS } from "./_components/data";
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
 import { AssetDirectoryTable } from "./_components/asset-directory-table";
 import { RegisterAssetForm } from "./_components/register-asset-form";
 import { AssetDetailsView } from "./_components/asset-details-view";
@@ -10,6 +15,7 @@ import type { Asset, AssetStatus, AssetCondition } from "./_components/types";
 
 type View = "directory" | "register" | "details" | "lifecycle";
 
+<<<<<<< HEAD
 const STATUS_MAP: Record<string, AssetStatus> = {
   AVAILABLE: "Available",
   ALLOCATED: "Allocated",
@@ -73,6 +79,17 @@ function mapBackendAsset(apiAsset: Record<string, any>): Asset {
 }
 
 export default function AssetsPage() {
+=======
+const ASSET_TABS: { id: View; label: string }[] = [
+  { id: "directory", label: "All Assets" },
+  { id: "register", label: "Register Asset" },
+  { id: "lifecycle", label: "Lifecycle" },
+] as const;
+
+const HIDE_TABS_VIEWS: ReadonlySet<View> = new Set(["details", "register"]);
+
+function AssetsPage() {
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
   const [view, setView] = useState<View>("directory");
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -104,24 +121,30 @@ export default function AssetsPage() {
     fetchAssets();
   }, [fetchAssets]);
 
-  const handleViewAsset = (asset: Asset) => {
+  const handleViewAsset = useCallback((asset: Asset) => {
     setSelectedAsset(asset);
     setView("details");
-  };
+  }, []);
 
-  const handleRegisterAsset = () => {
+  const handleRegisterAsset = useCallback(() => {
     setView("register");
-  };
+  }, []);
 
+<<<<<<< HEAD
   const handleRegisterSubmit = () => {
     fetchAssets();
+=======
+  const handleRegisterSubmit = useCallback(() => {
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
     setView("directory");
-  };
+  }, []);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     setSelectedAsset(null);
     setView("directory");
-  };
+  }, []);
+
+  const showTabs = !HIDE_TABS_VIEWS.has(view);
 
   return (
     <div className="space-y-6">
@@ -143,14 +166,10 @@ export default function AssetsPage() {
       )}
 
       {/* Tabs */}
-      {view !== "details" && view !== "register" && (
+      {showTabs && (
         <div className="border-b border-border">
           <nav className="flex gap-1 overflow-x-auto" aria-label="Asset tabs">
-            {[
-              { id: "directory" as View, label: "All Assets" },
-              { id: "register" as View, label: "Register Asset" },
-              { id: "lifecycle" as View, label: "Lifecycle" },
-            ].map((tab) => (
+            {ASSET_TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setView(tab.id)}
@@ -222,3 +241,5 @@ export default function AssetsPage() {
     </div>
   );
 }
+
+export default memo(AssetsPage);

@@ -1,6 +1,10 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState, useEffect } from "react";
+=======
+import { useState, useCallback, useMemo, memo } from "react";
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
 import { Button } from "@/components/ui/button";
 import {
   CalendarClock,
@@ -28,6 +32,7 @@ import type { Booking as ApiBooking } from "@/lib/types";
 type Tab = "calendar" | "resources" | "upcoming" | "ongoing" | "completed" | "cancelled" | "history";
 type View = "tabs" | "form";
 
+<<<<<<< HEAD
 function mapBookingStatus(b: ApiBooking): string {
   switch (b.status) {
     case "PENDING": return "Upcoming";
@@ -45,8 +50,31 @@ function mapBookingStatus(b: ApiBooking): string {
     default: return "Upcoming";
   }
 }
+=======
+const BOOKING_TAB_LABELS: Record<Tab, { label: string; icon: React.ElementType }> = {
+  calendar: { label: "Calendar View", icon: Calendar },
+  resources: { label: "Resources", icon: MapPin },
+  upcoming: { label: "Upcoming", icon: CalendarClock },
+  ongoing: { label: "Ongoing", icon: Clock },
+  completed: { label: "Completed", icon: CheckCircle },
+  cancelled: { label: "Cancelled", icon: XCircle },
+  history: { label: "Booking History", icon: History },
+};
 
-export default function BookingsPage() {
+const TAB_ORDER: Tab[] = ["calendar", "resources", "upcoming", "ongoing", "completed", "cancelled", "history"];
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
+
+const TAB_CONTENT: Record<Tab, React.ElementType | null> = {
+  calendar: CalendarViewTab,
+  resources: ResourceDirectoryTab,
+  upcoming: UpcomingBookingsTab,
+  ongoing: OngoingBookingsTab,
+  completed: CompletedBookingsTab,
+  cancelled: CancelledBookingsTab,
+  history: BookingHistoryTab,
+};
+
+function BookingsPage() {
   const [view, setView] = useState<View>("tabs");
   const [activeTab, setActiveTab] = useState<Tab>("calendar");
   const [counts, setCounts] = useState<Record<string, number>>({});
@@ -76,6 +104,27 @@ export default function BookingsPage() {
     { id: "history", label: "Booking History", icon: History },
   ];
 
+  const counts = useMemo(() => ({
+    upcoming: MOCK_BOOKINGS.filter((b) => b.status === "Upcoming").length,
+    ongoing: MOCK_BOOKINGS.filter((b) => b.status === "Ongoing").length,
+    completed: MOCK_BOOKINGS.filter((b) => b.status === "Completed").length,
+    cancelled: MOCK_BOOKINGS.filter((b) => b.status === "Cancelled").length,
+  }), []);
+
+  const handleNewBooking = useCallback(() => {
+    setView("form");
+  }, []);
+
+  const handleViewTabs = useCallback(() => {
+    setView("tabs");
+  }, []);
+
+  const handleSetActiveTab = useCallback((tab: Tab) => {
+    setActiveTab(tab);
+  }, []);
+
+  const ActiveContent = view === "tabs" ? TAB_CONTENT[activeTab] : null;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -84,11 +133,11 @@ export default function BookingsPage() {
             Resource Booking
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage meeting rooms, equipment & vehicles
+            Manage meeting rooms, equipment and vehicles
           </p>
         </div>
         {view === "tabs" && (
-          <Button size="sm" className="btn-enterprise" onClick={() => setView("form")}>
+          <Button size="sm" className="btn-enterprise" onClick={handleNewBooking}>
             <Plus className="h-3.5 w-3.5" /> New Booking
           </Button>
         )}
@@ -97,23 +146,24 @@ export default function BookingsPage() {
       {/* Tabs */}
       {view === "tabs" && (
         <div className="flex items-center gap-1 rounded-lg border border-border bg-muted p-1">
-          {tabs.map((t) => {
-            const Icon = t.icon;
+          {TAB_ORDER.map((id) => {
+            const { label, icon: Icon } = BOOKING_TAB_LABELS[id];
+            const count = counts[id as keyof typeof counts];
             return (
               <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id)}
+                key={id}
+                onClick={() => handleSetActiveTab(id)}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
-                  activeTab === t.id
+                  activeTab === id
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
-                {t.label}
-                {t.count !== undefined && (
+                {label}
+                {count !== undefined && (
                   <span className="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
-                    {t.count}
+                    {count}
                   </span>
                 )}
               </button>
@@ -123,20 +173,16 @@ export default function BookingsPage() {
       )}
 
       {/* Content */}
-      {view === "tabs" && activeTab === "calendar" && <CalendarViewTab />}
-      {view === "tabs" && activeTab === "resources" && <ResourceDirectoryTab />}
-      {view === "tabs" && activeTab === "upcoming" && <UpcomingBookingsTab />}
-      {view === "tabs" && activeTab === "ongoing" && <OngoingBookingsTab />}
-      {view === "tabs" && activeTab === "completed" && <CompletedBookingsTab />}
-      {view === "tabs" && activeTab === "cancelled" && <CancelledBookingsTab />}
-      {view === "tabs" && activeTab === "history" && <BookingHistoryTab />}
+      {ActiveContent && <ActiveContent />}
 
       {view === "form" && (
         <CreateBookingForm
-          onSubmit={() => setView("tabs")}
-          onCancel={() => setView("tabs")}
+          onSubmit={handleViewTabs}
+          onCancel={handleViewTabs}
         />
       )}
     </div>
   );
 }
+
+export default memo(BookingsPage);

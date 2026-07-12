@@ -1,7 +1,11 @@
 "use client";
 
+<<<<<<< HEAD
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+=======
+import { useMemo, memo } from "react";
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
 import {
   ClipboardCheck,
   TrendingUp,
@@ -15,6 +19,7 @@ import { auditApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 import type { AuditCycle } from "./_components/types";
 
+<<<<<<< HEAD
 export default function AuditPage() {
   const [cycles, setCycles] = useState<AuditCycle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +43,17 @@ export default function AuditPage() {
     fetchCycles();
   }, [fetchCycles]);
 
+=======
+const AUDIT_CARD_CONFIG = [
+  { label: "Total Cycles", icon: <ClipboardCheck className="h-4 w-4" />, color: "text-primary" },
+  { label: "Active Cycles", icon: <Clock className="h-4 w-4" />, color: "text-blue-500" },
+  { label: "Assets to Audit", icon: <TrendingUp className="h-4 w-4" />, color: "text-amber-500" },
+  { label: "Verified", icon: <CheckCircle className="h-4 w-4" />, color: "text-emerald-500" },
+  { label: "Open Discrepancies", icon: <AlertTriangle className="h-4 w-4" />, color: "text-destructive" },
+] as const;
+
+function AuditPage() {
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
   const stats = useMemo(() => ({
     totalCycles: cycles.length,
     activeCycles: cycles.filter((c) => c.status === "Active").length,
@@ -46,13 +62,13 @@ export default function AuditPage() {
     openDiscrepancies: cycles.reduce((sum, c) => sum + (c.discrepanciesCount || 0), 0),
   }), [cycles]);
 
-  const cards = [
-    { label: "Total Cycles", value: stats.totalCycles, icon: <ClipboardCheck className="h-4 w-4" />, color: "text-primary" },
-    { label: "Active Cycles", value: stats.activeCycles, icon: <Clock className="h-4 w-4" />, color: "text-blue-500" },
-    { label: "Assets to Audit", value: stats.totalAssets, icon: <TrendingUp className="h-4 w-4" />, color: "text-amber-500" },
-    { label: "Verified", value: stats.verifiedAssets, icon: <CheckCircle className="h-4 w-4" />, color: "text-emerald-500" },
-    { label: "Open Discrepancies", value: stats.openDiscrepancies, icon: <AlertTriangle className="h-4 w-4" />, color: "text-destructive" },
-  ];
+  const cards = useMemo(() => [
+    { ...AUDIT_CARD_CONFIG[0], value: stats.totalCycles },
+    { ...AUDIT_CARD_CONFIG[1], value: stats.activeCycles },
+    { ...AUDIT_CARD_CONFIG[2], value: stats.totalAssets },
+    { ...AUDIT_CARD_CONFIG[3], value: stats.verifiedAssets },
+    { ...AUDIT_CARD_CONFIG[4], value: stats.openDiscrepancies },
+  ], [stats]);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 sm:p-6">
@@ -96,3 +112,5 @@ export default function AuditPage() {
     </div>
   );
 }
+
+export default memo(AuditPage);

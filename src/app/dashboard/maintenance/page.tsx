@@ -1,6 +1,10 @@
 "use client";
 
+<<<<<<< HEAD
 import { useMemo, useEffect, useState, useCallback } from "react";
+=======
+import { useMemo, useCallback, memo } from "react";
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
 import { Button } from "@/components/ui/button";
 import {
   Wrench,
@@ -17,7 +21,15 @@ import { maintenanceApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 import type { MaintenanceRequest } from "./_components/types";
 
-export default function MaintenancePage() {
+const STAT_CARDS = [
+  { label: "Total Requests", icon: <Wrench className="h-4 w-4" />, color: "text-primary" },
+  { label: "Pending Review", icon: <Clock className="h-4 w-4" />, color: "text-amber-500" },
+  { label: "In Progress", icon: <TrendingUp className="h-4 w-4" />, color: "text-blue-500" },
+  { label: "Resolved", icon: <CheckCircle className="h-4 w-4" />, color: "text-emerald-500" },
+  { label: "Critical Open", icon: <AlertCircle className="h-4 w-4" />, color: "text-destructive" },
+] as const;
+
+function MaintenancePage() {
   const [showForm, setShowForm] = useState(false);
   const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,13 +61,21 @@ export default function MaintenancePage() {
     critical: requests.filter((r) => r.priority === "Critical" && r.status !== "Resolved").length,
   }), [requests]);
 
-  const cards = [
-    { label: "Total Requests", value: stats.total, icon: <Wrench className="h-4 w-4" />, color: "text-primary" },
-    { label: "Pending Review", value: stats.pending, icon: <Clock className="h-4 w-4" />, color: "text-amber-500" },
-    { label: "In Progress", value: stats.inProgress, icon: <TrendingUp className="h-4 w-4" />, color: "text-blue-500" },
-    { label: "Resolved", value: stats.resolved, icon: <CheckCircle className="h-4 w-4" />, color: "text-emerald-500" },
-    { label: "Critical Open", value: stats.critical, icon: <AlertCircle className="h-4 w-4" />, color: "text-destructive" },
-  ];
+  const cards = useMemo(() => [
+    { ...STAT_CARDS[0], value: stats.total },
+    { ...STAT_CARDS[1], value: stats.pending },
+    { ...STAT_CARDS[2], value: stats.inProgress },
+    { ...STAT_CARDS[3], value: stats.resolved },
+    { ...STAT_CARDS[4], value: stats.critical },
+  ], [stats]);
+
+  const handleShowForm = useCallback(() => {
+    setShowForm(true);
+  }, []);
+
+  const handleHideForm = useCallback(() => {
+    setShowForm(false);
+  }, []);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 sm:p-6">
@@ -70,7 +90,7 @@ export default function MaintenancePage() {
             </p>
           </div>
           {!showForm && (
-            <Button size="default" className="btn-enterprise" onClick={() => setShowForm(true)}>
+            <Button size="default" className="btn-enterprise" onClick={handleShowForm}>
               <Plus className="h-3.5 w-3.5" /> Raise Request
             </Button>
           )}
@@ -90,6 +110,7 @@ export default function MaintenancePage() {
           </div>
         )}
 
+<<<<<<< HEAD
         {loading && !showForm ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -101,6 +122,10 @@ export default function MaintenancePage() {
           </div>
         ) : showForm ? (
           <RaiseRequestForm onSubmit={() => { setShowForm(false); fetchRequests(); }} onCancel={() => setShowForm(false)} />
+=======
+        {showForm ? (
+          <RaiseRequestForm onSubmit={handleHideForm} onCancel={handleHideForm} />
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
         ) : (
           <MaintenanceTabs initialRequests={requests} onRefresh={fetchRequests} />
         )}
@@ -108,3 +133,5 @@ export default function MaintenancePage() {
     </div>
   );
 }
+
+export default memo(MaintenancePage);

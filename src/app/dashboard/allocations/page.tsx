@@ -1,6 +1,10 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState, useEffect } from "react";
+=======
+import { useState, useCallback, memo } from "react";
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeftRight,
@@ -27,7 +31,30 @@ import {
 type Tab = "active" | "allocate" | "transfers" | "approvals" | "overdue" | "returned" | "history";
 type View = "tabs" | "form";
 
+<<<<<<< HEAD
 export default function AllocationsPage() {
+=======
+const ALLOCATION_TABS: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
+  { id: "active", label: "Active Allocations", icon: ArrowLeftRight },
+  { id: "transfers", label: "Transfer Requests", icon: ArrowRight },
+  { id: "approvals", label: "Pending Approvals", icon: Clock, count: 3 },
+  { id: "overdue", label: "Overdue Returns", icon: AlertTriangle },
+  { id: "returned", label: "Returned Assets", icon: RotateCcw },
+  { id: "history", label: "Allocation History", icon: History },
+];
+
+const TAB_CONTENT: Record<Tab, React.ElementType | null> = {
+  active: ActiveAllocationsTab,
+  transfers: TransferRequestsTab,
+  approvals: PendingApprovalsTab,
+  overdue: OverdueReturnsTab,
+  returned: ReturnedAssetsTab,
+  history: AllocationHistoryTab,
+  allocate: null,
+};
+
+function AllocationsPage() {
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
   const [view, setView] = useState<View>("tabs");
   const [activeTab, setActiveTab] = useState<Tab>("active");
   const [allocations, setAllocations] = useState<Allocation[]>([]);
@@ -69,6 +96,20 @@ export default function AllocationsPage() {
     { id: "history", label: "Allocation History", icon: History },
   ];
 
+  const handleAllocate = useCallback(() => {
+    setView("form");
+  }, []);
+
+  const handleViewTabs = useCallback(() => {
+    setView("tabs");
+  }, []);
+
+  const handleSetActiveTab = useCallback((tab: Tab) => {
+    setActiveTab(tab);
+  }, []);
+
+  const ActiveContent = view === "tabs" ? TAB_CONTENT[activeTab] : null;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -81,7 +122,7 @@ export default function AllocationsPage() {
           </p>
         </div>
         {view === "tabs" && (
-          <Button size="sm" className="btn-enterprise" onClick={() => setView("form")}>
+          <Button size="sm" className="btn-enterprise" onClick={handleAllocate}>
             <Plus className="h-3.5 w-3.5" /> Allocate Asset
           </Button>
         )}
@@ -91,10 +132,10 @@ export default function AllocationsPage() {
       {view === "tabs" && (
         <div className="border-b border-border">
           <nav className="flex gap-1 overflow-x-auto">
-            {tabs.map((t) => (
+            {ALLOCATION_TABS.map((t) => (
               <button
                 key={t.id}
-                onClick={() => setActiveTab(t.id)}
+                onClick={() => handleSetActiveTab(t.id)}
                 className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === t.id
                     ? "border-primary text-primary"
@@ -115,20 +156,23 @@ export default function AllocationsPage() {
       )}
 
       {/* Content */}
-      {view === "tabs" && activeTab === "active" && <ActiveAllocationsTab />}
-      {view === "tabs" && activeTab === "transfers" && <TransferRequestsTab />}
-      {view === "tabs" && activeTab === "approvals" && <PendingApprovalsTab />}
-      {view === "tabs" && activeTab === "overdue" && <OverdueReturnsTab />}
-      {view === "tabs" && activeTab === "returned" && <ReturnedAssetsTab />}
-      {view === "tabs" && activeTab === "history" && <AllocationHistoryTab />}
+      {ActiveContent && <ActiveContent />}
 
       {view === "form" && (
         <AllocateAssetForm
+<<<<<<< HEAD
           existingAllocations={allocations}
           onSubmit={() => setView("tabs")}
           onCancel={() => setView("tabs")}
+=======
+          existingAllocations={MOCK_ALLOCATIONS}
+          onSubmit={handleViewTabs}
+          onCancel={handleViewTabs}
+>>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
         />
       )}
     </div>
   );
 }
+
+export default memo(AllocationsPage);
