@@ -8,7 +8,10 @@ import {
   AlertCircle,
   CheckCircle,
   X,
+  Loader2,
 } from "lucide-react";
+import { maintenanceApi } from "@/lib/api";
+import type { ApiError } from "@/lib/api";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
 import {
   ASSET_OPTIONS,
@@ -35,6 +38,8 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
   const [files, setFiles] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const selectedAsset = ASSET_OPTIONS.find((a) => a.tag === assetTag);
 
@@ -49,10 +54,28 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validate()) {
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    try {
+      setSubmitting(true);
+      setSubmitError(null);
+      const selectedOpt = ASSET_OPTIONS.find((a) => a.tag === assetTag);
+      await maintenanceApi.create({
+        assetTag,
+        assetName: selectedOpt?.name || "",
+        issueTitle: title,
+        issueDescription: description,
+        priority,
+        category,
+        attachments: files,
+      });
       setSubmitted(true);
-      setTimeout(() => onSubmit(), 1500);
+      onSubmit();
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setSubmitError(apiErr.message || "Failed to submit request");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -233,13 +256,16 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
       </div>
 
       <div className="flex items-center gap-3 border-t border-border pt-5">
-        <Button size="default" className="btn-enterprise" onClick={handleSubmit}>
-          <Wrench className="h-3.5 w-3.5" /> Submit Request
+        <Button size="default" className="btn-enterprise" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wrench className="h-3.5 w-3.5" />} {submitting ? "Submitting..." : "Submit Request"}
         </Button>
-        <Button variant="outline" size="default" className="btn-enterprise" onClick={onCancel}>
+        <Button variant="outline" size="default" className="btn-enterprise" onClick={onCancel} disabled={submitting}>
           Cancel
         </Button>
       </div>
+      {submitError && (
+        <p className="text-xs text-destructive">{submitError}</p>
+      )}
     </div>
   );
 }

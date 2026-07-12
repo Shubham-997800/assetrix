@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, Lock, Loader2 } from "lucide-react";
 import { getPasswordStrength } from "@/components/auth/password-strength";
+import { userApi, ApiError } from "@/lib/api";
 
 const rules = [
   { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
@@ -19,7 +20,7 @@ export function ChangePassword() {
   const [current, setCurrent] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [errors, setErrors] = useState<{ current?: string; newPass?: string; confirm?: string }>({});
+  const [errors, setErrors] = useState<{ current?: string; newPass?: string; confirm?: string; api?: string }>({});
 
   const strength = getPasswordStrength(newPass);
 
@@ -33,11 +34,19 @@ export function ChangePassword() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
-    setSuccess(true);
-    setCurrent(""); setNewPass(""); setConfirm("");
-    setTimeout(() => setSuccess(false), 3000);
+    setErrors({});
+    try {
+      await userApi.changePassword({ currentPassword: current, newPassword: newPass });
+      setLoading(false);
+      setSuccess(true);
+      setCurrent(""); setNewPass(""); setConfirm("");
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setLoading(false);
+      if (err instanceof ApiError) {
+        setErrors({ api: err.message });
+      }
+    }
   };
 
   const inputClass = (error?: string) =>
@@ -55,6 +64,12 @@ export function ChangePassword() {
       {success && (
         <div className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400 animate-fade-in">
           Password updated successfully.
+        </div>
+      )}
+
+      {errors.api && (
+        <div className="mt-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive animate-fade-in">
+          {errors.api}
         </div>
       )}
 

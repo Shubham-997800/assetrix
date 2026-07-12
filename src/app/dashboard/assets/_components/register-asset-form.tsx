@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { assetApi } from "@/lib/api";
 import {
   Package,
   Upload,
@@ -82,6 +83,8 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const validate = (): boolean => {
     const errs: FormErrors = {};
@@ -98,10 +101,37 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validate()) {
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    try {
+      setSubmitting(true);
+      setSubmitError(null);
+      await assetApi.create({
+        name: basicDetails.name,
+        description: basicDetails.description || undefined,
+        category: basicDetails.category,
+        condition: basicDetails.condition?.toUpperCase(),
+        department: basicDetails.department,
+        location: basicDetails.location,
+        serialNumber: identification.serialNumber,
+        manufacturer: identification.manufacturer,
+        model: identification.modelNumber || undefined,
+        barcode: identification.barcode || undefined,
+        purchaseDate: acquisition.date || undefined,
+        purchasePrice: acquisition.cost ? parseFloat(acquisition.cost) : undefined,
+        vendor: acquisition.vendor || undefined,
+        warrantyExpiry: acquisition.warrantyExpiry || undefined,
+        purchaseRef: acquisition.purchaseRef || undefined,
+        sharedResource: resourceConfig.shared,
+        bookableResource: resourceConfig.bookable,
+      });
       setSubmitted(true);
       setTimeout(() => onSubmit(), 1500);
+    } catch (err: unknown) {
+      console.error("Failed to create asset:", err);
+      setSubmitError(err instanceof Error ? err.message : "Failed to register asset. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -645,15 +675,26 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
       </div>
 
       {/* Actions */}
+      {submitError && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {submitError}
+        </div>
+      )}
       <div className="flex items-center gap-3 border-t border-border pt-5">
-        <Button size="default" className="btn-enterprise" onClick={handleSubmit}>
-          <Package className="h-3.5 w-3.5" /> Register Asset
+        <Button
+          size="default"
+          className="btn-enterprise"
+          onClick={handleSubmit}
+          disabled={submitting}
+        >
+          <Package className="h-3.5 w-3.5" /> {submitting ? "Registering..." : "Register Asset"}
         </Button>
         <Button
           variant="outline"
           size="default"
           className="btn-enterprise"
           onClick={onCancel}
+          disabled={submitting}
         >
           Cancel
         </Button>

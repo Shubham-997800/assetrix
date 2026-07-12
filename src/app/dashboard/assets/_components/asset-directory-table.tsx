@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Search,
-  Filter,
   Plus,
   Eye,
   Edit,
@@ -18,7 +17,6 @@ import {
   Download,
   Columns3,
   Bookmark,
-  X,
   ChevronLeft,
   ChevronRight,
   SlidersHorizontal,

@@ -3,15 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  AlertTriangle,
   ArrowLeftRight,
   CheckCircle,
   XCircle,
-  User,
   Building2,
-  Calendar,
-  FileText,
-  Package,
   AlertCircle,
 } from "lucide-react";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
@@ -19,7 +14,6 @@ import {
   AVAILABLE_ASSETS,
   ALLOCATED_ASSETS,
   EMPLOYEES,
-  DEPARTMENTS,
 } from "./data";
 import type { Allocation } from "./types";
 

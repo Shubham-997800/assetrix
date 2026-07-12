@@ -26,11 +26,9 @@ import {
   FileText,
   FileSpreadsheet,
   File,
-  Calendar,
   Filter,
   RefreshCw,
-  ArrowUpRight,
-  ArrowDownRight,
+  Loader2,
 } from "lucide-react";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
 import {
@@ -53,6 +51,8 @@ import {
   MAINTENANCE_TYPES,
   CATEGORY_FAILURE_RATES,
 } from "./data";
+import { reportApi } from "@/lib/api";
+import type { ApiError } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
 const inputCls = "h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
@@ -548,11 +548,50 @@ function HeatmapTab() {
 
 function ExportTab() {
   const [selectedFormat, setSelectedFormat] = useState("CSV");
+  const [generating, setGenerating] = useState(false);
+  const [startDate, setStartDate] = useState("2026-01-01");
+  const [endDate, setEndDate] = useState("2026-07-12");
+  const [department, setDepartment] = useState("All Departments");
+  const [category, setCategory] = useState("All Categories");
+  const [status, setStatus] = useState("All Statuses");
   const formats = [
     { label: "CSV", desc: "Comma-separated values for data analysis", icon: FileText, color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
     { label: "PDF", desc: "Formatted report for sharing and printing", icon: File, color: "bg-red-500/10 text-red-600 dark:text-red-400" },
     { label: "Excel", desc: "Spreadsheet with charts and pivots", icon: FileSpreadsheet, color: "bg-primary/10 text-primary" },
   ];
+
+  const handleGenerate = async () => {
+    try {
+      setGenerating(true);
+      const res = await reportApi.generate({
+        type: "custom",
+        format: selectedFormat.toLowerCase(),
+        startDate,
+        endDate,
+        department: department === "All Departments" ? undefined : department,
+        category: category === "All Categories" ? undefined : category,
+        status: status === "All Statuses" ? undefined : status,
+      });
+      const report = res.data as { id?: string } | undefined;
+      if (report?.id) {
+        await reportApi.download(report.id);
+      }
+    } catch (err) {
+      const apiErr = err as ApiError;
+      alert(apiErr.message || "Failed to generate report");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleReset = () => {
+    setSelectedFormat("CSV");
+    setStartDate("2026-01-01");
+    setEndDate("2026-07-12");
+    setDepartment("All Departments");
+    setCategory("All Categories");
+    setStatus("All Statuses");
+  };
 
   return (
     <div className="space-y-6">
@@ -574,21 +613,23 @@ function ExportTab() {
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs font-medium text-muted-foreground">Start Date</label>
-            <input type="date" defaultValue="2026-01-01" className={`${inputCls} w-full`} />
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={`${inputCls} w-full`} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-muted-foreground">End Date</label>
-            <input type="date" defaultValue="2026-07-12" className={`${inputCls} w-full`} />
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={`${inputCls} w-full`} />
           </div>
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
-          <TableDropdown label="Department" options={["All Departments", ...DEPARTMENTS].map((d) => ({ label: d, value: d }))} value="All Departments" onChange={() => {}} placeholder="All Depts" />
-          <TableDropdown label="Category" options={["All Categories", ...CATEGORIES].map((c) => ({ label: c, value: c }))} value="All Categories" onChange={() => {}} placeholder="All Categories" />
-          <TableDropdown label="Status" options={["All Statuses", "Active", "Idle", "Under Maintenance", "Retired"].map((s) => ({ label: s, value: s }))} value="All Statuses" onChange={() => {}} placeholder="All Statuses" />
+          <TableDropdown label="Department" options={["All Departments", ...DEPARTMENTS].map((d) => ({ label: d, value: d }))} value={department} onChange={setDepartment} placeholder="All Depts" />
+          <TableDropdown label="Category" options={["All Categories", ...CATEGORIES].map((c) => ({ label: c, value: c }))} value={category} onChange={setCategory} placeholder="All Categories" />
+          <TableDropdown label="Status" options={["All Statuses", "Active", "Idle", "Under Maintenance", "Retired"].map((s) => ({ label: s, value: s }))} value={status} onChange={setStatus} placeholder="All Statuses" />
         </div>
         <div className="mt-6 flex items-center gap-3">
-          <Button size="sm" className="btn-enterprise"><Download className="h-3.5 w-3.5" /> Generate Report</Button>
-          <Button variant="outline" size="sm" className="btn-enterprise"><Filter className="h-3.5 w-3.5" /> Reset Filters</Button>
+          <Button size="sm" className="btn-enterprise" onClick={handleGenerate} disabled={generating}>
+            {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />} {generating ? "Generating..." : "Generate Report"}
+          </Button>
+          <Button variant="outline" size="sm" className="btn-enterprise" onClick={handleReset}><Filter className="h-3.5 w-3.5" /> Reset Filters</Button>
         </div>
       </div>
     </div>

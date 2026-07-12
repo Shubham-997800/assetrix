@@ -12,6 +12,7 @@ import {
 import { PrivacyDialog } from "@/components/shared/privacy-dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, Mail, User } from "lucide-react";
+import { authApi } from "@/lib/api";
 
 interface FormErrors {
   name?: string;
@@ -19,6 +20,7 @@ interface FormErrors {
   password?: string;
   confirmPassword?: string;
   terms?: string;
+  general?: string;
 }
 
 export default function RegisterPage() {
@@ -62,8 +64,25 @@ export default function RegisterPage() {
     ev.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 2000));
-    router.push("/verify-email");
+    try {
+      const nameParts = name.trim().split(/\s+/);
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(" ") || nameParts[0];
+      await authApi.register({
+        email,
+        password,
+        confirmPassword,
+        firstName,
+        lastName,
+        termsAccepted: acceptTerms,
+      });
+      router.push("/verify-email");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Registration failed. Please try again.";
+      setErrors({ general: message });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -89,6 +108,15 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+          {errors.general && (
+            <div
+              className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive animate-fade-in"
+              role="alert"
+            >
+              {errors.general}
+            </div>
+          )}
+
           <AuthInput
             label="Full name"
             type="text"

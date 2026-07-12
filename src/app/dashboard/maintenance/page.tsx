@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Wrench,
@@ -9,22 +9,45 @@ import {
   CheckCircle,
   AlertCircle,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 import { MaintenanceTabs } from "./_components/maintenance-tabs";
 import { RaiseRequestForm } from "./_components/raise-request";
-import { MOCK_REQUESTS } from "./_components/data";
-import { useState } from "react";
+import { maintenanceApi } from "@/lib/api";
+import type { ApiError } from "@/lib/api";
+import type { MaintenanceRequest } from "./_components/types";
 
 export default function MaintenancePage() {
   const [showForm, setShowForm] = useState(false);
+  const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchRequests = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await maintenanceApi.list();
+      setRequests((res.data || []) as MaintenanceRequest[]);
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setError(apiErr.message || "Failed to load maintenance requests");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   const stats = useMemo(() => ({
-    total: MOCK_REQUESTS.length,
-    pending: MOCK_REQUESTS.filter((r) => r.status === "Pending").length,
-    inProgress: MOCK_REQUESTS.filter((r) => ["In Progress", "Technician Assigned", "Approved"].includes(r.status)).length,
-    resolved: MOCK_REQUESTS.filter((r) => r.status === "Resolved").length,
-    critical: MOCK_REQUESTS.filter((r) => r.priority === "Critical" && r.status !== "Resolved").length,
-  }), []);
+    total: requests.length,
+    pending: requests.filter((r) => r.status === "Pending").length,
+    inProgress: requests.filter((r) => ["In Progress", "Technician Assigned", "Approved"].includes(r.status)).length,
+    resolved: requests.filter((r) => r.status === "Resolved").length,
+    critical: requests.filter((r) => r.priority === "Critical" && r.status !== "Resolved").length,
+  }), [requests]);
 
   const cards = [
     { label: "Total Requests", value: stats.total, icon: <Wrench className="h-4 w-4" />, color: "text-primary" },
@@ -67,10 +90,19 @@ export default function MaintenancePage() {
           </div>
         )}
 
-        {showForm ? (
-          <RaiseRequestForm onSubmit={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
+        {loading && !showForm ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : error && !showForm ? (
+          <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button variant="outline" size="sm" className="btn-enterprise mt-3" onClick={fetchRequests}>Retry</Button>
+          </div>
+        ) : showForm ? (
+          <RaiseRequestForm onSubmit={() => { setShowForm(false); fetchRequests(); }} onCancel={() => setShowForm(false)} />
         ) : (
-          <MaintenanceTabs />
+          <MaintenanceTabs initialRequests={requests} onRefresh={fetchRequests} />
         )}
       </div>
     </div>

@@ -1,29 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Save, CheckCircle, Clock } from "lucide-react";
+import { Save, CheckCircle, Clock, Loader2 } from "lucide-react";
+import { userApi, ApiError } from "@/lib/api";
 
 interface ContactInfoProps {
   editMode: boolean;
+  user?: {
+    email: string;
+    phone: string | null;
+  } | null;
 }
 
-export function ContactInfo({ editMode }: ContactInfoProps) {
+export function ContactInfo({ editMode, user }: ContactInfoProps) {
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [emailVerified] = useState(true);
   const [phoneVerified] = useState(false);
   const [data, setData] = useState({
-    email: "john.smith@company.com",
-    phone: "+91 98765 43210",
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
     altPhone: "",
-    address: "123 Business Park, SG Highway",
-    country: "India",
-    state: "Gujarat",
-    city: "Ahmedabad",
-    postal: "380015",
+    address: "",
+    country: "",
+    state: "",
+    city: "",
+    postal: "",
   });
 
-  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  useEffect(() => {
+    if (user) {
+      setData((prev) => ({
+        ...prev,
+        email: user.email ?? prev.email,
+        phone: user.phone ?? prev.phone,
+      }));
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      await userApi.updateProfile({ phone: data.phone });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      if (err instanceof ApiError) setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
   const handleChange = (field: string, value: string) => setData((p) => ({ ...p, [field]: value }));
 
   const ic = editMode
@@ -43,6 +72,12 @@ export function ContactInfo({ editMode }: ContactInfoProps) {
           </span>
         )}
       </div>
+
+      {error && (
+        <div className="mt-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-2.5 text-xs text-destructive">
+          {error}
+        </div>
+      )}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
@@ -123,8 +158,8 @@ export function ContactInfo({ editMode }: ContactInfoProps) {
 
       {editMode && (
         <div className="mt-5 flex items-center gap-2 border-t border-border pt-5 animate-fade-in">
-          <Button size="default" className="btn-enterprise" onClick={handleSave}>
-            <Save className="h-3.5 w-3.5" /> Save Changes
+          <Button size="default" className="btn-enterprise" onClick={handleSave} disabled={saving}>
+            {saving ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving...</> : <><Save className="h-3.5 w-3.5" /> Save Changes</>}
           </Button>
           <Button variant="outline" size="default" className="btn-enterprise">Cancel</Button>
         </div>

@@ -2,12 +2,16 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/session-expired"];
-const API_PREFIX = "/api";
+
+function isValidJwtFormat(token: string): boolean {
+  const parts = token.split(".");
+  return parts.length === 3;
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith(API_PREFIX)) {
+  if (pathname.startsWith("/api")) {
     return addSecurityHeaders(NextResponse.next());
   }
 
@@ -15,16 +19,18 @@ export function middleware(request: NextRequest) {
     return addSecurityHeaders(NextResponse.next());
   }
 
-  if (pathname === "/" || pathname === "/_next" || pathname.startsWith("/_next/") || pathname === "/favicon.ico" || pathname.endsWith(".ico") || pathname.endsWith(".svg") || pathname.endsWith(".png")) {
+  if (pathname === "/" || pathname.startsWith("/_next") || pathname === "/favicon.ico" || pathname.endsWith(".ico") || pathname.endsWith(".svg") || pathname.endsWith(".png")) {
     return addSecurityHeaders(NextResponse.next());
   }
 
   const token = request.cookies.get("assetrix-token")?.value;
-  if (pathname.startsWith("/dashboard") && !token) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    const response = NextResponse.redirect(loginUrl);
-    return addSecurityHeaders(response);
+  if (pathname.startsWith("/dashboard")) {
+    if (!token || !isValidJwtFormat(token)) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      const response = NextResponse.redirect(loginUrl);
+      return addSecurityHeaders(response);
+    }
   }
 
   return addSecurityHeaders(NextResponse.next());
@@ -45,9 +51,12 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       "font-src 'self' data:",
       "connect-src 'self' https://*.vercel.app",
       "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
     ].join("; ")
   );
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   return response;
 }
 

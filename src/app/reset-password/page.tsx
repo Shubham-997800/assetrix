@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLayout } from "@/components/shared/auth-layout";
 import { AuthInput } from "@/components/auth/auth-input";
 import {
@@ -11,14 +11,18 @@ import {
 } from "@/components/auth/password-strength";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, CheckCircle } from "lucide-react";
+import { authApi } from "@/lib/api";
 
 interface FormErrors {
   password?: string;
   confirmPassword?: string;
+  general?: string;
 }
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [password, setPassword] = useState("");
@@ -33,18 +37,25 @@ export default function ResetPasswordPage() {
     if (!confirmPassword) e.confirmPassword = "Confirm your password";
     else if (password !== confirmPassword)
       e.confirmPassword = "Passwords don't match";
+    if (!token) e.general = "Invalid or missing reset token";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
-    if (!validate()) return;
+    if (!validate() || !token) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setSuccess(true);
-    setLoading(false);
-    setTimeout(() => router.push("/login"), 3000);
+    try {
+      await authApi.resetPassword(token, password);
+      setSuccess(true);
+      setTimeout(() => router.push("/login"), 3000);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Password reset failed.";
+      setErrors({ general: message });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,6 +73,11 @@ export default function ResetPasswordPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+              {errors.general && (
+                <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive animate-fade-in" role="alert">
+                  {errors.general}
+                </div>
+              )}
               <div className="space-y-2">
                 <AuthInput
                   label="New password"
@@ -134,5 +150,21 @@ export default function ResetPasswordPage() {
         </Link>
       </div>
     </AuthLayout>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthLayout>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        </AuthLayout>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

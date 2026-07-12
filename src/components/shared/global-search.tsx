@@ -126,7 +126,7 @@ export const GlobalSearch = memo(function GlobalSearch() {
     return () => document.removeEventListener("keydown", trap);
   }, [searchOpen]);
 
-  const navigateTo = useCallback((href: string, _label: string) => {
+  const navigateTo = useCallback((href: string) => {
     router.push(href);
     closeSearch();
     if (query.trim()) {
@@ -147,7 +147,7 @@ export const GlobalSearch = memo(function GlobalSearch() {
       e.preventDefault();
       setSelectedIndex((p) => (p - 1 + flatResults.length) % Math.max(flatResults.length, 1));
     } else if (e.key === "Enter" && flatResults[selectedIndex]) {
-      navigateTo(flatResults[selectedIndex].href, flatResults[selectedIndex].label);
+      navigateTo(flatResults[selectedIndex].href);
     }
   }, [flatResults, selectedIndex, navigateTo]);
 
@@ -200,7 +200,7 @@ export const GlobalSearch = memo(function GlobalSearch() {
                   {items.map((item) => (
                       <button
                         key={item.id}
-                        onClick={() => navigateTo(item.href, item.label)}
+                        onClick={() => navigateTo(item.href)}
                         className={`flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors ${
                           item.id === selectedItemId ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                         }`}

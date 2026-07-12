@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -37,7 +37,9 @@ import {
   type RequestStatus,
   type Priority,
 } from "./types";
-import { MOCK_REQUESTS, MOCK_TIMELINE } from "./data";
+import { MOCK_TIMELINE } from "./data";
+import { maintenanceApi } from "@/lib/api";
+import type { ApiError } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -53,7 +55,12 @@ const ALL_STATUSES: RequestStatus[] = [
 const inputCls =
   "h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
 
-export function MaintenanceTabs() {
+interface MaintenanceTabsProps {
+  initialRequests: MaintenanceRequest[];
+  onRefresh: () => void;
+}
+
+export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsProps) {
   const [activeTab, setActiveTab] = useState<RequestStatus | "All">("All");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "All">("All");
@@ -63,7 +70,12 @@ export function MaintenanceTabs() {
   const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
   const [actionPanel, setActionPanel] = useState<"approve" | "reject" | "assign" | "resolve" | null>(null);
   const [actionNote, setActionNote] = useState("");
-  const [requests, setRequests] = useState<MaintenanceRequest[]>(MOCK_REQUESTS);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [requests, setRequests] = useState<MaintenanceRequest[]>(initialRequests);
+
+  useEffect(() => {
+    setRequests(initialRequests);
+  }, [initialRequests]);
 
   const filtered = useMemo(() => {
     let items = [...requests];
@@ -88,80 +100,72 @@ export function MaintenanceTabs() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     if (!selectedRequest) return;
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === selectedRequest.id
-          ? {
-              ...r,
-              status: "Approved" as RequestStatus,
-              approvedAt: new Date().toISOString(),
-              approvedBy: "Asset Manager",
-            }
-          : r
-      )
-    );
-    setSelectedRequest(null);
-    setActionPanel(null);
-    setActionNote("");
+    try {
+      setActionLoading(true);
+      await maintenanceApi.updateStatus(selectedRequest.id, "Approved");
+      onRefresh();
+      setSelectedRequest(null);
+      setActionPanel(null);
+      setActionNote("");
+    } catch (err) {
+      const apiErr = err as ApiError;
+      alert(apiErr.message || "Failed to approve request");
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (!selectedRequest) return;
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === selectedRequest.id
-          ? {
-              ...r,
-              status: "Rejected" as RequestStatus,
-              rejectionReason: actionNote || "Rejected",
-            }
-          : r
-      )
-    );
-    setSelectedRequest(null);
-    setActionPanel(null);
-    setActionNote("");
+    try {
+      setActionLoading(true);
+      await maintenanceApi.update(selectedRequest.id, { status: "Rejected", rejectionReason: actionNote || "Rejected" });
+      onRefresh();
+      setSelectedRequest(null);
+      setActionPanel(null);
+      setActionNote("");
+    } catch (err) {
+      const apiErr = err as ApiError;
+      alert(apiErr.message || "Failed to reject request");
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handleAssign = () => {
+  const handleAssign = async () => {
     if (!selectedRequest || !actionNote.trim()) return;
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === selectedRequest.id
-          ? {
-              ...r,
-              status: "Technician Assigned" as RequestStatus,
-              technician: actionNote,
-              technicianAssignedAt: new Date().toISOString(),
-            }
-          : r
-      )
-    );
-    setSelectedRequest(null);
-    setActionPanel(null);
-    setActionNote("");
+    try {
+      setActionLoading(true);
+      await maintenanceApi.assign(selectedRequest.id, actionNote);
+      onRefresh();
+      setSelectedRequest(null);
+      setActionPanel(null);
+      setActionNote("");
+    } catch (err) {
+      const apiErr = err as ApiError;
+      alert(apiErr.message || "Failed to assign technician");
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handleResolve = () => {
+  const handleResolve = async () => {
     if (!selectedRequest) return;
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === selectedRequest.id
-          ? {
-              ...r,
-              status: "Resolved" as RequestStatus,
-              resolvedAt: new Date().toISOString(),
-              resolutionSummary: actionNote || "Resolved",
-              progress: "Completed",
-            }
-          : r
-      )
-    );
-    setSelectedRequest(null);
-    setActionPanel(null);
-    setActionNote("");
+    try {
+      setActionLoading(true);
+      await maintenanceApi.updateStatus(selectedRequest.id, "Resolved");
+      onRefresh();
+      setSelectedRequest(null);
+      setActionPanel(null);
+      setActionNote("");
+    } catch (err) {
+      const apiErr = err as ApiError;
+      alert(apiErr.message || "Failed to resolve request");
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const badgeStyle = (status: RequestStatus) => `${STATUS_CLASSES[status]} border inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium whitespace-nowrap`;
@@ -174,6 +178,7 @@ export function MaintenanceTabs() {
         request={req}
         actionPanel={actionPanel}
         actionNote={actionNote}
+        actionLoading={actionLoading}
         setActionNote={setActionNote}
         onApprove={() => setActionPanel("approve")}
         onReject={() => setActionPanel("reject")}
@@ -310,6 +315,7 @@ interface SelectedRequestViewProps {
   request: MaintenanceRequest;
   actionPanel: "approve" | "reject" | "assign" | "resolve" | null;
   actionNote: string;
+  actionLoading: boolean;
   setActionNote: (v: string) => void;
   onApprove: () => void;
   onReject: () => void;
@@ -327,6 +333,7 @@ function SelectedRequestView({
   request,
   actionPanel,
   actionNote,
+  actionLoading,
   setActionNote,
   onApprove,
   onReject,
@@ -404,12 +411,12 @@ function SelectedRequestView({
             <textarea className={`${inputCls} resize-none`} rows={3} placeholder={actionPanel === "resolve" ? "Resolution notes..." : "Add a note..."} value={actionNote} onChange={(e) => setActionNote(e.target.value)} />
           )}
           <div className="flex gap-2 mt-3">
-            <Button size="sm" className="btn-enterprise" onClick={
+            <Button size="sm" className="btn-enterprise" disabled={actionLoading} onClick={
               actionPanel === "approve" ? onConfirmApprove :
               actionPanel === "reject" ? onConfirmReject :
               actionPanel === "assign" ? onConfirmAssign :
               onConfirmResolve
-            }>Confirm</Button>
+            }>{actionLoading ? "Processing..." : "Confirm"}</Button>
             <Button size="sm" variant="outline" className="btn-enterprise" onClick={onCancelAction}>Cancel</Button>
           </div>
         </div>

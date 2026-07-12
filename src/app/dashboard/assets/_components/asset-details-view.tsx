@@ -25,13 +25,9 @@ import {
   Circle,
   ArrowRight,
   Package,
-  X,
 } from "lucide-react";
 import type {
   Asset,
-  AllocationRecord,
-  MaintenanceRecord,
-  TimelineEvent,
 } from "./types";
 import {
   STATUS_BADGE_CLASSES,

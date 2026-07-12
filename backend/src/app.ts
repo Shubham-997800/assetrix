@@ -49,15 +49,17 @@ app.use(rateLimiter);
 // ─── STATIC FILES ─────────────────────────────────────────
 app.use('/uploads', express.static(config.upload.dir));
 
-// ─── SWAGGER DOCUMENTATION ────────────────────────────────
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: 'Assetrix API Documentation',
-  customCss: '.swagger-ui .topbar { display: none }',
-}));
-app.get('/api-docs.json', (_req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
-});
+// ─── SWAGGER DOCUMENTATION (dev only) ──────────────────────
+if (config.nodeEnv !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'Assetrix API Documentation',
+    customCss: '.swagger-ui .topbar { display: none }',
+  }));
+  app.get('/api-docs.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+}
 
 // ─── HEALTH CHECK ─────────────────────────────────────────
 app.get('/health', (_req, res) => {

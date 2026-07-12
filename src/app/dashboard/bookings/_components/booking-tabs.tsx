@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Search,
-  Plus,
   Calendar,
   Clock,
   Users,
@@ -20,14 +19,68 @@ import {
   GraduationCap,
   ChevronLeft,
   ChevronRight,
-  Filter,
   User,
 } from "lucide-react";
-import { RESOURCES, MOCK_BOOKINGS, TIME_SLOTS } from "./data";
+import { RESOURCES, TIME_SLOTS, DEPARTMENTS } from "./data";
 import type { Resource, Booking, BookingConflict } from "./types";
 import { STATUS_CLASSES, TYPE_ACCENT, TYPE_BADGE } from "./types";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
-import { DEPARTMENTS } from "./data";
+import { bookingApi, ApiError } from "@/lib/api";
+import type { Booking as ApiBooking } from "@/lib/types";
+import { Loader2 } from "lucide-react";
+
+function mapApiBooking(b: ApiBooking): Booking {
+  const startDate = new Date(b.startDate);
+  const endDate = new Date(b.endDate);
+  let status: Booking["status"];
+  switch (b.status) {
+    case "PENDING": status = "Upcoming"; break;
+    case "APPROVED": {
+      const now = new Date();
+      if (startDate <= now && endDate >= now) status = "Ongoing";
+      else if (startDate > now) status = "Upcoming";
+      else status = "Completed";
+      break;
+    }
+    case "COMPLETED": status = "Completed"; break;
+    case "CANCELLED":
+    case "REJECTED": status = "Cancelled"; break;
+    default: status = "Upcoming";
+  }
+  return {
+    id: b.id,
+    resourceId: b.assetId,
+    resourceName: b.asset?.name ?? "",
+    resourceType: "Meeting Room",
+    booker: b.user ? `${b.user.firstName} ${b.user.lastName}` : "",
+    department: b.asset?.department?.name ?? "",
+    date: b.startDate.split("T")[0],
+    startTime: startDate.toTimeString().slice(0, 5),
+    endTime: endDate.toTimeString().slice(0, 5),
+    purpose: b.purpose,
+    participants: [],
+    status,
+    reminderSent: false,
+  };
+}
+
+function BookingLoadingState() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <span className="ml-2 text-sm text-muted-foreground">Loading...</span>
+    </div>
+  );
+}
+
+function BookingErrorState({ message }: { message: string }) {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <AlertTriangle className="h-6 w-6 text-destructive" />
+      <span className="ml-2 text-sm text-destructive">{message}</span>
+    </div>
+  );
+}
 
 /* ── Helpers ── */
 
@@ -150,16 +203,27 @@ export function ResourceDirectoryTab() {
 export function CalendarViewTab() {
   const [month, setMonth] = useState(6); // July
   const [year, setYear] = useState(2026);
-  const [viewMode, setViewMode] = useState<"month" | "week">("month");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [, setLoading] = useState(true);
+
+  useEffect(() => {
+    bookingApi
+      .list()
+      .then((res) => {
+        setBookings(((res.data ?? []) as ApiBooking[]).map(mapApiBooking));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   const monthName = new Date(year, month).toLocaleDateString("en-US", { month: "long", year: "numeric" });
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startsOn = new Date(year, month, 1).getDay();
-  const today = 12;
+  const today = new Date().getDate();
 
   const bookingsByDay = useMemo(() => {
     const map: Record<number, Booking[]> = {};
-    MOCK_BOOKINGS.forEach((b) => {
+    bookings.forEach((b) => {
       const d = new Date(b.date);
       if (d.getMonth() === month && d.getFullYear() === year) {
         const day = d.getDate();
@@ -168,7 +232,7 @@ export function CalendarViewTab() {
       }
     });
     return map;
-  }, [month, year]);
+  }, [bookings, month, year]);
 
   const TYPE_COLORS: Record<string, string> = {
     "Meeting Room": "bg-blue-500",
@@ -264,33 +328,9 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
   const [conflict, setConflict] = useState<BookingConflict | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const resource = RESOURCES.find((r) => r.id === resourceId);
-
-  const checkOverlap = () => {
-    if (!resourceId || !date || !startTime || !endTime) return;
-    const existing = MOCK_BOOKINGS.filter(
-      (b) => b.resourceId === resourceId && b.date === date && b.status !== "Cancelled"
-    );
-    const conflict = existing.find((b) => {
-      const bStart = b.startTime;
-      const bEnd = b.endTime;
-      return startTime < bEnd && endTime > bStart;
-    });
-    if (conflict) {
-      const suggested: { start: string; end: string }[] = [];
-      const slots = TIME_SLOTS.filter((s) => s >= endTime);
-      for (let i = 0; i < slots.length - 1 && suggested.length < 2; i++) {
-        const slotStart = slots[i];
-        const slotEnd = slots[i + 1];
-        const hasConflict = existing.some((b) => slotStart < b.endTime && slotEnd > b.startTime);
-        if (!hasConflict) suggested.push({ start: slotStart, end: slotEnd });
-      }
-      setConflict({ conflict: true, existingBooking: conflict, suggestedSlots: suggested });
-    } else {
-      setConflict({ conflict: false });
-    }
-  };
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
@@ -306,10 +346,27 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validate()) {
-      setSubmitted(true);
-      setTimeout(() => onSubmit(), 1500);
+      setSubmitting(true);
+      try {
+        await bookingApi.create({
+          assetId: resourceId,
+          startDate: `${date}T${startTime}:00`,
+          endDate: `${date}T${endTime}:00`,
+          purpose,
+          notes: participants ? `Participants: ${participants}` : undefined,
+        });
+        setSubmitted(true);
+        setTimeout(() => onSubmit(), 1500);
+      } catch (err: unknown) {
+        setErrors((prev) => ({
+          ...prev,
+          submit: err instanceof ApiError ? err.message : "Failed to create booking",
+        }));
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -438,13 +495,16 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
       </div>
 
       <div className="flex items-center gap-3 border-t border-border pt-5">
-        <Button size="default" className="btn-enterprise" onClick={handleSubmit}>
-          <Calendar className="h-3.5 w-3.5" /> Confirm Booking
+        <Button size="default" className="btn-enterprise" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calendar className="h-3.5 w-3.5" />} {submitting ? "Booking..." : "Confirm Booking"}
         </Button>
-        <Button variant="outline" size="default" className="btn-enterprise" onClick={onCancel}>
+        <Button variant="outline" size="default" className="btn-enterprise" onClick={onCancel} disabled={submitting}>
           Cancel
         </Button>
       </div>
+      {errors.submit && (
+        <p className="mt-2 text-sm text-destructive">{errors.submit}</p>
+      )}
     </div>
   );
 }
@@ -454,10 +514,32 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
    ═══════════════════════════════════════════════ */
 
 export function UpcomingBookingsTab() {
-  const upcoming = MOCK_BOOKINGS.filter((b) => b.status === "Upcoming");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    bookingApi
+      .list()
+      .then((res) => {
+        const all = ((res.data ?? []) as ApiBooking[]).map(mapApiBooking);
+        setBookings(all.filter((b) => b.status === "Upcoming"));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load bookings");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <BookingLoadingState />;
+  if (error) return <BookingErrorState message={error} />;
+
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {upcoming.map((b) => (
+      {bookings.length === 0 && (
+        <div className="col-span-full py-12 text-center text-sm text-muted-foreground">No upcoming bookings.</div>
+      )}
+      {bookings.map((b) => (
         <div key={b.id} className={`rounded-xl border border-l-4 ${TYPE_ACCENT[b.resourceType]} border-border bg-card p-5 transition-colors hover:bg-muted/30`}>
           <div className="flex items-start justify-between">
             <div>
@@ -466,7 +548,19 @@ export function UpcomingBookingsTab() {
             </div>
             <div className="flex gap-1.5">
               <Button variant="ghost" size="icon-xs"><Edit className="h-3 w-3" /></Button>
-              <Button variant="ghost" size="icon-xs" className="text-destructive hover:text-destructive"><Trash2 className="h-3 w-3" /></Button>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="text-destructive hover:text-destructive"
+                onClick={async () => {
+                  try {
+                    await bookingApi.cancel(b.id);
+                    setBookings((prev) => prev.filter((x) => x.id !== b.id));
+                  } catch {}
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
             </div>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">{b.purpose}</p>
@@ -485,10 +579,32 @@ export function UpcomingBookingsTab() {
 }
 
 export function OngoingBookingsTab() {
-  const ongoing = MOCK_BOOKINGS.filter((b) => b.status === "Ongoing");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    bookingApi
+      .list()
+      .then((res) => {
+        const all = ((res.data ?? []) as ApiBooking[]).map(mapApiBooking);
+        setBookings(all.filter((b) => b.status === "Ongoing"));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load bookings");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <BookingLoadingState />;
+  if (error) return <BookingErrorState message={error} />;
+
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {ongoing.map((b) => (
+      {bookings.length === 0 && (
+        <div className="col-span-full py-12 text-center text-sm text-muted-foreground">No ongoing bookings.</div>
+      )}
+      {bookings.map((b) => (
         <div key={b.id} className={`rounded-xl border border-l-4 ${TYPE_ACCENT[b.resourceType]} border-border bg-card p-5`}>
           <div className="flex items-start justify-between">
             <div>
@@ -508,7 +624,17 @@ export function OngoingBookingsTab() {
             <div className="flex items-center gap-2"><User className="h-3.5 w-3.5" /> {b.booker}</div>
             <div className="flex items-center gap-2"><Clock className="h-3.5 w-3.5" /> {b.startTime} – {b.endTime}</div>
           </div>
-          <Button variant="destructive" size="sm" className="mt-4 w-full">
+          <Button
+            variant="destructive"
+            size="sm"
+            className="mt-4 w-full"
+            onClick={async () => {
+              try {
+                await bookingApi.cancel(b.id);
+                setBookings((prev) => prev.filter((x) => x.id !== b.id));
+              } catch {}
+            }}
+          >
             <XCircle className="h-3.5 w-3.5" /> End Now
           </Button>
         </div>
@@ -518,7 +644,25 @@ export function OngoingBookingsTab() {
 }
 
 export function CompletedBookingsTab() {
-  const completed = MOCK_BOOKINGS.filter((b) => b.status === "Completed");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    bookingApi
+      .list({ status: "COMPLETED" })
+      .then((res) => {
+        setBookings(((res.data ?? []) as ApiBooking[]).map(mapApiBooking));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load bookings");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <BookingLoadingState />;
+  if (error) return <BookingErrorState message={error} />;
+
   return (
     <div className="rounded-xl border border-border bg-card">
       <div className="overflow-x-auto">
@@ -531,7 +675,7 @@ export function CompletedBookingsTab() {
             </tr>
           </thead>
           <tbody>
-            {completed.map((b) => (
+            {bookings.map((b) => (
               <tr key={b.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
                 <td className="px-4 py-3.5 font-medium text-foreground">{b.resourceName}</td>
                 <td className="px-4 py-3.5 text-muted-foreground">{b.booker}</td>
@@ -551,7 +695,25 @@ export function CompletedBookingsTab() {
 }
 
 export function CancelledBookingsTab() {
-  const cancelled = MOCK_BOOKINGS.filter((b) => b.status === "Cancelled");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    bookingApi
+      .list({ status: "CANCELLED" })
+      .then((res) => {
+        setBookings(((res.data ?? []) as ApiBooking[]).map(mapApiBooking));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load bookings");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <BookingLoadingState />;
+  if (error) return <BookingErrorState message={error} />;
+
   return (
     <div className="rounded-xl border border-border bg-card">
       <div className="overflow-x-auto">
@@ -564,7 +726,7 @@ export function CancelledBookingsTab() {
             </tr>
           </thead>
           <tbody>
-            {cancelled.map((b) => (
+            {bookings.map((b) => (
               <tr key={b.id} className="border-b border-border last:border-0 transition-colors hover:bg-muted/30">
                 <td className="px-4 py-3.5 font-medium text-foreground">{b.resourceName}</td>
                 <td className="px-4 py-3.5 text-muted-foreground">{b.booker}</td>
@@ -588,9 +750,26 @@ export function CancelledBookingsTab() {
 
 export function BookingHistoryTab() {
   const [search, setSearch] = useState("");
-  const all = MOCK_BOOKINGS;
+  const [allBookings, setAllBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filtered = all.filter(
+  useEffect(() => {
+    bookingApi
+      .list()
+      .then((res) => {
+        setAllBookings(((res.data ?? []) as ApiBooking[]).map(mapApiBooking));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load booking history");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <BookingLoadingState />;
+  if (error) return <BookingErrorState message={error} />;
+
+  const filtered = allBookings.filter(
     (b) =>
       b.resourceName.toLowerCase().includes(search.toLowerCase()) ||
       b.booker.toLowerCase().includes(search.toLowerCase()) ||

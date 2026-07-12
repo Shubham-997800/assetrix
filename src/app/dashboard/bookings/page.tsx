@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   CalendarClock,
@@ -10,7 +10,6 @@ import {
   XCircle,
   Plus,
   History,
-  BookOpen,
   MapPin,
 } from "lucide-react";
 import {
@@ -23,29 +22,59 @@ import {
   CancelledBookingsTab,
   BookingHistoryTab,
 } from "./_components/booking-tabs";
-import { MOCK_BOOKINGS } from "./_components/data";
+import { bookingApi } from "@/lib/api";
+import type { Booking as ApiBooking } from "@/lib/types";
 
 type Tab = "calendar" | "resources" | "upcoming" | "ongoing" | "completed" | "cancelled" | "history";
 type View = "tabs" | "form";
 
-const upcoming = MOCK_BOOKINGS.filter((b) => b.status === "Upcoming").length;
-const ongoing = MOCK_BOOKINGS.filter((b) => b.status === "Ongoing").length;
-const completed = MOCK_BOOKINGS.filter((b) => b.status === "Completed").length;
-const cancelled = MOCK_BOOKINGS.filter((b) => b.status === "Cancelled").length;
-
-const tabs: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
-  { id: "calendar", label: "Calendar View", icon: Calendar },
-  { id: "resources", label: "Resources", icon: MapPin },
-  { id: "upcoming", label: "Upcoming", icon: CalendarClock, count: upcoming },
-  { id: "ongoing", label: "Ongoing", icon: Clock, count: ongoing },
-  { id: "completed", label: "Completed", icon: CheckCircle, count: completed },
-  { id: "cancelled", label: "Cancelled", icon: XCircle, count: cancelled },
-  { id: "history", label: "Booking History", icon: History },
-];
+function mapBookingStatus(b: ApiBooking): string {
+  switch (b.status) {
+    case "PENDING": return "Upcoming";
+    case "APPROVED": {
+      const now = new Date();
+      const start = new Date(b.startDate);
+      const end = new Date(b.endDate);
+      if (start <= now && end >= now) return "Ongoing";
+      if (start > now) return "Upcoming";
+      return "Completed";
+    }
+    case "COMPLETED": return "Completed";
+    case "CANCELLED":
+    case "REJECTED": return "Cancelled";
+    default: return "Upcoming";
+  }
+}
 
 export default function BookingsPage() {
   const [view, setView] = useState<View>("tabs");
   const [activeTab, setActiveTab] = useState<Tab>("calendar");
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    bookingApi
+      .list()
+      .then((res) => {
+        const items = (res.data ?? []) as ApiBooking[];
+        const c: Record<string, number> = { upcoming: 0, ongoing: 0, completed: 0, cancelled: 0 };
+        items.forEach((b) => {
+          const s = mapBookingStatus(b).toLowerCase();
+          if (s in c) c[s]++;
+        });
+        setCounts(c);
+      })
+      .catch(() => {});
+  }, []);
+
+  const tabs: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
+    { id: "calendar", label: "Calendar View", icon: Calendar },
+    { id: "resources", label: "Resources", icon: MapPin },
+    { id: "upcoming", label: "Upcoming", icon: CalendarClock, count: counts.upcoming },
+    { id: "ongoing", label: "Ongoing", icon: Clock, count: counts.ongoing },
+    { id: "completed", label: "Completed", icon: CheckCircle, count: counts.completed },
+    { id: "cancelled", label: "Cancelled", icon: XCircle, count: counts.cancelled },
+    { id: "history", label: "Booking History", icon: History },
+  ];
 
   return (
     <div className="space-y-6">

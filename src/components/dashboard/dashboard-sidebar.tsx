@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
+import { useAuth } from "@/contexts/auth-context";
 import {
   LayoutDashboard, Building2, Package, ArrowLeftRight, CalendarClock,
   Wrench, ClipboardCheck, BarChart3, Bell, FileText, Settings, Star,
@@ -53,6 +54,7 @@ const NAV_GROUPS: NavGroup[] = [
 
 const DashboardSidebar = memo(function DashboardSidebar() {
   const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, favorites, addFavorite, removeFavorite, recentPages, setAiPanelOpen, aiPanelOpen, setShortcutsOpen } = useDashboard();
+  const { logout } = useAuth();
   const pathname = usePathname();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     Main: true, Operations: true, "Compliance & Analytics": true,
@@ -229,13 +231,13 @@ const DashboardSidebar = memo(function DashboardSidebar() {
           <Settings className="h-4 w-4" />
           {!isCollapsed && "Settings"}
         </Link>
-        <Link
-          href="/login"
+        <button
+          onClick={() => logout()}
           className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground ${isCollapsed ? "justify-center px-2" : ""}`}
         >
           <LogOut className="h-4 w-4" />
           {!isCollapsed && "Sign Out"}
-        </Link>
+        </button>
       </div>
     </div>
   );

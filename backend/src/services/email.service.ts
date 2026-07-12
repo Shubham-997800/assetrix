@@ -11,7 +11,8 @@ interface EmailOptions {
 
 let transporter: nodemailer.Transporter | null = null;
 
-const getTransporter = (): nodemailer.Transporter => {
+const getTransporter = (): nodemailer.Transporter | null => {
+  if (!config.email.enabled) return null;
   if (transporter) return transporter;
 
   transporter = nodemailer.createTransport({
@@ -22,17 +23,19 @@ const getTransporter = (): nodemailer.Transporter => {
       user: config.email.user,
       pass: config.email.pass,
     },
-    tls: {
-      rejectUnauthorized: false,
-    },
   });
 
   return transporter;
 };
 
 export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
+  const transport = getTransporter();
+  if (!transport) {
+    logger.warn({ to: options.to, subject: options.subject }, 'Email skipped — SMTP not configured');
+    return false;
+  }
+
   try {
-    const transport = getTransporter();
     const info = await transport.sendMail({
       from: config.email.from || `"Assetrix" <${config.email.user}>`,
       to: options.to,

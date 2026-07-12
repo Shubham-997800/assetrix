@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/contexts/auth-context";
 import { CommandPalette } from "@/components/shared/command-palette";
 import "./globals.css";
 
@@ -25,12 +26,12 @@ export const metadata: Metadata = {
   description:
     "Track assets, eliminate allocation conflicts, automate maintenance workflows and manage resource bookings from a single operational platform.",
   keywords: ["asset management", "ERP", "resource management", "maintenance", "audit", "enterprise"],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://assetrix.vercel.app"),
   openGraph: {
     title: "Assetrix — Enterprise Asset & Resource Management Platform",
     description: "Track assets, eliminate allocation conflicts, automate maintenance workflows and manage resource bookings from a single operational platform.",
     type: "website",
     siteName: "Assetrix",
-    url: "https://assetrix.vercel.app",
   },
   twitter: {
     card: "summary_large_image",
@@ -48,8 +49,10 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} h-full antialiased dark`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <CommandPalette />
-          {children}
+          <AuthProvider>
+            <CommandPalette />
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

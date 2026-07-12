@@ -1,22 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Save, X } from "lucide-react";
+import { Save, X, Loader2 } from "lucide-react";
+import { userApi, ApiError } from "@/lib/api";
 
 interface PersonalInfoProps {
   editMode: boolean;
+  user?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
 }
-
-const initialData = {
-  firstName: "John",
-  lastName: "Smith",
-  displayName: "John Smith",
-  dob: "1990-05-15",
-  gender: "",
-  language: "English",
-  timezone: "Asia/Kolkata",
-};
 
 const languages = ["English", "Hindi", "Spanish", "French", "German", "Japanese"];
 const timezones = [
@@ -31,13 +27,46 @@ const timezones = [
   "Australia/Sydney",
 ];
 
-export function PersonalInfo({ editMode }: PersonalInfoProps) {
-  const [data, setData] = useState(initialData);
+export function PersonalInfo({ editMode, user }: PersonalInfoProps) {
+  const [data, setData] = useState({
+    firstName: user?.firstName ?? "",
+    lastName: user?.lastName ?? "",
+    displayName: user ? `${user.firstName} ${user.lastName}` : "",
+    dob: "",
+    gender: "",
+    language: "English",
+    timezone: "Asia/Kolkata",
+  });
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  useEffect(() => {
+    if (user) {
+      setData((prev) => ({
+        ...prev,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        displayName: `${user.firstName} ${user.lastName}`,
+      }));
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      await userApi.updateProfile({
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      if (err instanceof ApiError) setError(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -57,6 +86,12 @@ export function PersonalInfo({ editMode }: PersonalInfoProps) {
           </span>
         )}
       </div>
+
+      {error && (
+        <div className="mt-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-2.5 text-xs text-destructive">
+          {error}
+        </div>
+      )}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         {[
@@ -137,8 +172,8 @@ export function PersonalInfo({ editMode }: PersonalInfoProps) {
 
       {editMode && (
         <div className="mt-5 flex items-center gap-2 border-t border-border pt-5 animate-fade-in">
-          <Button size="default" className="btn-enterprise" onClick={handleSave}>
-            <Save className="h-3.5 w-3.5" /> Save Changes
+          <Button size="default" className="btn-enterprise" onClick={handleSave} disabled={saving}>
+            {saving ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving...</> : <><Save className="h-3.5 w-3.5" /> Save Changes</>}
           </Button>
           <Button variant="outline" size="sm" className="btn-enterprise">
             <X className="h-3.5 w-3.5" /> Cancel

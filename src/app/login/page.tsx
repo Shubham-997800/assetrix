@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLayout } from "@/components/shared/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { authApi, setAccessToken } from "@/lib/api";
 
 interface FormErrors {
   email?: string;
@@ -13,8 +14,9 @@ interface FormErrors {
   general?: string;
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [email, setEmail] = useState("");
@@ -37,13 +39,21 @@ export default function LoginPage() {
     if (!validate()) return;
     setLoading(true);
     setErrors({});
-    await new Promise((r) => setTimeout(r, 1500));
-    if (password === "wrong") {
-      setErrors({ general: "Invalid email or password." });
+    try {
+      const res = await authApi.login({ email, password, rememberMe: true });
+      if (res.success && res.data) {
+        setAccessToken(res.data.accessToken);
+        const redirect = searchParams.get("redirect") || "/dashboard";
+        router.push(redirect);
+      } else {
+        setErrors({ general: res.message || "Invalid email or password." });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Invalid email or password.";
+      setErrors({ general: message });
+    } finally {
       setLoading(false);
-      return;
     }
-    router.push("/dashboard");
   };
 
   return (
@@ -191,5 +201,21 @@ export default function LoginPage() {
         </p>
       </div>
     </AuthLayout>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthLayout>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        </AuthLayout>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

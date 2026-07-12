@@ -1,24 +1,50 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import {
   ClipboardCheck,
   TrendingUp,
   AlertTriangle,
   CheckCircle,
   Clock,
+  Loader2,
 } from "lucide-react";
 import { AuditTabs } from "./_components/audit-tabs";
-import { MOCK_CYCLES, MOCK_AUDIT_ASSETS, MOCK_DISCREPANCIES } from "./_components/data";
+import { auditApi } from "@/lib/api";
+import type { ApiError } from "@/lib/api";
+import type { AuditCycle } from "./_components/types";
 
 export default function AuditPage() {
+  const [cycles, setCycles] = useState<AuditCycle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchCycles = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await auditApi.listCycles();
+      setCycles((res.data || []) as AuditCycle[]);
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setError(apiErr.message || "Failed to load audit cycles");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCycles();
+  }, [fetchCycles]);
+
   const stats = useMemo(() => ({
-    totalCycles: MOCK_CYCLES.length,
-    activeCycles: MOCK_CYCLES.filter((c) => c.status === "Active").length,
-    totalAssets: MOCK_AUDIT_ASSETS.length,
-    verifiedAssets: MOCK_AUDIT_ASSETS.filter((a) => a.result === "Verified").length,
-    openDiscrepancies: MOCK_DISCREPANCIES.filter((d) => d.status !== "Resolved" && d.status !== "Closed").length,
-  }), []);
+    totalCycles: cycles.length,
+    activeCycles: cycles.filter((c) => c.status === "Active").length,
+    totalAssets: cycles.reduce((sum, c) => sum + (c.totalAssets || 0), 0),
+    verifiedAssets: cycles.reduce((sum, c) => sum + (c.verifiedCount || 0), 0),
+    openDiscrepancies: cycles.reduce((sum, c) => sum + (c.discrepanciesCount || 0), 0),
+  }), [cycles]);
 
   const cards = [
     { label: "Total Cycles", value: stats.totalCycles, icon: <ClipboardCheck className="h-4 w-4" />, color: "text-primary" },
@@ -54,7 +80,18 @@ export default function AuditPage() {
           ))}
         </div>
 
-        <AuditTabs />
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : error ? (
+          <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button variant="outline" size="sm" className="btn-enterprise mt-3" onClick={fetchCycles}>Retry</Button>
+          </div>
+        ) : (
+          <AuditTabs initialCycles={cycles} onRefresh={fetchCycles} />
+        )}
       </div>
     </div>
   );

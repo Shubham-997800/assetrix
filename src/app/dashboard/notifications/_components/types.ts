@@ -9,7 +9,7 @@ export type ActivityCategory = "user" | "asset" | "approval" | "system";
 export type ActivityStatus = "Success" | "Failed" | "Warning" | "Info";
 
 export interface Notification {
-  id: number;
+  id: string;
   title: string;
   message: string;
   entity: string;

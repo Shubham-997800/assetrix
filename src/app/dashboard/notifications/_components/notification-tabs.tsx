@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import React from "react";
 import {
   Table,
@@ -31,10 +31,13 @@ import {
   Settings,
   Trash2,
   Filter,
+  Loader2,
 } from "lucide-react";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
-import { PRIORITY_CLASSES, STATUS_CLASSES, type NotificationTab, type ActivityStatus } from "./types";
-import { MOCK_NOTIFICATIONS, MOCK_ACTIVITY_LOGS } from "./data";
+import { PRIORITY_CLASSES, STATUS_CLASSES, type NotificationTab, type ActivityStatus, type NotificationCategory } from "./types";
+import { MOCK_ACTIVITY_LOGS } from "./data";
+import { notificationApi, ApiError } from "@/lib/api";
+import type { Notification as ApiNotification } from "@/lib/types";
 
 const ITEMS_PER_PAGE = 10;
 const inputCls = "h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
@@ -48,14 +51,6 @@ const ICON_MAP: Record<string, React.ElementType> = {
   info: Info,
 };
 
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
-  booking: CalendarCheck,
-  maintenance: Wrench,
-  audit: ClipboardCheck,
-  transfer: ArrowLeftRight,
-  overdue: Clock,
-};
-
 const ACTIVITY_ICONS: Record<string, React.ElementType> = {
   user: User,
   asset: Settings,
@@ -63,16 +58,78 @@ const ACTIVITY_ICONS: Record<string, React.ElementType> = {
   system: Settings,
 };
 
-export function NotificationTabs() {
+function computeTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr ago`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return "Yesterday";
+  return `${days} days ago`;
+}
+
+function mapNotificationType(type: string): { category: NotificationCategory; icon: string; iconBg: string } {
+  const t = type?.toLowerCase() || "";
+  if (t.includes("booking")) return { category: "booking", icon: "calendar", iconBg: "bg-primary/10 text-primary" };
+  if (t.includes("maintenance")) return { category: "maintenance", icon: "wrench", iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" };
+  if (t.includes("audit")) return { category: "audit", icon: "clipboard-check", iconBg: "bg-red-500/10 text-red-600 dark:text-red-400" };
+  if (t.includes("transfer")) return { category: "transfer", icon: "arrow-left-right", iconBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400" };
+  if (t.includes("overdue")) return { category: "overdue", icon: "clock", iconBg: "bg-red-500/10 text-red-600 dark:text-red-400" };
+  return { category: "maintenance", icon: "info", iconBg: "bg-primary/10 text-primary" };
+}
+
+function mapApiNotification(n: ApiNotification) {
+  const mapped = mapNotificationType(n.type);
+  return {
+    id: n.id,
+    title: n.title,
+    message: n.message,
+    entity: n.link || "",
+    timestamp: n.createdAt,
+    timeAgo: computeTimeAgo(n.createdAt),
+    priority: "medium" as const,
+    unread: !n.isRead,
+    category: mapped.category,
+    icon: mapped.icon,
+    iconBg: mapped.iconBg,
+    archived: false,
+  };
+}
+
+export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
   const [activeTab, setActiveTab] = useState<NotificationTab>("all");
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [page, setPage] = useState(1);
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<ReturnType<typeof mapApiNotification>[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activitySearch, setActivitySearch] = useState("");
   const [activityUserFilter, setActivityUserFilter] = useState("All");
   const [activityCategoryFilter, setActivityCategoryFilter] = useState("All");
   const [activityPage, setActivityPage] = useState(1);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await notificationApi.list();
+      const items = (res.data ?? []) as ApiNotification[];
+      setNotifications(items.map(mapApiNotification));
+    } catch (err) {
+      if (err instanceof ApiError && err.status !== 401) {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications, refreshKey]);
 
   const unreadCount = notifications.filter((n) => !n.archived && n.unread).length;
 
@@ -87,19 +144,29 @@ export function NotificationTabs() {
     { key: "activity", label: "Activity Logs", icon: Shield },
   ];
 
-  const markAsRead = (id: number) => {
+  const markAsRead = async (id: string) => {
     setNotifications((p) => p.map((n) => (n.id === id ? { ...n, unread: false } : n)));
+    try {
+      await notificationApi.markRead(id);
+    } catch {
+      setNotifications((p) => p.map((n) => (n.id === id ? { ...n, unread: true } : n)));
+    }
   };
 
-  const markAllRead = () => {
+  const markAllRead = async () => {
     setNotifications((p) => p.map((n) => ({ ...n, unread: false })));
+    try {
+      await notificationApi.markAllRead();
+    } catch {
+      fetchNotifications();
+    }
   };
 
-  const archiveNotification = (id: number) => {
+  const archiveNotification = (id: string) => {
     setNotifications((p) => p.map((n) => (n.id === id ? { ...n, archived: true } : n)));
   };
 
-  const deleteNotification = (id: number) => {
+  const deleteNotification = (id: string) => {
     setNotifications((p) => p.filter((n) => n.id !== id));
   };
 
@@ -252,7 +319,20 @@ export function NotificationTabs() {
       </div>
 
       <div className="max-w-4xl space-y-3">
-        {notifPaged.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10">
+              <AlertTriangle className="h-8 w-8 text-destructive" />
+            </div>
+            <h3 className="mt-5 text-base font-semibold text-foreground">Failed to load notifications</h3>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">{error}</p>
+            <Button variant="outline" size="sm" className="mt-4 btn-enterprise" onClick={fetchNotifications}>Retry</Button>
+          </div>
+        ) : notifPaged.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
               <Bell className="h-8 w-8 text-muted-foreground/50" />

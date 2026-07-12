@@ -6,6 +6,7 @@ import { AuthLayout } from "@/components/shared/auth-layout";
 import { AuthInput } from "@/components/auth/auth-input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Mail, ArrowLeft, CheckCircle, Clock } from "lucide-react";
+import { authApi } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
@@ -33,18 +34,29 @@ export default function ForgotPasswordPage() {
     }
     setLoading(true);
     setError("");
-    await new Promise((r) => setTimeout(r, 1500));
-    setSent(true);
-    setCountdown(60);
-    setLoading(false);
+    try {
+      await authApi.forgotPassword(email);
+      setSent(true);
+      setCountdown(60);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send reset link.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleResend = async () => {
     if (!canResend) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setCountdown(60);
-    setLoading(false);
+    try {
+      await authApi.forgotPassword(email);
+      setCountdown(60);
+    } catch {
+      // silently retry
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fmt = (s: number) =>

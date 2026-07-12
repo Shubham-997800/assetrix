@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeftRight,
   Clock,
   AlertTriangle,
-  Search,
-  CheckCircle,
   History,
   Plus,
   ArrowRight,
   RotateCcw,
 } from "lucide-react";
-import { MOCK_ALLOCATIONS } from "./_components/data";
+import { allocationApi } from "@/lib/api";
+import type { Allocation as ApiAllocation } from "@/lib/types";
+import type { Allocation } from "./_components/types";
 import { AllocateAssetForm } from "./_components/allocate-form";
 import {
   ActiveAllocationsTab,
@@ -27,18 +27,47 @@ import {
 type Tab = "active" | "allocate" | "transfers" | "approvals" | "overdue" | "returned" | "history";
 type View = "tabs" | "form";
 
-const tabs: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
-  { id: "active", label: "Active Allocations", icon: ArrowLeftRight },
-  { id: "transfers", label: "Transfer Requests", icon: ArrowRight },
-  { id: "approvals", label: "Pending Approvals", icon: Clock, count: 3 },
-  { id: "overdue", label: "Overdue Returns", icon: AlertTriangle },
-  { id: "returned", label: "Returned Assets", icon: RotateCcw },
-  { id: "history", label: "Allocation History", icon: History },
-];
-
 export default function AllocationsPage() {
   const [view, setView] = useState<View>("tabs");
   const [activeTab, setActiveTab] = useState<Tab>("active");
+  const [allocations, setAllocations] = useState<Allocation[]>([]);
+
+  useEffect(() => {
+    allocationApi
+      .list()
+      .then((res) => {
+        const items = ((res.data ?? []) as ApiAllocation[]);
+        setAllocations(
+          items.map((a) => ({
+            id: a.id,
+            assetTag: a.asset?.assetTag ?? "",
+            assetName: a.asset?.name ?? "",
+            employee: a.user ? `${a.user.firstName} ${a.user.lastName}` : "",
+            department: a.asset?.department?.name ?? "",
+            allocatedDate: a.allocatedAt,
+            expectedReturn: a.expectedReturn ?? "",
+            actualReturnDate: a.returnedAt ?? null,
+            status: (a.status === "RETURNED"
+              ? "Returned"
+              : a.status === "OVERDUE"
+                ? "Overdue"
+                : "Active") as "Active" | "Returned" | "Overdue" | "Due Soon",
+            condition: null,
+            returnNotes: a.notes ?? null,
+          }))
+        );
+      })
+      .catch(() => {});
+  }, []);
+
+  const tabs: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
+    { id: "active", label: "Active Allocations", icon: ArrowLeftRight },
+    { id: "transfers", label: "Transfer Requests", icon: ArrowRight },
+    { id: "approvals", label: "Pending Approvals", icon: Clock },
+    { id: "overdue", label: "Overdue Returns", icon: AlertTriangle },
+    { id: "returned", label: "Returned Assets", icon: RotateCcw },
+    { id: "history", label: "Allocation History", icon: History },
+  ];
 
   return (
     <div className="space-y-6">
@@ -95,7 +124,7 @@ export default function AllocationsPage() {
 
       {view === "form" && (
         <AllocateAssetForm
-          existingAllocations={MOCK_ALLOCATIONS}
+          existingAllocations={allocations}
           onSubmit={() => setView("tabs")}
           onCancel={() => setView("tabs")}
         />

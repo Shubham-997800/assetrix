@@ -3,18 +3,23 @@ import { config } from './index';
 import logger from './logger';
 
 const prisma = new PrismaClient({
-  log: [
-    { level: 'query', emit: 'event' },
-    { level: 'error', emit: 'stdout' },
-    { level: 'warn', emit: 'stdout' },
-  ],
+  log: config.nodeEnv === 'production'
+    ? [
+        { level: 'error', emit: 'stdout' },
+        { level: 'warn', emit: 'stdout' },
+      ]
+    : [
+        { level: 'query', emit: 'event' },
+        { level: 'error', emit: 'stdout' },
+        { level: 'warn', emit: 'stdout' },
+      ],
 });
 
-prisma.$on('query', (e) => {
-  if (config.nodeEnv === 'development') {
+if (config.nodeEnv !== 'production') {
+  prisma.$on('query', (e) => {
     logger.debug({ query: e.query, duration: `${e.duration}ms` }, 'Prisma Query');
-  }
-});
+  });
+}
 
 export const connectDatabase = async (): Promise<void> => {
   try {

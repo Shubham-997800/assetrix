@@ -1,16 +1,33 @@
 "use client";
 
-const accountData = [
-  { label: "User ID", value: "USR-284719" },
-  { label: "Account Role", value: "Operations Manager" },
-  { label: "Department", value: "Procurement" },
-  { label: "Permissions", value: "Read, Write, Approve, Export" },
-  { label: "Created", value: "15 January 2025" },
-  { label: "Last Login", value: "11 July 2026, 09:15 AM" },
-  { label: "Last Password Change", value: "28 June 2026" },
-];
+const ROLE_LABELS: Record<string, string> = {
+  SUPER_ADMIN: "Super Admin",
+  ADMIN: "Admin",
+  DEPARTMENT_MANAGER: "Department Manager",
+  TECHNICIAN: "Technician",
+  EMPLOYEE: "Employee",
+};
 
-export function AccountInfo() {
+interface AccountInfoProps {
+  user?: {
+    id: string;
+    role: string;
+    department?: { name: string } | null;
+    createdAt: string;
+    lastLoginAt?: string | null;
+  } | null;
+}
+
+export function AccountInfo({ user }: AccountInfoProps) {
+  const accountData = [
+    { label: "User ID", value: user?.id ?? "—" },
+    { label: "Account Role", value: user ? ROLE_LABELS[user.role] ?? user.role : "—" },
+    { label: "Department", value: user?.department?.name ?? "—" },
+    { label: "Permissions", value: "Read, Write, Approve, Export" },
+    { label: "Created", value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }) : "—" },
+    { label: "Last Login", value: user?.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString("en-US", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Never" },
+  ];
+
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div>

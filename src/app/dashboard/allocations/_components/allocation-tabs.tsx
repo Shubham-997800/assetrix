@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowLeftRight,
   CheckCircle,
   XCircle,
-  Clock,
   AlertTriangle,
   Search,
   Send,
@@ -17,25 +15,65 @@ import {
   FileText,
   User,
   Building2,
-  History,
-  Filter,
-  ChevronLeft,
-  ChevronRight,
-  Ban,
   MessageSquare,
+  Loader2,
 } from "lucide-react";
 import type {
   Allocation,
-  TransferRequest,
-  ApprovalRequest,
-  OverdueItem,
-  HistoryEvent,
 } from "./types";
-import { MOCK_ALLOCATIONS, MOCK_TRANSFERS, MOCK_APPROVALS, MOCK_OVERDUE, MOCK_HISTORY } from "./data";
+import { allocationApi, ApiError } from "@/lib/api";
+import type { Allocation as ApiAllocation } from "@/lib/types";
 import {
   PRIORITY_CLASSES,
   STATUS_CLASSES,
 } from "./types";
+
+function mapApiAllocation(a: ApiAllocation): Allocation {
+  const statusMap: Record<string, Allocation["status"]> = {
+    ACTIVE: "Active",
+    RETURNED: "Returned",
+    TRANSFERRED: "Returned",
+    OVERDUE: "Overdue",
+  };
+  let status = statusMap[a.status] ?? "Active";
+  if (a.status === "ACTIVE" && a.expectedReturn) {
+    const days = Math.ceil(
+      (new Date(a.expectedReturn).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+    if (days <= 14 && days > 0) status = "Due Soon";
+  }
+  return {
+    id: a.id,
+    assetTag: a.asset?.assetTag ?? "",
+    assetName: a.asset?.name ?? "",
+    employee: a.user ? `${a.user.firstName} ${a.user.lastName}` : "",
+    department: a.asset?.department?.name ?? "",
+    allocatedDate: a.allocatedAt,
+    expectedReturn: a.expectedReturn ?? "",
+    actualReturnDate: a.returnedAt ?? null,
+    status,
+    condition: null,
+    returnNotes: a.notes ?? null,
+  };
+}
+
+function LoadingState() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <span className="ml-2 text-sm text-muted-foreground">Loading...</span>
+    </div>
+  );
+}
+
+function ErrorState({ message }: { message: string }) {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <AlertTriangle className="h-6 w-6 text-destructive" />
+      <span className="ml-2 text-sm text-destructive">{message}</span>
+    </div>
+  );
+}
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-US", {
@@ -52,7 +90,45 @@ function daysUntil(d: string) {
 /* ── Active Allocations Tab ── */
 export function ActiveAllocationsTab() {
   const [search, setSearch] = useState("");
-  const active = MOCK_ALLOCATIONS.filter((a) => a.status !== "Returned");
+  const [allocations, setAllocations] = useState<Allocation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [returning, setReturning] = useState<string | null>(null);
+
+  useEffect(() => {
+    allocationApi
+      .list()
+      .then((res) => {
+        setAllocations(((res.data ?? []) as ApiAllocation[]).map(mapApiAllocation));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load allocations");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleReturn = async (id: string) => {
+    setReturning(id);
+    try {
+      await allocationApi.return(id, { condition: "Good" });
+      setAllocations((prev) =>
+        prev.map((a) =>
+          a.id === id
+            ? { ...a, status: "Returned" as const, actualReturnDate: new Date().toISOString().slice(0, 10) }
+            : a
+        )
+      );
+    } catch (err: unknown) {
+      setError(err instanceof ApiError ? err.message : "Failed to return asset");
+    } finally {
+      setReturning(null);
+    }
+  };
+
+  if (loading) return <LoadingState />;
+  if (error) return <ErrorState message={error} />;
+
+  const active = allocations.filter((a) => a.status !== "Returned");
 
   const filtered = active.filter(
     (a) =>
@@ -125,7 +201,7 @@ export function ActiveAllocationsTab() {
                       <Button variant="ghost" size="icon-sm" className="btn-enterprise" title="Transfer">
                         <ArrowRight className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon-sm" className="btn-enterprise" title="Return">
+                      <Button variant="ghost" size="icon-sm" className="btn-enterprise" title="Return" onClick={() => handleReturn(a.id)} disabled={returning === a.id}>
                         <RotateCcw className="h-3.5 w-3.5" />
                       </Button>
                       <Button variant="ghost" size="icon-sm" className="btn-enterprise" title="Extend">
@@ -145,6 +221,25 @@ export function ActiveAllocationsTab() {
 
 /* ── Transfer Requests Tab ── */
 export function TransferRequestsTab() {
+  const [transfers, setTransfers] = useState<Allocation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    allocationApi
+      .list({ status: "TRANSFERRED" })
+      .then((res) => {
+        setTransfers(((res.data ?? []) as ApiAllocation[]).map(mapApiAllocation));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load transfer requests");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <LoadingState />;
+  if (error) return <ErrorState message={error} />;
+
   const workflow = [
     { label: "Requested", icon: FileText, done: true },
     { label: "Dept Head", icon: Building2, done: false },
@@ -154,16 +249,15 @@ export function TransferRequestsTab() {
 
   return (
     <div className="space-y-4">
-      {MOCK_TRANSFERS.map((t) => (
+      {transfers.length === 0 && (
+        <div className="py-12 text-center text-sm text-muted-foreground">No transfer requests found.</div>
+      )}
+      {transfers.map((t) => (
         <div key={t.id} className="rounded-xl border border-border bg-card p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-3">
-              <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                t.status === "Approved" ? "bg-emerald-500/10" : t.status === "Rejected" ? "bg-red-500/10" : "bg-amber-500/10"
-              }`}>
-                <ArrowRight className={`h-5 w-5 ${
-                  t.status === "Approved" ? "text-emerald-500" : t.status === "Rejected" ? "text-red-500" : "text-amber-500"
-                }`} />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
+                <ArrowRight className="h-5 w-5 text-amber-500" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -171,14 +265,16 @@ export function TransferRequestsTab() {
                   <span className="font-mono text-[11px] text-muted-foreground">{t.assetTag}</span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  From <span className="font-medium text-foreground">{t.fromEmployee}</span> ({t.fromDepartment}) → <span className="font-medium text-foreground">{t.toEmployee}</span> ({t.toDepartment})
+                  Transferred to <span className="font-medium text-foreground">{t.employee}</span> ({t.department})
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">{t.reason}</p>
+                {t.returnNotes && (
+                  <p className="mt-1 text-xs text-muted-foreground">{t.returnNotes}</p>
+                )}
 
                 {/* Workflow Steps */}
                 <div className="mt-3 flex items-center gap-1">
                   {workflow.map((step, i) => {
-                    const isDone = i === 0 || (i === 1 && t.departmentHeadApproval) || (i === 2 && t.assetManagerApproval) || (i === 3 && t.status === "Completed");
+                    const isDone = i === 0;
                     return (
                       <div key={step.label} className="flex items-center gap-1">
                         <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
@@ -195,10 +291,10 @@ export function TransferRequestsTab() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${STATUS_CLASSES[t.status]}`}>
-                {t.status}
+              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${STATUS_CLASSES["Pending"]}`}>
+                Pending
               </span>
-              <span className="text-[11px] text-muted-foreground">{formatDate(t.requestDate)}</span>
+              <span className="text-[11px] text-muted-foreground">{formatDate(t.allocatedDate)}</span>
             </div>
           </div>
         </div>
@@ -210,35 +306,57 @@ export function TransferRequestsTab() {
 /* ── Pending Approvals Tab ── */
 export function PendingApprovalsTab() {
   const [processed, setProcessed] = useState<Record<string, string>>({});
+  const [approvals, setApprovals] = useState<Allocation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    allocationApi
+      .list({ status: "ACTIVE" })
+      .then((res) => {
+        const items = ((res.data ?? []) as ApiAllocation[]).map(mapApiAllocation);
+        setApprovals(items.filter((a) => a.status === "Active" || a.status === "Due Soon"));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load approvals");
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleApprove = (id: string) => setProcessed((p) => ({ ...p, [id]: "Approved" }));
   const handleReject = (id: string) => setProcessed((p) => ({ ...p, [id]: "Rejected" }));
   const handleClarify = (id: string) => setProcessed((p) => ({ ...p, [id]: "Clarification" }));
 
+  if (loading) return <LoadingState />;
+  if (error) return <ErrorState message={error} />;
+
   return (
     <div className="space-y-4">
-      {MOCK_APPROVALS.map((req) => {
+      {approvals.length === 0 && (
+        <div className="py-12 text-center text-sm text-muted-foreground">No pending approvals.</div>
+      )}
+      {approvals.map((req) => {
         const result = processed[req.id];
-        const typeIcon = req.type === "transfer" ? ArrowRight : req.type === "return" ? RotateCcw : CalendarPlus;
-        const TypeIcon = typeIcon;
         return (
           <div key={req.id} className="rounded-xl border border-border bg-card p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
-                  <TypeIcon className="h-5 w-5 text-amber-500" />
+                  <RotateCcw className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-foreground">{req.assetName}</p>
                     <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground capitalize">
-                      {req.type}
+                      allocation
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Requested by <span className="font-medium text-foreground">{req.requestedBy}</span> · {req.department} · {formatDate(req.requestDate)}
+                    Requested by <span className="font-medium text-foreground">{req.employee}</span> · {req.department} · {formatDate(req.allocatedDate)}
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">{req.details}</p>
+                  {req.returnNotes && (
+                    <p className="mt-1 text-xs text-muted-foreground">{req.returnNotes}</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -274,61 +392,102 @@ export function PendingApprovalsTab() {
 
 /* ── Overdue Returns Tab ── */
 export function OverdueReturnsTab() {
+  const [overdue, setOverdue] = useState<Allocation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    allocationApi
+      .list({ status: "OVERDUE" })
+      .then((res) => {
+        setOverdue(((res.data ?? []) as ApiAllocation[]).map(mapApiAllocation));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load overdue items");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <LoadingState />;
+  if (error) return <ErrorState message={error} />;
+
+  const nowMs = Date.now();
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <AlertTriangle className="h-4 w-4 text-amber-500" />
         <p className="text-sm font-medium text-foreground">
-          {MOCK_OVERDUE.length} overdue return{MOCK_OVERDUE.length !== 1 ? "s" : ""} requiring attention
+          {overdue.length} overdue return{overdue.length !== 1 ? "s" : ""} requiring attention
         </p>
       </div>
-      {MOCK_OVERDUE.map((item) => (
-        <div
-          key={item.id}
-          className={`rounded-xl border p-5 ${
-            item.priority === "critical"
-              ? "border-red-500/30 bg-red-500/5"
-              : item.priority === "high"
-                ? "border-orange-500/30 bg-orange-500/5"
-                : "border-amber-500/30 bg-amber-500/5"
-          }`}
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-foreground">{item.assetName}</p>
-                  <span className="font-mono text-[11px] text-muted-foreground">{item.assetTag}</span>
+      {overdue.map((item) => {
+        const daysOverdue = Math.abs(Math.ceil(
+          (new Date(item.expectedReturn).getTime() - nowMs) / (1000 * 60 * 60 * 24)
+        ));
+        return (
+          <div
+            key={item.id}
+            className="rounded-xl border border-red-500/30 bg-red-500/5 p-5"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Allocated to <span className="font-medium text-foreground">{item.employee}</span> · {item.department}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Expected return: {formatDate(item.expectedReturn)}
-                </p>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-foreground">{item.assetName}</p>
+                    <span className="font-mono text-[11px] text-muted-foreground">{item.assetTag}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Allocated to <span className="font-medium text-foreground">{item.employee}</span> · {item.department}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Expected return: {formatDate(item.expectedReturn)}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${PRIORITY_CLASSES[item.priority]}`}>
-                {item.daysOverdue} day{item.daysOverdue !== 1 ? "s" : ""} overdue · {item.priority}
-              </span>
-              <Button variant="outline" size="sm" className="btn-enterprise">
-                <Send className="h-3.5 w-3.5" /> Send Reminder
-              </Button>
+              <div className="flex items-center gap-3">
+                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${PRIORITY_CLASSES["critical"]}`}>
+                  {daysOverdue} day{daysOverdue !== 1 ? "s" : ""} overdue · critical
+                </span>
+                <Button variant="outline" size="sm" className="btn-enterprise">
+                  <Send className="h-3.5 w-3.5" /> Send Reminder
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
+      {overdue.length === 0 && (
+        <div className="py-8 text-center text-sm text-muted-foreground">No overdue returns.</div>
+      )}
     </div>
   );
 }
 
 /* ── Returned Assets Tab ── */
 export function ReturnedAssetsTab() {
-  const returned = MOCK_ALLOCATIONS.filter((a) => a.status === "Returned");
+  const [returned, setReturned] = useState<Allocation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    allocationApi
+      .list({ status: "RETURNED" })
+      .then((res) => {
+        setReturned(((res.data ?? []) as ApiAllocation[]).map(mapApiAllocation));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load returned assets");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <LoadingState />;
+  if (error) return <ErrorState message={error} />;
+
   return (
     <div className="rounded-xl border border-border bg-card">
       <div className="border-b border-border px-6 py-4">
@@ -359,7 +518,7 @@ export function ReturnedAssetsTab() {
                 <td className="px-4 py-3 text-muted-foreground">{a.actualReturnDate ? formatDate(a.actualReturnDate) : "—"}</td>
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                    {a.condition}
+                    {a.condition ?? "—"}
                   </span>
                 </td>
                 <td className="hidden px-4 py-3 text-xs text-muted-foreground lg:table-cell">{a.returnNotes}</td>
@@ -375,20 +534,37 @@ export function ReturnedAssetsTab() {
 /* ── Allocation History Tab ── */
 export function AllocationHistoryTab() {
   const [search, setSearch] = useState("");
+  const [events, setEvents] = useState<Allocation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filtered = MOCK_HISTORY.filter(
-    (h) =>
-      h.assetName.toLowerCase().includes(search.toLowerCase()) ||
-      h.assetTag.toLowerCase().includes(search.toLowerCase()) ||
-      (h.from && h.from.toLowerCase().includes(search.toLowerCase())) ||
-      (h.to && h.to.toLowerCase().includes(search.toLowerCase()))
+  useEffect(() => {
+    allocationApi
+      .list()
+      .then((res) => {
+        setEvents(((res.data ?? []) as ApiAllocation[]).map(mapApiAllocation));
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof ApiError ? err.message : "Failed to load history");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <LoadingState />;
+  if (error) return <ErrorState message={error} />;
+
+  const filtered = events.filter(
+    (e) =>
+      e.assetName.toLowerCase().includes(search.toLowerCase()) ||
+      e.assetTag.toLowerCase().includes(search.toLowerCase()) ||
+      e.employee.toLowerCase().includes(search.toLowerCase())
   );
 
   const typeConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
-    allocated: { icon: User, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-500/10" },
-    transferred: { icon: ArrowRight, color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-500/10" },
-    returned: { icon: RotateCcw, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10" },
-    extended: { icon: CalendarPlus, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10" },
+    Active: { icon: User, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-500/10" },
+    Returned: { icon: RotateCcw, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10" },
+    Overdue: { icon: AlertTriangle, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10" },
+    "Due Soon": { icon: CalendarPlus, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10" },
   };
 
   return (
@@ -410,7 +586,7 @@ export function AllocationHistoryTab() {
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="space-y-0">
           {filtered.map((event, idx) => {
-            const cfg = typeConfig[event.type] ?? typeConfig.allocated;
+            const cfg = typeConfig[event.status] ?? typeConfig.Active;
             const Icon = cfg.icon;
             const isLast = idx === filtered.length - 1;
             return (
@@ -424,28 +600,24 @@ export function AllocationHistoryTab() {
                 <div className={`flex-1 ${isLast ? "" : "pb-6"}`}>
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-foreground capitalize">
-                      {event.type === "allocated" && event.from
-                        ? `Reallocated from ${event.from} to ${event.to}`
-                        : event.type === "transferred"
-                          ? `Transferred from ${event.from} to ${event.to}`
-                          : event.type === "returned"
-                            ? `Returned by ${event.from}`
-                            : `Extended allocation for ${event.to}`}
+                      {event.status === "Returned"
+                        ? `Returned by ${event.employee}`
+                        : `Allocated to ${event.employee}`}
                     </p>
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_CLASSES[event.type === "allocated" ? "Active" : event.type === "returned" ? "Returned" : "Pending"]}`}>
-                      {event.type}
+                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_CLASSES[event.status]}`}>
+                      {event.status.toLowerCase()}
                     </span>
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {event.assetName} ({event.assetTag}) · {event.department}
                   </p>
-                  {event.notes && (
-                    <p className="mt-1 text-xs text-muted-foreground italic">&ldquo;{event.notes}&rdquo;</p>
+                  {event.returnNotes && (
+                    <p className="mt-1 text-xs text-muted-foreground italic">&ldquo;{event.returnNotes}&rdquo;</p>
                   )}
                   <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground/70">
-                    <span>{formatDate(event.date)}</span>
+                    <span>{formatDate(event.allocatedDate)}</span>
                     <span>·</span>
-                    <span>{event.user}</span>
+                    <span>{event.employee}</span>
                   </div>
                 </div>
               </div>

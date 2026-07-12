@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -30,17 +30,16 @@ import {
   DISCREPANCY_STATUS_CLASSES,
   type AuditCycle,
   type AuditAsset,
-  type Auditor,
   type Discrepancy,
   type DiscrepancyStatus,
   type AuditStatus,
 } from "./types";
 import {
-  MOCK_CYCLES,
   MOCK_AUDIT_ASSETS,
-  MOCK_AUDITORS,
   MOCK_DISCREPANCIES,
 } from "./data";
+import { auditApi } from "@/lib/api";
+import type { ApiError } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
 const inputCls =
@@ -48,15 +47,24 @@ const inputCls =
 
 type AuditTab = "cycles" | "create-cycle" | "assign-auditors" | "verification" | "discrepancies" | "close-cycle" | "history";
 
-export function AuditTabs() {
+interface AuditTabsProps {
+  initialCycles: AuditCycle[];
+  onRefresh: () => void;
+}
+
+export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
   const [activeTab, setActiveTab] = useState<AuditTab>("cycles");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [page, setPage] = useState(1);
   const [selectedAsset, setSelectedAsset] = useState<AuditAsset | null>(null);
-  const [cycles, setCycles] = useState<AuditCycle[]>(MOCK_CYCLES);
+  const [cycles, setCycles] = useState<AuditCycle[]>(initialCycles);
   const [assets] = useState<AuditAsset[]>(MOCK_AUDIT_ASSETS);
   const [discrepancies, setDiscrepancies] = useState<Discrepancy[]>(MOCK_DISCREPANCIES);
+
+  useEffect(() => {
+    setCycles(initialCycles);
+  }, [initialCycles]);
 
   const tabs: { key: AuditTab; label: string; icon: React.ReactNode }[] = [
     { key: "cycles", label: "Audit Cycles", icon: <ClipboardCheck className="h-3.5 w-3.5" /> },
@@ -191,7 +199,7 @@ export function AuditTabs() {
       )}
 
       {activeTab === "create-cycle" && (
-        <CreateCycleTab onSubmit={() => setActiveTab("cycles")} />
+        <CreateCycleTab onSubmit={() => setActiveTab("cycles")} onRefresh={onRefresh} />
       )}
 
       {activeTab === "assign-auditors" && (
@@ -320,11 +328,34 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
   );
 }
 
-function CreateCycleTab({ onSubmit }: { onSubmit: () => void }) {
+function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefresh: () => void }) {
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCreate = async () => {
+    if (!name.trim() || !department || !location) return;
+    try {
+      setSubmitting(true);
+      setError(null);
+      await auditApi.createCycle({
+        name,
+        departmentScope: department,
+        locationScope: location,
+        notes,
+      });
+      onRefresh();
+      onSubmit();
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setError(apiErr.message || "Failed to create cycle");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 max-w-2xl">
@@ -351,9 +382,12 @@ function CreateCycleTab({ onSubmit }: { onSubmit: () => void }) {
           <textarea className={`${inputCls} mt-1.5 w-full resize-none`} rows={3} placeholder="Additional instructions or scope..." value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
       </div>
+      {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
       <div className="mt-5 flex gap-2 border-t border-border pt-4">
-        <Button size="default" className="btn-enterprise" onClick={onSubmit}>Create Cycle</Button>
-        <Button variant="outline" size="default" className="btn-enterprise" onClick={onSubmit}>Cancel</Button>
+        <Button size="default" className="btn-enterprise" onClick={handleCreate} disabled={submitting || !name.trim() || !department || !location}>
+          {submitting ? "Creating..." : "Create Cycle"}
+        </Button>
+        <Button variant="outline" size="default" className="btn-enterprise" onClick={onSubmit} disabled={submitting}>Cancel</Button>
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ import {
   Plus,
   Edit,
   Trash2,
-  ChevronDown,
   CheckCircle,
   X,
   ArrowUpDown,
@@ -22,6 +21,8 @@ import {
   ArrowRight,
   ArrowUp,
 } from "lucide-react";
+import { departmentApi, categoryApi, adminApi, ApiError } from "@/lib/api";
+import type { Department as ApiDepartment, AssetCategory as ApiAssetCategory, User as ApiUser } from "@/lib/types";
 
 /* ═══════════════════════════════════════════════════════
    DATA
@@ -63,40 +64,75 @@ interface Employee {
   lastLogin: string;
 }
 
-const initialDepartments: Department[] = [
-  { id: "d1", name: "Corporate", code: "CORP", head: "Sarah Chen", parent: "—", employees: 0, assets: 0, description: "Executive leadership and corporate governance", status: "Active" },
-  { id: "d2", name: "Engineering", code: "ENG", head: "Raj Kumar", parent: "Corporate", employees: 45, assets: 156, description: "Product development and technical operations", status: "Active" },
-  { id: "d3", name: "Operations", code: "OPS", head: "Marcus Webb", parent: "Corporate", employees: 38, assets: 134, description: "Day-to-day business operations and logistics", status: "Active" },
-  { id: "d4", name: "Procurement", code: "PROC", head: "Nina Petrov", parent: "Operations", employees: 24, assets: 112, description: "Vendor management and purchasing", status: "Active" },
-  { id: "d5", name: "Finance", code: "FIN", head: "Priya Sharma", parent: "Corporate", employees: 18, assets: 89, description: "Financial planning, accounting, and reporting", status: "Active" },
-  { id: "d6", name: "Human Resources", code: "HR", head: "Alex Rivera", parent: "Corporate", employees: 15, assets: 67, description: "People operations, hiring, and culture", status: "Active" },
-  { id: "d7", name: "Marketing", code: "MKT", head: "Kim Tanaka", parent: "Operations", employees: 22, assets: 54, description: "Brand, demand generation, and communications", status: "Active" },
-  { id: "d8", name: "IT Support", code: "ITS", head: "Jordan Lee", parent: "Engineering", employees: 12, assets: 43, description: "Internal IT infrastructure and helpdesk", status: "Inactive" },
-];
+const ROLE_MAP: Record<string, Employee["role"]> = {
+  SUPER_ADMIN: "Admin",
+  ADMIN: "Admin",
+  DEPARTMENT_MANAGER: "Department Head",
+  TECHNICIAN: "Asset Manager",
+  EMPLOYEE: "Employee",
+};
 
-const initialCategories: AssetCategory[] = [
-  { id: "c1", name: "Electronics", code: "ELEC", description: "Computers, monitors, peripherals, and consumer electronics", assets: 312, fields: [{ name: "Warranty Period", type: "Number (months)" }, { name: "Manufacturer", type: "Text" }, { name: "Model Number", type: "Text" }], sharedAllowed: false, maintenanceRequired: true, warrantyTracking: true, status: "Active" },
-  { id: "c2", name: "Furniture", code: "FURN", description: "Desks, chairs, storage, and office furniture", assets: 189, fields: [{ name: "Material Type", type: "Dropdown" }, { name: "Supplier", type: "Text" }], sharedAllowed: true, maintenanceRequired: false, warrantyTracking: false, status: "Active" },
-  { id: "c3", name: "Vehicles", code: "VEH", description: "Company cars, vans, and transport vehicles", assets: 34, fields: [{ name: "Registration Number", type: "Text" }, { name: "Insurance Expiry", type: "Date" }, { name: "Fuel Type", type: "Dropdown" }], sharedAllowed: true, maintenanceRequired: true, warrantyTracking: false, status: "Active" },
-  { id: "c4", name: "Machinery", code: "MACH", description: "Industrial and manufacturing machinery", assets: 67, fields: [{ name: "Serial Number", type: "Text" }, { name: "Capacity", type: "Number" }, { name: "Last Serviced", type: "Date" }], sharedAllowed: false, maintenanceRequired: true, warrantyTracking: true, status: "Active" },
-  { id: "c5", name: "IT Equipment", code: "ITEQ", description: "Servers, networking gear, and infrastructure", assets: 98, fields: [{ name: "IP Address", type: "Text" }, { name: " Rack Location", type: "Text" }, { name: "Warranty Period", type: "Number (months)" }], sharedAllowed: false, maintenanceRequired: true, warrantyTracking: true, status: "Active" },
-  { id: "c6", name: "Office Equipment", code: "OFF", description: "Printers, projectors, and shared office tools", assets: 145, fields: [{ name: "Model", type: "Text" }, { name: "Toner/Consumable Type", type: "Text" }], sharedAllowed: true, maintenanceRequired: false, warrantyTracking: true, status: "Active" },
-];
+const STATUS_MAP: Record<string, "Active" | "Inactive"> = {
+  ACTIVE: "Active",
+  INACTIVE: "Inactive",
+  SUSPENDED: "Inactive",
+  PENDING_VERIFICATION: "Active",
+};
 
-const initialEmployees: Employee[] = [
-  { id: "e1", name: "Sarah Chen", email: "sarah.chen@assetrix.com", employeeId: "EMP-001", department: "Engineering", role: "Admin", status: "Active", lastLogin: "2 min ago" },
-  { id: "e2", name: "Raj Kumar", email: "raj.kumar@assetrix.com", employeeId: "EMP-002", department: "Engineering", role: "Department Head", status: "Active", lastLogin: "1 hr ago" },
-  { id: "e3", name: "Marcus Webb", email: "marcus.webb@assetrix.com", employeeId: "EMP-003", department: "Operations", role: "Department Head", status: "Active", lastLogin: "30 min ago" },
-  { id: "e4", name: "Priya Sharma", email: "priya.sharma@assetrix.com", employeeId: "EMP-004", department: "Finance", role: "Asset Manager", status: "Active", lastLogin: "3 hr ago" },
-  { id: "e5", name: "Alex Rivera", email: "alex.rivera@assetrix.com", employeeId: "EMP-005", department: "Human Resources", role: "Department Head", status: "Active", lastLogin: "5 hr ago" },
-  { id: "e6", name: "Kim Tanaka", email: "kim.tanaka@assetrix.com", employeeId: "EMP-006", department: "Marketing", role: "Employee", status: "Active", lastLogin: "1 day ago" },
-  { id: "e7", name: "Jordan Lee", email: "jordan.lee@assetrix.com", employeeId: "EMP-007", department: "IT Support", role: "Asset Manager", status: "Active", lastLogin: "12 min ago" },
-  { id: "e8", name: "Nina Petrov", email: "nina.petrov@assetrix.com", employeeId: "EMP-008", department: "Procurement", role: "Department Head", status: "Active", lastLogin: "2 hr ago" },
-  { id: "e9", name: "Tom Bradley", email: "tom.bradley@assetrix.com", employeeId: "EMP-009", department: "Finance", role: "Employee", status: "Inactive", lastLogin: "15 days ago" },
-  { id: "e10", name: "Lisa Wang", email: "lisa.wang@assetrix.com", employeeId: "EMP-010", department: "Engineering", role: "Employee", status: "Active", lastLogin: "4 hr ago" },
-  { id: "e11", name: "David Okafor", email: "david.okafor@assetrix.com", employeeId: "EMP-011", department: "Operations", role: "Employee", status: "Active", lastLogin: "6 hr ago" },
-  { id: "e12", name: "Maria Garcia", email: "maria.garcia@assetrix.com", employeeId: "EMP-012", department: "Marketing", role: "Employee", status: "Active", lastLogin: "1 hr ago" },
-];
+function mapApiDepartment(d: ApiDepartment, departments: ApiDepartment[]): Department {
+  const parentDept = departments.find((p) => p.id === d.parentId);
+  return {
+    id: d.id,
+    name: d.name,
+    code: d.code,
+    head: d.head ? `${d.head.firstName} ${d.head.lastName}` : "—",
+    parent: parentDept?.name || "—",
+    employees: d._count?.users ?? 0,
+    assets: d._count?.assets ?? 0,
+    description: d.description ?? "",
+    status: d.isActive ? "Active" : "Inactive",
+  };
+}
+
+function mapApiCategory(c: ApiAssetCategory): AssetCategory {
+  return {
+    id: c.id,
+    name: c.name,
+    code: c.code,
+    description: c.description ?? "",
+    assets: c._count?.assets ?? 0,
+    fields: [],
+    sharedAllowed: false,
+    maintenanceRequired: false,
+    warrantyTracking: false,
+    status: c.isActive ? "Active" : "Inactive",
+  };
+}
+
+function mapApiUser(u: ApiUser): Employee {
+  return {
+    id: u.id,
+    name: `${u.firstName} ${u.lastName}`,
+    email: u.email,
+    employeeId: u.employeeId ?? "—",
+    department: u.department?.name ?? "—",
+    role: ROLE_MAP[u.role] ?? "Employee",
+    status: STATUS_MAP[u.status] ?? "Active",
+    lastLogin: u.lastLoginAt ? computeTimeAgo(u.lastLoginAt) : "Never",
+  };
+}
+
+function computeTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr ago`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return "1 day ago";
+  return `${days} days ago`;
+}
 
 const roleColors: Record<string, string> = {
   Admin: "bg-red-500/10 text-red-600 dark:text-red-400",
@@ -215,16 +251,32 @@ function DepartmentsTab({
 }) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"name" | "employees" | "assets">("name");
-  const [departments, setDepartments] = useState(initialDepartments);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [editDept, setEditDept] = useState<Department | null>(null);
   const [confirm, setConfirm] = useState<{ open: boolean; id: string }>({ open: false, id: "" });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDepartments = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await departmentApi.list();
+      const apiDepts = (res.data ?? []) as ApiDepartment[];
+      setDepartments(apiDepts.map((d) => mapApiDepartment(d, apiDepts)));
+    } catch (err) {
+      if (err instanceof ApiError && err.status !== 401) {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(t);
-  }, []);
+    fetchDepartments();
+  }, [fetchDepartments]);
 
   const filtered = departments
     .filter(
@@ -239,30 +291,48 @@ function DepartmentsTab({
       return a.name.localeCompare(b.name);
     });
 
-  const deactivate = (id: string) => {
-    setDepartments((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, status: "Inactive" } : d)),
-    );
-    setConfirm({ open: false, id: "" });
-    showToast("Department deactivated");
+  const deactivate = async (id: string) => {
+    try {
+      await departmentApi.delete(id);
+      setDepartments((prev) => prev.map((d) => (d.id === id ? { ...d, status: "Inactive" } : d)));
+      setConfirm({ open: false, id: "" });
+      showToast("Department deactivated");
+    } catch (err) {
+      if (err instanceof ApiError) showToast(err.message);
+    }
   };
 
-  const createDept = (data: Omit<Department, "id" | "employees" | "assets">) => {
-    const newDept: Department = {
-      ...data,
-      id: `d${Date.now()}`,
-      employees: 0,
-      assets: 0,
-    };
-    setDepartments((prev) => [...prev, newDept]);
-    setCreateOpen(false);
-    showToast("Department created");
+  const createDept = async (data: Omit<Department, "id" | "employees" | "assets">) => {
+    try {
+      const res = await departmentApi.create({
+        name: data.name,
+        code: data.code,
+        description: data.description,
+        status: data.status === "Active" ? "ACTIVE" : "INACTIVE",
+      });
+      const created = res.data as ApiDepartment;
+      setDepartments((prev) => [...prev, mapApiDepartment(created, [])]);
+      setCreateOpen(false);
+      showToast("Department created");
+    } catch (err) {
+      if (err instanceof ApiError) showToast(err.message);
+    }
   };
 
-  const updateDept = (data: Department) => {
-    setDepartments((prev) => prev.map((d) => (d.id === data.id ? data : d)));
-    setEditDept(null);
-    showToast("Department updated");
+  const updateDept = async (data: Department) => {
+    try {
+      await departmentApi.update(data.id, {
+        name: data.name,
+        code: data.code,
+        description: data.description,
+        status: data.status === "Active" ? "ACTIVE" : "INACTIVE",
+      });
+      setDepartments((prev) => prev.map((d) => (d.id === data.id ? data : d)));
+      setEditDept(null);
+      showToast("Department updated");
+    } catch (err) {
+      if (err instanceof ApiError) showToast(err.message);
+    }
   };
 
   return (
@@ -318,6 +388,10 @@ function DepartmentsTab({
                   <SkeletonRow cols={8} />
                   <SkeletonRow cols={8} />
                 </>
+              ) : error ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-destructive">{error}</td>
+                </tr>
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-12 text-center text-sm text-muted-foreground">
@@ -484,15 +558,31 @@ function CategoriesTab({
   showToast: (msg: string) => void;
 }) {
   const [search, setSearch] = useState("");
-  const [categories, setCategories] = useState(initialCategories);
+  const [categories, setCategories] = useState<AssetCategory[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [editCat, setEditCat] = useState<AssetCategory | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await categoryApi.list();
+      const items = (res.data ?? []) as ApiAssetCategory[];
+      setCategories(items.map(mapApiCategory));
+    } catch (err) {
+      if (err instanceof ApiError && err.status !== 401) {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(t);
-  }, []);
+    fetchCategories();
+  }, [fetchCategories]);
 
   const filtered = categories.filter(
     (c) =>
@@ -500,16 +590,35 @@ function CategoriesTab({
       c.code.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const createCat = (data: Omit<AssetCategory, "id" | "assets">) => {
-    setCategories((prev) => [...prev, { ...data, id: `c${Date.now()}`, assets: 0 }]);
-    setCreateOpen(false);
-    showToast("Category created");
+  const createCat = async (data: Omit<AssetCategory, "id" | "assets">) => {
+    try {
+      const res = await categoryApi.create({
+        name: data.name,
+        code: data.code,
+        description: data.description,
+      });
+      const created = res.data as ApiAssetCategory;
+      setCategories((prev) => [...prev, mapApiCategory(created)]);
+      setCreateOpen(false);
+      showToast("Category created");
+    } catch (err) {
+      if (err instanceof ApiError) showToast(err.message);
+    }
   };
 
-  const updateCat = (data: AssetCategory) => {
-    setCategories((prev) => prev.map((c) => (c.id === data.id ? data : c)));
-    setEditCat(null);
-    showToast("Category updated");
+  const updateCat = async (data: AssetCategory) => {
+    try {
+      await categoryApi.update(data.id, {
+        name: data.name,
+        code: data.code,
+        description: data.description,
+      });
+      setCategories((prev) => prev.map((c) => (c.id === data.id ? data : c)));
+      setEditCat(null);
+      showToast("Category updated");
+    } catch (err) {
+      if (err instanceof ApiError) showToast(err.message);
+    }
   };
 
   return (
@@ -549,6 +658,10 @@ function CategoriesTab({
                   <SkeletonRow cols={7} />
                   <SkeletonRow cols={7} />
                 </>
+              ) : error ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-destructive">{error}</td>
+                </tr>
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">No categories found</td>
@@ -724,15 +837,31 @@ function EmployeesTab({
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [page, setPage] = useState(1);
   const perPage = 8;
-  const [employees, setEmployees] = useState(initialEmployees);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [promoteEmp, setPromoteEmp] = useState<Employee | null>(null);
   const [confirm, setConfirm] = useState<{ open: boolean; id: string; action: string }>({ open: false, id: "", action: "" });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchEmployees = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await adminApi.listUsers();
+      const items = (res.data ?? []) as ApiUser[];
+      setEmployees(items.map(mapApiUser));
+    } catch (err) {
+      if (err instanceof ApiError && err.status !== 401) {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(t);
-  }, []);
+    fetchEmployees();
+  }, [fetchEmployees]);
 
   const filtered = employees.filter((e) => {
     const matchSearch = e.name.toLowerCase().includes(search.toLowerCase()) || e.email.toLowerCase().includes(search.toLowerCase()) || e.employeeId.toLowerCase().includes(search.toLowerCase());
@@ -744,16 +873,30 @@ function EmployeesTab({
   const totalPages = Math.ceil(filtered.length / perPage);
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
-  const promote = (id: string, newRole: Employee["role"]) => {
-    setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, role: newRole } : e)));
-    setPromoteEmp(null);
-    showToast(`Employee promoted to ${newRole}`);
+  const promote = async (id: string, newRole: Employee["role"]) => {
+    const apiRoleMap: Record<string, string> = {
+      "Department Head": "DEPARTMENT_MANAGER",
+      "Asset Manager": "TECHNICIAN",
+    };
+    try {
+      await adminApi.updateUserRole(id, apiRoleMap[newRole] || newRole);
+      setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, role: newRole } : e)));
+      setPromoteEmp(null);
+      showToast(`Employee promoted to ${newRole}`);
+    } catch (err) {
+      if (err instanceof ApiError) showToast(err.message);
+    }
   };
 
-  const deactivate = (id: string) => {
-    setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, status: "Inactive" } : e)));
-    setConfirm({ open: false, id: "", action: "" });
-    showToast("Employee deactivated");
+  const deactivate = async (id: string) => {
+    try {
+      await adminApi.updateUserStatus(id, "INACTIVE");
+      setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, status: "Inactive" } : e)));
+      setConfirm({ open: false, id: "", action: "" });
+      showToast("Employee deactivated");
+    } catch (err) {
+      if (err instanceof ApiError) showToast(err.message);
+    }
   };
 
   return (
@@ -817,6 +960,10 @@ function EmployeesTab({
                   <SkeletonRow cols={7} />
                   <SkeletonRow cols={7} />
                 </>
+              ) : error ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-destructive">{error}</td>
+                </tr>
               ) : paginated.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">No employees found</td>

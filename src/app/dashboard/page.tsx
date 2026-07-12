@@ -3,6 +3,8 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useCountUp } from "@/hooks/use-count-up";
+import { dashboardApi, ApiError } from "@/lib/api";
+import type { DashboardStats } from "@/lib/types";
 import {
   Package,
   ArrowLeftRight,
@@ -32,14 +34,22 @@ import {
    DATA
    ═══════════════════════════════════════════════════════ */
 
-const kpis = [
-  { label: "Assets Available", value: 1247, change: "+3.2%", up: true, icon: Package, href: "/dashboard/assets" },
-  { label: "Assets Allocated", value: 892, change: "+5.1%", up: true, icon: ArrowLeftRight, href: "/dashboard/allocations" },
-  { label: "Maintenance Today", value: 23, change: "8 urgent", up: false, icon: Wrench, href: "/dashboard/maintenance" },
-  { label: "Active Bookings", value: 47, change: "+12 today", up: true, icon: CalendarClock, href: "/dashboard/bookings" },
-  { label: "Pending Transfers", value: 18, change: "-2 from yesterday", up: false, icon: ArrowRightLeft, href: "/dashboard/allocations" },
-  { label: "Upcoming Returns", value: 34, change: "5 overdue", up: false, icon: RotateCcw, href: "/dashboard/allocations" },
-];
+const defaultStats: DashboardStats = {
+  totalAssets: 0, availableAssets: 0, allocatedAssets: 0,
+  maintenanceAssets: 0, activeBookings: 0, pendingTransfers: 0,
+  overdueReturns: 0, activeAllocations: 0,
+};
+
+function buildKpis(s: DashboardStats) {
+  return [
+    { label: "Assets Available", value: s.availableAssets, change: `${s.totalAssets} total`, up: true, icon: Package, href: "/dashboard/assets" },
+    { label: "Assets Allocated", value: s.allocatedAssets, change: `${s.activeAllocations} active`, up: true, icon: ArrowLeftRight, href: "/dashboard/allocations" },
+    { label: "Maintenance Today", value: s.maintenanceAssets, change: "ongoing", up: false, icon: Wrench, href: "/dashboard/maintenance" },
+    { label: "Active Bookings", value: s.activeBookings, change: "reservations", up: true, icon: CalendarClock, href: "/dashboard/bookings" },
+    { label: "Pending Transfers", value: s.pendingTransfers, change: "awaiting action", up: false, icon: ArrowRightLeft, href: "/dashboard/allocations" },
+    { label: "Overdue Returns", value: s.overdueReturns, change: `${s.overdueReturns} overdue`, up: false, icon: RotateCcw, href: "/dashboard/allocations" },
+  ];
+}
 
 const overdueItems = [
   { tag: "AF-0114", name: "MacBook Pro 16\"", holder: "Marcus Webb", dept: "Engineering", returnDate: "Jul 8, 2026", days: 4, priority: "high" as const },
@@ -100,7 +110,7 @@ const departments = [
    KPI CARDS
    ═══════════════════════════════════════════════════════ */
 
-const KpiCard = memo(function KpiCard({ kpi, index }: { kpi: (typeof kpis)[0]; index: number }) {
+const KpiCard = memo(function KpiCard({ kpi, index }: { kpi: ReturnType<typeof buildKpis>[number]; index: number }) {
   const count = useCountUp(kpi.value, 1200);
   const Icon = kpi.icon;
 
@@ -712,6 +722,8 @@ function SkeletonCard({ className = "" }: { className?: string }) {
 
 export default memo(function DashboardPage() {
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<DashboardStats>(defaultStats);
+  const [error, setError] = useState<string | null>(null);
 
   const dateString = useMemo(
     () =>
@@ -725,9 +737,25 @@ export default memo(function DashboardPage() {
   );
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    dashboardApi
+      .getStats()
+      .then((res) => {
+        if (!cancelled && res.data) setStats(res.data as DashboardStats);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          const msg = err instanceof ApiError ? err.message : "Failed to load dashboard";
+          setError(msg);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, []);
+
+  const kpis = buildKpis(stats);
 
   if (loading) {
     return (
@@ -764,6 +792,12 @@ export default memo(function DashboardPage() {
           Operational command center — {dateString}
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+          {error} — showing placeholder data.
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
