@@ -6,9 +6,6 @@ import { PlatformArchitecture } from "@/components/landing/architecture";
 import { AIIntelligence } from "@/components/landing/ai-intelligence";
 import { DashboardShowcase } from "@/components/landing/dashboard-showcase";
 import { Workflow } from "@/components/landing/workflow";
-import { Security } from "@/components/landing/security";
-import { DeveloperExperience } from "@/components/landing/developer-experience";
-import { Performance } from "@/components/landing/performance";
 import { Analytics } from "@/components/landing/analytics";
 import { Footer } from "@/components/landing/footer";
 
@@ -24,9 +21,6 @@ export default function Home() {
         <AIIntelligence />
         <DashboardShowcase />
         <Workflow />
-        <Security />
-        <DeveloperExperience />
-        <Performance />
         <Analytics />
       </main>
       <Footer />
