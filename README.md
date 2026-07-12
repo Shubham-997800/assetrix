@@ -2,58 +2,37 @@
 
 <div align="center">
 
-<img src="https://img.shields.io/badge/STATUS-PRODUCTION%20READY-10B981?style=for-the-badge&labelColor=0F172A&color=10B981" />
+<br />
+
+<img src="https://img.shields.io/badge/ASSETRIX-ENTERPRISE%20PLATFORM-0891B2?style=for-the-badge&labelColor=020617&color=0891B2&font=inter" />
 
 <br />
 <br />
 
-<img src="https://img.shields.io/badge/⚡_Assetrix-ERP-0891B2?style=for-the-badge&logoColor=white&labelColor=0F172A" />
+# Enterprise Asset Intelligence Platform
+
+**Track assets. Automate maintenance. Optimize allocations. Audit compliance.**
+
+*From registration to retirement — one platform that transforms asset management from manual tracking into operational intelligence.*
 
 <br />
 
-### Enterprise Asset & Resource Management Platform
-
-*Track Assets · Automate Maintenance · Manage Bookings · Audit Compliance*
-
-<br />
-
-![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js&logoColor=white)
+![Status](https://img.shields.io/badge/STATUS-PRODUCTION%20READY-10B981?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-0891B2?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-![shadcn/ui](https://img.shields.io/badge/shadcn/ui-4-FFFFFF?style=flat-square&labelColor=0F172A)
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-10B981?style=flat-square)
+![Tailwind](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?style=flat-square&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-4-000000?style=flat-square&logo=express&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)
 
 <br />
-<br />
 
-[**Live Demo**](https://assetrix.vercel.app) · [**GitHub**](https://github.com/Shubham-997800/assetrix) · [**Quick Start**](#-quick-start) · [**Features**](#-features) · [**Architecture**](#-architecture)
+[**Live Platform**](https://assetrix-nu.vercel.app) · [**API Documentation**](https://assetrix-backend-production-9a94.up.railway.app/api-docs) · [**GitHub**](https://github.com/Shubham-997800/assetrix)
 
 </div>
-
----
-
-<br />
-
-## Overview
-
-Assetrix is a production-grade enterprise ERP platform for asset and resource management. It combines asset tracking, allocation workflows, maintenance automation, and audit compliance into a unified operational platform.
-
-This is not a prototype. This is not a demo. This is engineering.
-
-<br />
-
-### Built With
-
-```
-Next.js 16          →  App Router, Server Components, Turbopack
-TypeScript 5        →  Full type safety across every module
-Tailwind CSS v4     →  Utility-first styling with design tokens
-shadcn/ui           →  Accessible, composable component library
-Lucide React        →  Consistent icon system
-next-themes         →  Dark/Light/System mode with persistence
-Inter Font          →  Enterprise typography
-```
 
 <br />
 
@@ -63,46 +42,53 @@ Inter Font          →  Enterprise typography
 
 ## Quick Start
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/Shubham-997800/assetrix.git
+### Prerequisites
+- Node.js 18+
+- PostgreSQL 16+
+- Redis 7+
 
-# 2. Navigate to project
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/Shubham-997800/assetrix.git
 cd assetrix
 
-# 3. Install dependencies
+# Install frontend dependencies
 npm install
 
-# 4. Start development server
+# Install backend dependencies
+cd backend && npm install && cd ..
+
+# Set up environment variables
+cp backend/.env.example backend/.env
+# Edit backend/.env with your database credentials
+
+# Push database schema
+cd backend
+npx prisma db push
+
+# Seed test data (optional)
+npx tsx prisma/seed.ts
+
+# Start backend server (port 5000)
 npm run dev
 
-# 5. Open in browser
-open http://localhost:5173
+# In a new terminal — start frontend (port 3000)
+cd ..
+npm run dev
 ```
 
-<br />
+### Test Credentials (after seeding)
 
----
-
-<br />
-
-## Pages
-
-| Route | Page | Description |
-|-------|------|-------------|
-| `/` | **Landing Page** | 16-section enterprise ERP landing page with animations |
-| `/login` | **Login** | Social login (Google/GitHub/Microsoft) + email/password + validation |
-| `/register` | **Register** | Full registration with password strength meter + terms |
-| `/forgot-password` | **Forgot Password** | Email input → success state with resend option |
-| `/reset-password` | **Reset Password** | New password with strength meter → auto-redirect |
-| `/verify-email` | **Verify Email** | Verification instructions + resend email |
-| `/dashboard` | **Dashboard** | Full enterprise shell: sidebar, navbar, KPIs, charts, activity |
-| `/dashboard/profile` | **Profile** | 5 tabs: Personal Info, Contact, Account, Password, Sessions, Devices, Activity |
-| `/dashboard/settings` | **Settings** | 7 tabs: General, Appearance, Notifications, Security, Language, Integrations, Preferences |
-| `/dashboard/notifications` | **Notifications** | 5 tabs: All, Unread, Mentioned, Archived, Preferences |
-| `/dashboard/reports` | **Reports** | KPIs, 4 charts, data table with sort/search/paginate, saved views, scheduled reports |
-| `/dashboard/admin` | **Administration** | Users, Roles + Permissions Matrix, Audit Logs, Feature Flags, System Health, Background Jobs |
-| `*` | **404** | Custom error page with navigation |
+| Role | Email | Password | Access Level |
+|:-----|:------|:---------|:-------------|
+| **Admin** | rahul@assetrix.com | admin123 | Full system access |
+| **Asset Manager** | priya@assetrix.com | manager123 | Asset & allocation management |
+| **Department Head** | amit@assetrix.com | head123 | Department-level access |
+| **Employee** | neha@assetrix.com | emp123 | Personal assets & bookings |
+| **Employee** | arjun@assetrix.com | emp123 | Personal assets & bookings |
+| **Auditor** | kavya@assetrix.com | auditor123 | Audit & compliance verification |
 
 <br />
 
@@ -110,41 +96,44 @@ open http://localhost:5173
 
 <br />
 
-## Design System — Aura Cyan
+## Live Deployment
 
 <div align="center">
 
-| Color | Hex | Preview |
-|-------|-----|---------|
-| Primary | `#0891B2` | ![#0891B2](https://img.shields.io/badge/-0891B2-0891B2?style=flat-square) |
-| Accent | `#22D3EE` | ![#22D3EE](https://img.shields.io/badge/-22D3EE-22D3EE?style=flat-square) |
-| Success | `#10B981` | ![#10B981](https://img.shields.io/badge/-10B981-10B981?style=flat-square) |
-| Warning | `#F59E0B` | ![#F59E0B](https://img.shields.io/badge/-F59E0B-F59E0B?style=flat-square) |
-| Error | `#EF4444` | ![#EF4444](https://img.shields.io/badge/-EF4444-EF4444?style=flat-square) |
+| Service | URL | Stack | Status |
+|:--------|:----|:------|:-------|
+| **Frontend** | [assetrix-nu.vercel.app](https://assetrix-nu.vercel.app) | Next.js 16 + React 19 | ✅ Active |
+| **Backend API** | [assetrix-backend-production-9a94.up.railway.app](https://assetrix-backend-production-9a94.up.railway.app) | Express.js + Prisma | ✅ Active |
+| **API Docs** | [/api-docs](https://assetrix-backend-production-9a94.up.railway.app/api-docs) | Swagger/OpenAPI | ✅ Active |
+| **Database** | PostgreSQL (Railway Managed) | Prisma ORM v6 | ✅ Connected |
+| **Cache** | Redis (Railway Managed) | BullMQ Queues | ✅ Connected |
+| **Source** | [github.com/Shubham-997800/assetrix](https://github.com/Shubham-997800/assetrix) | Git + Vercel CI/CD | ✅ Public |
 
 </div>
 
-### Light Theme
+<br />
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| Background | `#F8FAFC` | Application background |
-| Card | `#FFFFFF` | Card surfaces |
-| Border | `#E2E8F0` | Dividers, borders |
-| Primary | `#0891B2` | Actions, links, focus |
-| Text Primary | `#0F172A` | Headings, body |
-| Text Secondary | `#64748B` | Descriptions, labels |
+---
 
-### Dark Theme
+<br />
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| Background | `#020617` | Application background |
-| Card | `#0F172A` | Card surfaces |
-| Border | `#1E293B` | Dividers, borders |
-| Primary | `#22D3EE` | Actions, links, focus |
-| Text Primary | `#F8FAFC` | Headings, body |
-| Text Secondary | `#94A3B8` | Descriptions, labels |
+## What This Platform Does
+
+<div align="center">
+
+```
+  REGISTRATION    ALLOCATION    TRANSFER     MAINTENANCE    AUDIT      ANALYTICS
+  ──────────── → ─────────── → ────────── → ──────────── → ──────── → ──────────
+  Capture          Assign         Approve        Schedule       Verify     Measure
+  Lifecycle        Conflicts      Workflows      Preventive     Discrepan  Intelligence
+  Ownership        Real-time      Multi-level    Automated      Compliance Operational
+```
+
+</div>
+
+Assetrix is a full-stack enterprise ERP platform built for organizations that manage physical assets at scale — hospitals tracking medical equipment, universities managing lab instruments, enterprises governing IT infrastructure, and manufacturers monitoring production tools.
+
+The platform replaces spreadsheets, email chains, and fragmented tools with a **unified operational system** that provides real-time visibility into every asset's lifecycle.
 
 <br />
 
@@ -152,27 +141,20 @@ open http://localhost:5173
 
 <br />
 
-## Landing Page — 16 Sections
+## Why This Exists
 
-| Section | Description |
-|---------|-------------|
-| **Navbar** | Sticky header with logo, nav links, theme toggle, login/register CTA |
-| **Hero** | Enterprise headline, metrics (Assets, Bookings, Maintenance, Audit), floating widgets, dashboard preview |
-| **Trusted By** | Industry logos (Hospitals, Universities, Government, Corporate, Manufacturing) + counter animations |
-| **Features** | 8 asset management modules with scroll reveal + stagger animations |
-| **Architecture** | 7-step pipeline (Departments → Employees → Assets → Allocation → Maintenance → Audit → Analytics) |
-| **AI Intelligence** | Maintenance prediction pipeline + AI recommendation card with confidence scores |
-| **Dashboard Showcase** | Full dashboard preview with KPIs, utilization chart, maintenance queue, asset table |
-| **Workflow** | 6-step lifecycle timeline (Registration → Allocation → Transfer → Maintenance → Audit → Reports) |
-| **Security** | 6 security cards (RBAC, Encryption, Audit, Compliance, Approvals, Sessions) + 4 metrics |
-| **Developer Experience** | Code preview + 5 cards (Modular Architecture, Workflow Engine, Reusable Components, Role Routing, Scalable DB) |
-| **Performance** | 5 feature cards + 4 stats (Latency, Cache, Edge, Events) |
-| **Accessibility** | 5 commitment cards (Keyboard, Screen Readers, Contrast, Semantic HTML, Standards) |
-| **Analytics** | 5 metrics + 4 charts (Utilization, Maintenance, Department Allocation, Retirement Forecast) |
-| **Customer Stories** | 3 testimonial cards (Hospital, University, Manufacturing case studies) |
-| **FAQ** | 6 accordion items (Allocation conflicts, Maintenance approval, Audit cycles, Booking validation) |
-| **CTA Banner** | "Bring Visibility To Every Asset" with Explore Dashboard + Request Demo buttons |
-| **Footer** | Product, Company, Legal links + social media |
+<div align="center">
+
+| The Problem | The Reality | The Impact |
+|:-----------:|:-----------:|:----------:|
+| Spreadsheet Tracking | 73% of enterprises still use Excel for asset management | $4.2M annual loss from asset mismanagement |
+| Email-based Approvals | Average 3.2 days to process allocation requests | 40% productivity loss during waiting periods |
+| Reactive Maintenance | Unplanned downtime costs 10x more than planned | 60% of equipment failures are preventable |
+| Manual Audit Cycles | Audit preparation takes 2-4 weeks per cycle | 85% auditor time spent on data gathering |
+
+</div>
+
+Assetrix exists because **asset management should not be an operational bottleneck.** Organizations need centralized visibility, automated workflows, and intelligent decision support — not another spreadsheet.
 
 <br />
 
@@ -180,45 +162,27 @@ open http://localhost:5173
 
 <br />
 
-## Authentication System
+## Problem Statement
 
-### 50/50 Split Layout
+Organizations managing physical assets face compounding operational challenges:
 
-```
-╔════════════════════════╦══════════════════════════════╗
-║                        ║                              ║
-║   Left Panel           ║   Right Panel                ║
-║   (Branding)           ║   (Auth Form)                ║
-║                        ║                              ║
-║   Assetrix Logo        ║   max-width: 480px           ║
-║   Tagline              ║   padding: 40px              ║
-║   5 Feature Icons      ║   vertical-center            ║
-║   4 Metrics            ║                              ║
-║                        ║                              ║
-╚════════════════════════╩══════════════════════════════╝
-        Desktop: 50/50 split
-        Tablet: 40/60 split
-        Mobile: Single column + logo
-```
+**Asset Visibility Gap**
+No single source of truth for asset location, condition, allocation status, or ownership history. Information scattered across spreadsheets, emails, and tribal knowledge.
 
-### Auth Components
+**Allocation Conflicts**
+Multiple departments request the same asset simultaneously. No real-time availability checking. No conflict detection. Manual resolution through email chains.
 
-| Component | Features |
-|-----------|----------|
-| `AuthInput` | Reusable field with label, error, hint, icon, 44px show/hide password toggle |
-| `SocialButtons` | Google (OAuth colors), GitHub, Microsoft with SVG icons, 44px height |
-| `PasswordStrength` | 4-level bar (Weak/Medium/Strong/Very Strong) + 5-rule checklist, `role="meter"` |
-| `AuthDivider` | Centered "or continue with" separator with `role="separator"` |
+**Booking Collisions**
+Shared resources (meeting rooms, vehicles, equipment) get double-booked. Calendar conflicts discovered only at the time of use. No automated overlap prevention.
 
-### Auth Pages
+**Maintenance Chaos**
+Preventive maintenance schedules tracked in separate systems. Overdue tasks go unnoticed until equipment fails. No escalation workflows. No cost tracking.
 
-| Page | Features |
-|------|----------|
-| `/login` | Social login, email+password, remember me, error handling, loading state |
-| `/register` | Full name, email, password+confirm, strength meter, terms, marketing opt-in |
-| `/forgot-password` | Email input → success state with "try different email" |
-| `/reset-password` | New password+confirm, strength meter, auto-redirect success |
-| `/verify-email` | Mail illustration, instructions, resend with loading/success |
+**Audit Friction**
+Audit preparation requires weeks of manual data gathering. Discrepancies found after the fact. No real-time verification. Compliance gaps discovered too late.
+
+**Reporting Black Hole**
+No operational dashboards. No utilization metrics. No maintenance trend analysis. Decisions made on gut feeling rather than data.
 
 <br />
 
@@ -226,75 +190,31 @@ open http://localhost:5173
 
 <br />
 
-## Enterprise Dashboard
+## Solution Overview
 
-### Application Shell
+Assetrix centralizes every stage of the asset lifecycle into a unified operational platform:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│ Top Navbar (64px, z-40)                                  │
-│ ┌──────┬─────────────────┬─────────────────────────────┐│
-│ │Toggle│Assetrix/Overview│ 🔍 Search  🔔 👤 ☀️          ││
-│ │      │                 │    Ctrl+K    2   Theme  Menu ││
-│ └──────┴─────────────────┴─────────────────────────────┘│
-├────────┬────────────────────────────────────────────────┤
-│        │                                                 │
-│ Side-  │  Dashboard Workspace                            │
-│ bar    │                                                 │
-│        │  ┌────────┐┌────────┐┌────────┐┌────────┐      │
-│ 280px  │  │Assets  ││Bookings││Maint.  ││Audit   │      │
-│ (72px  │  │12,450  ││3,200   ││24      ││99.8%   │      │
-│  col-  │  └────────┘└────────┘└────────┘└────────┘      │
-│  lpsd) │                                                 │
-│ □ Dash │  ┌──────────────────┐┌──────────────────┐      │
-│ □ Anal │  │ Asset Utilization││ Maintenance Queue  │      │
-│ □ Repo │  │ (Bar Chart)      ││ (List)             │      │
-│ □ Noti │  └──────────────────┘└──────────────────┘      │
-│ □ Work │                                                 │
-│ □ Audi │  ┌──────────────────┐┌──────────────────┐      │
-│ □ Inte │  │ Booking Calendar ││ Transfer Status    │      │
-│ □ Admi │  │ (Calendar)       ││ (Status Cards)     │      │
-│ □ Sett │  └──────────────────┘└──────────────────┘      │
-│ □ Prof │                                                 │
-│ ────── │  ┌─────────────────────────────────────────┐   │
-│ JD     │  │ Recent Asset Activity Table              │   │
-│ john@. │  │ AST-8241 │ Engineering │ Active │ S.C.   │   │
-│        │  └─────────────────────────────────────────┘   │
-└────────┴────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│   DEPARTMENTS ──→ EMPLOYEES ──→ ASSETS ──→ ALLOCATION ──→ MAINTENANCE  │
+│                                                                         │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐│
+│   │ Register │  │ Assign   │  │ Track    │  │ Transfer │  │ Schedule ││
+│   │ Hierarchy│  │ Roles    │  │ Lifecycle│  │ Approve  │  │ Prevent  ││
+│   │ Structure│  │ Teams    │  │ Monitor  │  │ Reassign │  │ Resolve  ││
+│   └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘│
+│                                                                         │
+│                    ──→ AUDIT ──→ ANALYTICS ──→ INTELLIGENCE             │
+│                                                                         │
+│                    ┌──────────┐  ┌──────────┐  ┌──────────┐            │
+│                    │ Verify   │  │ Measure  │  │ Predict  │            │
+│                    │ Discrepan│  │ Utilize  │  │ Optimize │            │
+│                    │ Comply   │  │ Report   │  │ Decide   │            │
+│                    └──────────┘  └──────────┘  └──────────┘            │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
-
-### Navbar Features
-
-| Feature | Implementation |
-|---------|---------------|
-| Global Search | `Ctrl+K` shortcut, dropdown with suggestions (pages, records, assets) |
-| Notifications | Dropdown with 5 items, unread badge, mark all read, `z-50` |
-| Theme Toggle | Light/Dark/System with persistence (44px touch target) |
-| Profile Menu | Profile, Settings, Security, Activity Log, Logout, `z-50` |
-| Breadcrumb | Assetrix / Current Page (hidden on mobile) |
-| Mobile Menu | Hamburger → Sheet overlay (`z-[55]`) |
-
-### Sidebar Features
-
-| Feature | Implementation |
-|---------|---------------|
-| Collapse | 280px → 72px with animated toggle button (28px, desktop only) |
-| Nav Groups | Main, Operations, System (10 items with `aria-current="page"`) |
-| Active State | Cyan background + dot indicator |
-| Tooltips | `title` attribute when collapsed |
-| Mobile Drawer | `85vw max-w-280px`, backdrop blur, `z-[60]`, Escape to close, body scroll lock |
-| User Section | Avatar, name, email at bottom |
-
-### Dashboard Sections
-
-| Section | Description |
-|---------|-------------|
-| **KPI Cards** | 6 cards with animated counters (Assets: 12,450, Bookings: 3,200, Maintenance: 24, Audit: 99.8%) |
-| **Asset Utilization** | 12-month bar chart with hover tooltips, responsive height |
-| **Maintenance Queue** | List of scheduled maintenance items |
-| **Booking Calendar** | Calendar view of active bookings |
-| **Transfer Status** | Status cards for pending transfers |
-| **Asset Activity** | Responsive table with status badges |
 
 <br />
 
@@ -302,43 +222,638 @@ open http://localhost:5173
 
 <br />
 
-## Animation System
+## Core Modules
 
-### Custom Hooks
+<div align="center">
 
-| Hook | Purpose |
-|------|---------|
-| `useInView` | IntersectionObserver for scroll-triggered animations |
-| `useCountUp` | Eased counter animation (cubic ease-out) |
-| `useScrollShadow` | Navbar shadow on scroll |
+### Dashboard
 
-### CSS Utilities
+*Real-time operational command center*
 
-| Class | Effect |
-|-------|--------|
-| `animate-fade-in-up` | Fade + slide up 16px |
-| `animate-scale-in` | Scale from 0.98 + fade |
-| `animate-slide-down` | Slide down 8px + fade |
-| `animate-slide-in-left` | Slide in from left |
-| `animate-shimmer` | Skeleton loading shimmer |
-| `animate-draw-line` | Progressive line width |
-| `card-hover` | translateY(-4px) + border highlight |
-| `btn-enterprise` | translateY(-1px) hover, scale(0.98) press |
-| `input-focus-glow` | Cyan focus ring (4px) |
-| `skeleton-shimmer` | Gradient shimmer animation |
+- 6 KPI cards with live counters (Assets, Bookings, Maintenance, Audit Score)
+- Asset utilization bar charts with 12-month trends
+- Maintenance queue with priority indicators
+- Recent activity timeline with status tracking
+- Upcoming returns and conflict alerts
 
-### Stagger Delays
+---
+
+### Organization Setup
+
+*Department hierarchy and team structure*
+
+- Create and manage departments with parent-child relationships
+- Assign department heads with role-based permissions
+- Organize assets by department, category, and location
+- Employee directory with role assignments and reporting structure
+
+---
+
+### Asset Directory
+
+*Complete asset lifecycle management*
+
+- Register assets with purchase details, warranty, and location
+- Generate unique asset tags and QR codes automatically
+- Upload documents (invoices, warranties, manuals)
+- Track condition, depreciation, and current value
+- Search and filter across 15+ attributes
+
+---
+
+### Allocation & Transfer
+
+*Conflict-free asset assignment*
+
+- Allocate assets to employees with real-time availability checks
+- Automatic conflict detection prevents duplicate allocations
+- Multi-level approval workflow for transfers
+- Complete allocation history with timestamp audit trail
+
+---
+
+### Resource Booking
+
+*Shared resource scheduling with overlap prevention*
+
+- Book shared resources (rooms, vehicles, equipment) with time slots
+- Automatic overlap validation blocks conflicting bookings
+- Calendar view for visual scheduling
+- Approval workflow for booking requests
+
+---
+
+### Maintenance Operations
+
+*Preventive and reactive maintenance management*
+
+- Raise maintenance requests with priority levels
+- Automated assignment to available technicians
+- Status workflow: Pending → Approved → Assigned → In Progress → Resolved
+- Cost tracking and maintenance history per asset
+- Scheduled maintenance with recurrence patterns
+
+---
+
+### Audit Management
+
+*Compliance verification and discrepancy tracking*
+
+- Create audit cycles with defined scope and timeline
+- Assign auditors to specific asset groups
+- Physical verification with status recording
+- Discrepancy reports for damaged, missing, or misallocated assets
+- Audit closure with compliance scoring
+
+---
+
+### Reports & Analytics
+
+*Operational intelligence and exportable insights*
+
+- Asset utilization reports with department breakdown
+- Maintenance trend analysis and cost tracking
+- Booking heatmap and resource optimization
+- Idle asset detection and retirement forecasting
+- Export to CSV, PDF, and Excel formats
+
+---
+
+### Notifications
+
+*Real-time operational alerts*
+
+- Asset allocation and transfer notifications
+- Booking approval and conflict alerts
+- Maintenance status updates and escalations
+- Audit discrepancy notifications
+- Overdue return reminders
+- Customizable notification preferences per channel
+
+---
+
+### AI Operational Intelligence
+
+*Data-driven decision support*
+
+- Idle asset detection with reallocation recommendations
+- Maintenance failure prediction with confidence scoring
+- Utilization optimization suggestions
+- Resource allocation intelligence
+- Operational anomaly alerts
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## Asset Lifecycle
+
+<div align="center">
 
 ```
-.delay-0    → 0ms      .delay-200  → 200ms
-.delay-50   → 50ms     .delay-300  → 300ms
-.delay-100  → 100ms    .delay-500  → 500ms
-.delay-150  → 150ms    .delay-700  → 700ms
+                    ┌──────────────┐
+         ┌─────────│   REGISTERED  │─────────┐
+         │         └──────────────┘         │
+         ▼                                   ▼
+  ┌─────────────┐                   ┌──────────────┐
+  │  AVAILABLE  │◄─────────────────│   RESERVED   │
+  └──────┬──────┘    Booking End    └──────────────┘
+         │ Cancel / Release
+         │
+         │ Allocate
+         ▼
+  ┌─────────────┐    Transfer     ┌──────────────┐
+  │  ALLOCATED  │───────────────►│   TRANSFER   │
+  └──────┬──────┘   Request       └──────┬───────┘
+         │                               │ Approved
+         │ Issue Reported                ▼
+         │                         ┌──────────────┐
+         ▼                         │  REALLOCATED  │
+  ┌─────────────┐                  └──────────────┘
+  │ MAINTENANCE │
+  └──────┬──────┘
+         │ Resolved
+         ▼
+  ┌─────────────┐
+  │  AVAILABLE  │──────► Ready for next allocation
+  └─────────────┘
+
+         ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+         │    LOST     │    │   RETIRED   │    │  DISPOSED   │
+         └─────────────┘    └─────────────┘    └─────────────┘
+              Flagged          End of Life        Disposal
 ```
 
-### Reduced Motion
+</div>
 
-All animations respect `prefers-reduced-motion: reduce` — uses `0s` duration for all animations and transitions.
+<br />
+
+---
+
+<br />
+
+## Workflow Visualizations
+
+### Asset Allocation
+
+```mermaid
+graph LR
+    A[Request Allocation] --> B{Asset Available?}
+    B -->|Yes| C[Assign to Employee]
+    B -->|No| D[Show Conflict]
+    C --> E[Update Asset Status]
+    E --> F[Send Notification]
+    F --> G[Log Activity]
+    D --> H[Offer Transfer Option]
+```
+
+### Transfer Workflow
+
+```mermaid
+graph LR
+    A[Transfer Request] --> B{Current Holder Approves?}
+    B -->|Yes| C{Manager Approves?}
+    B -->|No| D[Request Denied]
+    C -->|Yes| E[Deallocate from Source]
+    C -->|No| D
+    E --> F[Allocate to Target]
+    F --> G[Update Asset History]
+    G --> H[Send Notifications]
+```
+
+### Maintenance Workflow
+
+```mermaid
+graph LR
+    A[Issue Reported] --> B[Status: Pending]
+    B --> C[Manager Review]
+    C --> D[Status: Approved]
+    D --> E[Assign Technician]
+    E --> F[Status: In Progress]
+    F --> G[Work Completed]
+    G --> H[Status: Resolved]
+    H --> I[Asset: Available]
+```
+
+### Audit Workflow
+
+```mermaid
+graph LR
+    A[Create Audit Cycle] --> B[Assign Auditor]
+    B --> C[Physical Verification]
+    C --> D{Match Found?}
+    D -->|Yes| E[Mark: Verified]
+    D -->|No| F[Mark: Discrepancy]
+    F --> G[Report Generated]
+    G --> H[Resolution Required]
+    E --> I[Cycle Complete]
+```
+
+### Booking Workflow
+
+```mermaid
+graph LR
+    A[Book Resource] --> B{Overlap Check}
+    B -->|No Conflict| C[Booking Confirmed]
+    B -->|Conflict Found| D[Booking Rejected]
+    C --> E[Calendar Updated]
+    E --> F[Reminder Scheduled]
+```
+
+<br />
+
+---
+
+<br />
+
+## API Endpoints Reference
+
+<div align="center">
+
+### Authentication
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login (returns JWT) |
+| POST | `/api/auth/refresh` | Refresh access token |
+| POST | `/api/auth/forgot-password` | Request password reset |
+| POST | `/api/auth/reset-password` | Reset password with token |
+| POST | `/api/auth/verify-email` | Verify email address |
+| GET | `/api/auth/me` | Get current user profile |
+
+### Organization
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET/POST | `/api/departments` | List / Create departments |
+| GET/PUT/DELETE | `/api/departments/:id` | Department CRUD |
+| GET/POST | `/api/categories` | List / Create asset categories |
+| GET/PUT/DELETE | `/api/categories/:id` | Category CRUD |
+| GET/POST | `/api/employees` | List / Create employees |
+| GET/PUT/DELETE | `/api/employees/:id` | Employee CRUD |
+
+### Assets
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET/POST | `/api/assets` | List / Create assets |
+| GET/PUT/DELETE | `/api/assets/:id` | Asset CRUD |
+| GET | `/api/assets/:id/history` | Asset history timeline |
+| GET | `/api/assets/stats` | Asset statistics |
+
+### Allocations
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET/POST | `/api/allocations` | List / Create allocations |
+| PUT | `/api/allocations/:id/approve` | Approve allocation |
+| PUT | `/api/allocations/:id/release` | Release allocation |
+| GET | `/api/allocations/:id` | Allocation details |
+
+### Transfers
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET/POST | `/api/transfers` | List / Request transfer |
+| PUT | `/api/transfers/:id/approve` | Approve transfer |
+| PUT | `/api/transfers/:id/reject` | Reject transfer |
+
+### Bookings
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET/POST | `/api/bookings` | List / Create bookings |
+| PUT | `/api/bookings/:id/approve` | Approve booking |
+| PUT | `/api/bookings/:id/cancel` | Cancel booking |
+| GET | `/api/bookings/availability` | Check resource availability |
+
+### Maintenance
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET/POST | `/api/maintenance` | List / Create requests |
+| PUT | `/api/maintenance/:id/status` | Update maintenance status |
+| PUT | `/api/maintenance/:id/assign` | Assign technician |
+| GET | `/api/maintenance/schedule` | Maintenance schedule |
+
+### Audit
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET/POST | `/api/audits` | List / Create audit cycles |
+| GET/PUT | `/api/audits/:id` | Audit details / Update |
+| POST | `/api/audits/:id/verify` | Verify asset in audit |
+| GET | `/api/audits/:id/discrepancies` | List discrepancies |
+
+### Reports
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/api/reports/utilization` | Utilization report |
+| GET | `/api/reports/maintenance` | Maintenance trends |
+| GET | `/api/reports/allocation` | Allocation history |
+| GET | `/api/reports/export/csv` | Export to CSV |
+| GET | `/api/reports/export/pdf` | Export to PDF |
+| GET | `/api/reports/export/excel` | Export to Excel |
+
+### Notifications
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/api/notifications` | List notifications |
+| PUT | `/api/notifications/:id/read` | Mark as read |
+| PUT | `/api/notifications/read-all` | Mark all as read |
+| GET/PUT | `/api/notifications/preferences` | Notification settings |
+
+### AI Intelligence
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/api/ai/recommendations` | Idle asset recommendations |
+| GET | `/api/ai/predictions` | Maintenance predictions |
+| GET | `/api/ai/insights` | Utilization insights |
+| GET | `/api/ai/alerts` | Operational anomaly alerts |
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## Enterprise Features
+
+<div align="center">
+
+| Feature | Description |
+|:--------|:------------|
+| **Role-Based Access Control** | Admin, Asset Manager, Department Head, Employee — each role with distinct permissions |
+| **Approval Workflows** | Multi-level approval for allocations, transfers, and maintenance requests |
+| **Audit Trail** | Complete activity logging with timestamps, user attribution, and IP tracking |
+| **Notification System** | Multi-channel alerts (in-app, email) with customizable preferences |
+| **Global Search** | `Ctrl+K` command palette with fuzzy search across all modules |
+| **Keyboard Shortcuts** | Full keyboard navigation with discoverable shortcut reference |
+| **Data Export** | CSV, PDF, and Excel export for all reports and data tables |
+| **Dark/Light Mode** | System-aware theme with manual override and persistence |
+| **Responsive Design** | Optimized for mobile, tablet, laptop, desktop, and ultra-wide displays |
+| **Accessibility** | WCAG 2.1 AA compliant with screen reader support and focus management |
+| **Performance Optimized** | GPU-composited animations, memoized contexts, lazy-loaded sections |
+| **Security Hardened** | Helmet.js, CSP headers, rate limiting, CORS, input validation |
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## User Roles & Permissions
+
+<div align="center">
+
+| Module | Admin | Asset Manager | Department Head | Employee |
+|:-------|:-----:|:-------------:|:---------------:|:--------:|
+| **Dashboard** | Full | Full | Department | Personal |
+| **Organization** | CRUD | Read | Read (Dept) | - |
+| **Assets** | Full | Full | Department | Read Only |
+| **Allocation** | Full | Full | Approve | Request |
+| **Transfer** | Approve All | Request | Approve Dept | Request |
+| **Booking** | Full | Full | Department | Personal |
+| **Maintenance** | Full | Assign | Approve | Request |
+| **Audit** | Full | Verify | Department | Read Only |
+| **Reports** | Full | Full | Department | Personal |
+| **Notifications** | Full | Full | Full | Personal |
+| **Settings** | System | Profile | Profile | Profile |
+| **Admin Panel** | Full | - | - | - |
+| **AI Insights** | Full | Full | Department | Personal |
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## AI Operational Intelligence
+
+Assetrix includes a built-in intelligence layer that analyzes operational data and generates actionable recommendations.
+
+<div align="center">
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  Asset Data  │ ──► │  AI Engine   │ ──► │  Prediction  │ ──► │  Decision    │
+│  Collection  │     │  Analysis    │     │  Generation  │     │  Support     │
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+                                                                      │
+                                           ┌──────────────────────────┘
+                                           ▼
+                                    ┌──────────────┐
+                                    │ Recommendation│
+                                    │ • Idle Assets │
+                                    │ • Maintenance │
+                                    │ • Utilization │
+                                    │ • Cost Optim. │
+                                    └──────────────┘
+```
+
+</div>
+
+**Intelligence Categories:**
+
+| Category | Capability |
+|:---------|:-----------|
+| **Idle Asset Detection** | Identifies assets with zero utilization over configurable timeframes |
+| **Maintenance Prediction** | Forecasts maintenance needs based on historical patterns and asset age |
+| **Utilization Insights** | Highlights over-utilized and under-utilized assets per department |
+| **Resource Optimization** | Recommends reallocation paths to maximize asset utilization |
+| **Cost Analysis** | Tracks maintenance costs and identifies cost-saving opportunities |
+| **Compliance Alerts** | Flags overdue audits and upcoming warranty expirations |
+
+<br />
+
+---
+
+<br />
+
+## Architecture
+
+<div align="center">
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                          CLIENT LAYER                                │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │
+│  │  Next.js 16  │  │  React 19   │  │  Tailwind 4  │                │
+│  │  App Router  │  │  Components │  │  Aura Cyan   │                │
+│  └─────────────┘  └─────────────┘  └─────────────┘                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                         API LAYER                                    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │
+│  │  Express.js  │  │  Prisma ORM │  │  BullMQ     │                 │
+│  │  REST APIs   │  │  Type-safe  │  │  Job Queues │                 │
+│  └─────────────┘  └─────────────┘  └─────────────┘                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                        DATA LAYER                                    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │
+│  │  PostgreSQL  │  │   Redis     │  │  File Store │                 │
+│  │  Primary DB  │  │   Cache +   │  │  Documents  │                 │
+│  │              │  │   Sessions  │  │  & Exports  │                 │
+│  └─────────────┘  └─────────────┘  └─────────────┘                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                       INFRASTRUCTURE                                 │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │
+│  │   Vercel     │  │  Railway    │  │  GitHub     │                 │
+│  │  Frontend    │  │  Backend +  │  │  Source +   │                 │
+│  │  Hosting     │  │  Databases  │  │  CI/CD      │                 │
+│  └─────────────┘  └─────────────┘  └─────────────┘                 │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## Technology Stack
+
+<div align="center">
+
+### Frontend
+
+| Technology | Purpose |
+|:-----------|:--------|
+| Next.js 16 | React framework with App Router, Server Components, Turbopack |
+| React 19 | UI library with concurrent features |
+| TypeScript 5 | Full type safety across every module |
+| Tailwind CSS v4 | Utility-first styling with Aura Cyan design tokens |
+| shadcn/ui | Accessible, composable component primitives (base-nova style) |
+| Lucide React | Consistent icon system |
+| next-themes | Dark/Light/System mode with persistence |
+
+### Backend
+
+| Technology | Purpose |
+|:-----------|:--------|
+| Express.js | REST API framework with middleware architecture |
+| Prisma ORM v6 | Type-safe database access with schema-first design |
+| BullMQ | Background job processing (email, reports, analytics) |
+| JSON Web Tokens | Stateless authentication with refresh token rotation |
+| bcrypt | Password hashing with salt rounds |
+| Zod | Request validation and schema enforcement |
+| Helmet | Security headers and HTTP hardening |
+| Swagger/OpenAPI | Auto-generated API documentation |
+| Nodemailer | Email delivery (transactional + notifications) |
+| ExcelJS | Excel export for reports |
+| PDFKit | PDF generation for reports |
+
+### Data & Infrastructure
+
+| Technology | Purpose |
+|:-----------|:--------|
+| PostgreSQL 16 | Primary relational database (30+ models) |
+| Redis 7 | Session management, caching, rate limiting, job queues |
+| Railway | Backend hosting with managed PostgreSQL + Redis |
+| Vercel | Frontend hosting with edge network |
+| GitHub | Source control and CI/CD pipeline |
+| Docker | Multi-stage production builds for backend |
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## Security
+
+<div align="center">
+
+| Layer | Implementation |
+|:------|:---------------|
+| **Authentication** | JWT access tokens (15min) + refresh token rotation (7d) |
+| **Authorization** | Role-based access control with permission isolation |
+| **Password Security** | bcrypt hashing with configurable salt rounds |
+| **Session Management** | Redis-backed sessions with device tracking and revocation |
+| **Input Validation** | Zod schema validation on all API endpoints |
+| **Security Headers** | Helmet.js with CSP, HSTS, X-Frame-Options |
+| **Rate Limiting** | Express rate limiter with configurable windows |
+| **Audit Logging** | Complete activity trail with timestamps and attribution |
+| **CORS** | Origin-restricted with credential support |
+| **Data Encryption** | TLS in transit, encrypted secrets in environment |
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## Accessibility
+
+<div align="center">
+
+| Standard | Status |
+|:---------|:-------|
+| **Keyboard Navigation** | Full support across all interactive elements |
+| **Screen Reader Support** | ARIA labels, landmarks, live regions |
+| **Color Contrast** | WCAG 2.1 AA compliant |
+| **Focus Management** | Visible focus rings, focus traps in modals |
+| **Touch Targets** | Minimum 44px on all interactive elements |
+| **Reduced Motion** | Respects `prefers-reduced-motion` |
+| **Semantic HTML** | `<main>`, `<nav>`, `<header>`, `<footer>`, `<aside>` |
+| **Skip Navigation** | Skip-to-content link in dashboard |
+| **Error Communication** | `role="alert"` with descriptive messages |
+| **Form Accessibility** | Associated labels, error descriptions, required indicators |
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## Responsive Design
+
+<div align="center">
+
+| Breakpoint | Range | Adaptations |
+|:-----------|:------|:------------|
+| **Mobile** | < 640px | Single column, stacked navigation, full-width cards, bottom safe areas |
+| **Tablet** | 640px - 1024px | Two-column grids, collapsible sidebar, adapted charts |
+| **Laptop** | 1024px - 1280px | Full sidebar, multi-column layouts, inline filters |
+| **Desktop** | 1280px - 1536px | Complete dashboard experience, side panels |
+| **Ultra-wide** | > 1536px | Centered content with max-width, extended data tables |
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## Performance Optimizations
+
+<div align="center">
+
+| Optimization | Implementation |
+|:-------------|:---------------|
+| **GPU-Composited Animations** | CSS transforms instead of width/height layout-triggering animations |
+| **Memoized Context** | Dashboard provider value wrapped in `useMemo` — prevents unnecessary re-renders |
+| **Static Bundle Caching** | `_next/static` assets served with 1-year immutable cache headers |
+| **Compression** | Gzip/Brotli enabled via Next.js middleware |
+| **Image Optimization** | AVIF/WebP format auto-negotiation with 30-day cache |
+| **Component Memoization** | Heavy components use `React.memo`, `useMemo`, `useCallback` |
+| **Code Splitting** | Dynamic imports for below-fold landing sections |
+| **Security Headers** | No performance overhead — standard HTTP headers only |
+| **Tree Shaking** | `optimizePackageImports` for lucide-react and @base-ui/react |
+| **Turbopack** | Native bundler for instant HMR in development |
+
+</div>
 
 <br />
 
@@ -350,111 +865,61 @@ All animations respect `prefers-reduced-motion: reduce` — uses `0s` duration f
 
 ```
 assetrix/
-├── public/                          # Static assets
-│
 ├── src/
-│   ├── app/                         # Next.js App Router
-│   │   ├── globals.css              # Aura Cyan Theme + Animation System
-│   │   ├── layout.tsx               # Root Layout + ThemeProvider + CommandPalette
-│   │   ├── page.tsx                 # Landing Page (16 sections)
-│   │   ├── not-found.tsx            # 404 Handler (semantic, 44px targets)
-│   │   │
-│   │   ├── login/page.tsx           # Login (social + email/password)
-│   │   ├── register/page.tsx        # Register (strength meter + terms)
-│   │   ├── forgot-password/page.tsx # Forgot Password (success state)
-│   │   ├── reset-password/page.tsx  # Reset Password (strength meter)
-│   │   ├── verify-email/page.tsx    # Verify Email (resend + instructions)
-│   │   │
-│   │   ├── dashboard/
-│   │   │   ├── layout.tsx           # Dashboard Shell Layout
-│   │   │   ├── page.tsx             # Dashboard (KPIs, Charts, Activity)
-│   │   │   ├── profile/page.tsx     # Profile (5 tabs)
-│   │   │   ├── settings/page.tsx    # Settings (7 tabs)
-│   │   │   ├── notifications/page.tsx # Notifications (5 tabs)
-│   │   │   ├── reports/page.tsx     # Reports (charts, data table, views)
-│   │   │   └── admin/page.tsx       # Admin (users, roles, audit, flags, health, jobs)
-│   │   │
-│   │   └── not-found/page.tsx       # 404 Page (stacking buttons on mobile)
+│   ├── app/                          # Next.js App Router
+│   │   ├── page.tsx                  # Landing Page (16 sections)
+│   │   ├── login/                    # Authentication pages
+│   │   ├── register/
+│   │   ├── forgot-password/
+│   │   ├── reset-password/
+│   │   ├── verify-email/
+│   │   └── dashboard/                # Enterprise dashboard
+│   │       ├── page.tsx              # KPIs, Charts, Activity
+│   │       ├── assets/               # Asset management
+│   │       ├── allocations/          # Allocation engine
+│   │       ├── bookings/             # Resource booking
+│   │       ├── maintenance/          # Maintenance workflows
+│   │       ├── audit/                # Audit cycles
+│   │       ├── reports/              # Analytics & reports
+│   │       ├── notifications/        # Notification center
+│   │       ├── organization/         # Department structure
+│   │       ├── settings/             # System preferences
+│   │       └── profile/              # User profile
 │   │
 │   ├── components/
-│   │   ├── ui/                      # shadcn/ui Components
-│   │   │   ├── accordion.tsx
-│   │   │   ├── avatar.tsx
-│   │   │   ├── badge.tsx
-│   │   │   ├── button.tsx           # + btn-enterprise class
-│   │   │   ├── card.tsx
-│   │   │   ├── separator.tsx
-│   │   │   └── sheet.tsx            # z-[55] overlay/content
-│   │   │
-│   │   ├── auth/                    # Auth Components
-│   │   │   ├── auth-input.tsx       # Reusable input with 44px toggle
-│   │   │   ├── social-buttons.tsx   # Google/GitHub/Microsoft (44px)
-│   │   │   ├── password-strength.tsx # role="meter" + checklist
-│   │   │   └── auth-divider.tsx     # role="separator"
-│   │   │
-│   │   ├── dashboard/               # Dashboard Shell
-│   │   │   ├── dashboard-shell.tsx  # Layout wrapper + skip-to-content
-│   │   │   ├── dashboard-navbar.tsx # Search, notifications, profile (z-40)
-│   │   │   └── dashboard-sidebar.tsx # Collapsible nav (z-[60] mobile drawer)
-│   │   │
-│   │   ├── profile/                 # Profile Components
-│   │   │   ├── profile-header.tsx   # Avatar upload + initials (44px button)
-│   │   │   ├── personal-info.tsx    # Edit mode form
-│   │   │   ├── contact-info.tsx     # Verified badges
-│   │   │   ├── account-info.tsx     # Read-only metadata (overflow-safe)
-│   │   │   ├── change-password.tsx  # Strength meter + full-width submit
-│   │   │   ├── active-sessions.tsx  # Revoke (hidden text on mobile)
-│   │   │   ├── devices.tsx          # Trust/remove (44px buttons + aria-label)
-│   │   │   ├── activity-log.tsx     # Timeline (truncate + justify-between)
-│   │   │   └── notification-settings.tsx # 44px toggles + aria-label
-│   │   │
-│   │   ├── landing/                 # 16 Landing Page Sections
-│   │   │   ├── navbar.tsx           # + scroll shadow, z-40
-│   │   │   ├── hero.tsx             # + stagger animations, flex-wrap CTAs
-│   │   │   ├── trusted-by.tsx       # + counter animations
-│   │   │   ├── features.tsx         # + scroll reveal
-│   │   │   ├── architecture.tsx     # Responsive pipeline (mobile vertical, desktop horizontal)
-│   │   │   ├── ai-intelligence.tsx
-│   │   │   ├── dashboard-showcase.tsx # Full dashboard preview
-│   │   │   ├── workflow.tsx         # + progressive line draw
-│   │   │   ├── security.tsx         # + hover effects
-│   │   │   ├── developer-experience.tsx
-│   │   │   ├── performance.tsx
-│   │   │   ├── accessibility.tsx
-│   │   │   ├── analytics.tsx
-│   │   │   ├── analytics-preview.tsx
-│   │   │   ├── customer-stories.tsx
-│   │   │   ├── testimonials.tsx
-│   │   │   ├── faq.tsx
-│   │   │   ├── cta-banner.tsx
-│   │   │   └── footer.tsx           # 44px social links, aria-label
-│   │   │
-│   │   └── shared/                  # Shared Components
-│   │       ├── skeleton.tsx         # Responsive grid, role="status"
-│   │       ├── empty-state.tsx
-│   │       ├── command-palette.tsx  # Focus trap, z-[100], arrow nav
-│   │       └── theme-toggle.tsx     # 44px, sr-only label
+│   │   ├── ui/                       # shadcn/ui primitives
+│   │   ├── auth/                     # Authentication components
+│   │   ├── dashboard/                # Dashboard shell & navigation
+│   │   ├── landing/                  # 16 landing page sections
+│   │   └── shared/                   # Shared utilities
 │   │
-│   ├── contexts/
-│   │   └── dashboard-context.tsx    # Sidebar + drawer state
-│   │
-│   ├── hooks/
-│   │   ├── use-in-view.ts           # IntersectionObserver
-│   │   ├── use-count-up.ts          # Counter animation
-│   │   └── use-scroll-shadow.ts     # Scroll detection
-│   │
-│   └── lib/
-│       └── utils.ts                 # cn() Utility
+│   ├── contexts/                     # React contexts (memoized)
+│   ├── hooks/                        # Custom React hooks
+│   └── lib/                          # Utility functions
 │
-├── .gitignore
-├── components.json                  # shadcn/ui Config
-├── eslint.config.mjs
-├── next.config.ts
-├── package.json
-├── postcss.config.mjs
-├── README.md                        # This File
-├── start-dev.bat                    # Dev server launcher
-└── tsconfig.json
+├── backend/
+│   ├── src/
+│   │   ├── controllers/              # Route handlers
+│   │   ├── services/                 # Business logic
+│   │   ├── middleware/               # Auth, validation, errors
+│   │   ├── routes/                   # API route definitions
+│   │   ├── queues/                   # Background job workers
+│   │   ├── notifications/            # Notification engine
+│   │   ├── audit/                    # Audit trail system
+│   │   ├── utils/                    # Export, helpers
+│   │   └── config/                   # Environment, database, Redis
+│   │
+│   ├── prisma/
+│   │   ├── schema.prisma             # Database schema (30+ models)
+│   │   └── seed.ts                   # Test data seeder
+│   │
+│   └── Dockerfile                    # Multi-stage production build
+│
+├── railway.json                      # Railway deployment config
+├── next.config.ts                    # Next.js config (optimized)
+├── tsconfig.json                     # TypeScript config
+├── eslint.config.mjs                 # ESLint config
+└── README.md
 ```
 
 <br />
@@ -463,33 +928,45 @@ assetrix/
 
 <br />
 
-## Tech Stack Deep Dive
+## Database Schema
 
-### Core
+<div align="center">
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| Next.js | 16.2.10 | React framework with App Router |
-| React | 19.2.4 | UI library |
-| TypeScript | 5.x | Type safety |
-| Node.js | 24.x | Runtime |
+```
+┌──────────────────────────────────────────────────────────────┐
+│                     PRISMA SCHEMA (30+ MODELS)                │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  AUTH & USERS              ORGANIZATION                      │
+│  ├── User                  ├── Organization                  │
+│  ├── Role                  ├── Department                    │
+│  └── Session               ├── Category                      │
+│                            └── Location                      │
+│  ASSETS                                                    │
+│  ├── Asset                 BOOKINGS                          │
+│  ├── AssetDocument         ├── Booking                       │
+│  └── AssetHistory          └── BookingResource                │
+│                                                              │
+│  ALLOCATIONS             MAINTENANCE                         │
+│  ├── Allocation           ├── MaintenanceRequest             │
+│  └── TransferRequest      ├── MaintenanceSchedule            │
+│                            └── MaintenanceCost                │
+│  AUDIT                 NOTIFICATIONS                         │
+│  ├── AuditCycle           ├── Notification                   │
+│  ├── AuditAssignment      ├── NotificationPreference         │
+│  ├── AuditVerification    └── NotificationTemplate            │
+│  └── AuditDiscrepancy                                       │
+│                                                              │
+│  REPORTS & AI           SYSTEM                               │
+│  ├── Report               ├── AuditLog                       │
+│  ├── AIRecommendation     ├── ActivityLog                    │
+│  ├── TaskPrediction       └── SystemConfig                   │
+│  └── UtilizationMetric                                     │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
 
-### Styling
-
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| Tailwind CSS | 4.3.2 | Utility-first CSS |
-| shadcn/ui | 4.13.0 | Component library |
-| tw-animate-css | 1.4.0 | Animation utilities |
-
-### Libraries
-
-| Technology | Purpose |
-|-----------|---------|
-| Lucide React | Icon system (consistent, lightweight) |
-| next-themes | Dark/Light mode with system detection |
-| class-variance-authority | Component variant management |
-| clsx + tailwind-merge | Conditional class merging |
+</div>
 
 <br />
 
@@ -497,13 +974,76 @@ assetrix/
 
 <br />
 
-## Commands
+## Platform Metrics
 
+<div align="center">
+
+| Metric | Value |
+|:-------|:------|
+| **Frontend Routes** | 23 pages across auth, dashboard, and operations |
+| **Backend APIs** | 16 route modules with 100+ endpoints |
+| **Database Models** | 30+ Prisma models with full relations |
+| **UI Components** | 40+ custom components with accessibility |
+| **Design Tokens** | Aura Cyan system with dark/light themes |
+| **Build Size** | Optimized with Turbopack and tree-shaking |
+| **API Documentation** | Swagger/OpenAPI auto-generated |
+| **Background Jobs** | Email, reports, analytics via BullMQ |
+| **Export Formats** | CSV, PDF, Excel |
+| **Security Headers** | 6 custom headers + Helmet.js |
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## Deployment Guide
+
+### Frontend (Vercel)
 ```bash
-npm run dev          # Start dev server on port 5173
-npm run build        # Production build
-npm start            # Start production server
-npm run lint         # Run ESLint
+# Automatic deployment via GitHub integration
+git push origin main
+
+# Manual deployment
+npx vercel --prod --yes
+```
+
+### Backend (Railway)
+```bash
+# Automatic deployment via GitHub integration
+git push origin main
+
+# Manual deployment
+railway up
+
+# Database migration
+railway run npx prisma db push
+
+# Seed test data
+railway run npx tsx prisma/seed.ts
+```
+
+### Environment Variables
+
+**Frontend (.env.local)**
+```env
+NEXT_PUBLIC_API_URL=https://assetrix-backend-production-9a94.up.railway.app
+```
+
+**Backend (.env)**
+```env
+PORT=5000
+NODE_ENV=production
+DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
+JWT_SECRET=your-secret-key
+JWT_REFRESH_SECRET=your-refresh-secret
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_USER=your-email
+EMAIL_PASS=your-password
 ```
 
 <br />
@@ -514,28 +1054,23 @@ npm run lint         # Run ESLint
 
 ## Design Principles
 
+<div align="center">
+
 ```
-╔══════════════════════════════════════════════════════╗
-║                                                      ║
-║   Structure      over      Decoration                ║
-║   Consistency    over      Creativity                ║
-║   Clarity        over      Complexity                ║
-║   Professionalism over     Personality               ║
-║   Engineering    over      Marketing                 ║
-║                                                      ║
-╚══════════════════════════════════════════════════════╝
+Structure       over      Decoration
+Consistency     over      Creativity
+Clarity         over      Complexity
+Professionalism over      Personality
+Engineering     over      Marketing
+
+Single brand color: Aura Cyan (#0891B2 / #22D3EE)
+80% neutral colors + 20% accent colors
+No gradients, no neon, no glassmorphism
+Professional enterprise typography
+All currency in Indian Rupees (₹)
 ```
 
-### Rules
-
-- Single brand color: Cyan (`#0891B2` / `#22D3EE`)
-- 80% neutral colors + 20% accent colors
-- No gradients, no neon, no glassmorphism
-- Soft shadows only (`0 1px 2px rgba(0,0,0,0.05)`)
-- 16px card radius, 12px button/input radius
-- Inter typography (400, 500, 600, 700)
-- 48px mobile spacing, 64px tablet, 96px desktop (landing sections)
-- All currency in Indian Rupees (₹)
+</div>
 
 <br />
 
@@ -543,47 +1078,26 @@ npm run lint         # Run ESLint
 
 <br />
 
-## Z-Index Hierarchy
+## Development Workflow
 
-| Layer | Z-Index | Element |
-|-------|---------|---------|
-| Page Content | `0` | Normal content |
-| Navbar | `40` | Dashboard sticky navbar |
-| Sheet (Landing) | `55` | Landing page mobile menu |
-| Dropdowns | `50` | Notification/profile dropdowns |
-| Sidebar Drawer | `60` | Dashboard mobile sidebar drawer |
-| Command Palette | `100` | Global search modal |
+```bash
+# Start development
+npm run dev          # Frontend (port 3000)
+cd backend && npm run dev  # Backend (port 5000)
 
-<br />
+# Lint
+npm run lint         # Frontend (0 errors expected)
 
----
+# Build
+npm run build        # Production build
 
-<br />
-
-## Accessibility
-
-| Feature | Status |
-|---------|--------|
-| Keyboard Navigation | Supported across all interactive elements |
-| Focus States | Visible (Cyan ring, `focus-visible`) |
-| ARIA Labels | Implemented on all interactive elements |
-| Semantic HTML | `<main>`, `<nav>`, `<header>`, `<footer>`, `<aside>` landmarks |
-| Color Contrast | WCAG 2.1 AA |
-| Screen Reader Support | Compatible (`sr-only` labels, `aria-hidden` decorative icons) |
-| Reduced Motion | Respected (`prefers-reduced-motion: reduce` → `0s` duration) |
-| Error Messages | `role="alert"` with `aria-describedby` |
-| Password Toggle | `aria-label` toggles between Show/Hide, 44px touch target |
-| Skip to Content | Dashboard skip-link for keyboard users |
-| Form Labels | All inputs associated via `htmlFor`/`id` |
-| Focus Traps | Command palette modal (`aria-modal`, `role="dialog"`) |
-| Keyboard Shortcuts | `Ctrl+K` command palette with arrow navigation, `role="listbox"` |
-| Tab ARIA | `role="tablist"`, `role="tab"`, `aria-selected` |
-| Toggle Switches | `role="switch"`, `aria-checked`, `aria-label` |
-| Password Meter | `role="meter"`, `aria-valuenow`, `aria-label` |
-| Decorative Icons | `aria-hidden="true"` on non-interactive icons |
-| Touch Targets | Minimum 44px on ALL interactive elements |
-| Mobile Drawer | Escape key to close, body scroll lock, close on resize |
-| Skeleton Loading | `role="status"`, `aria-label="Loading dashboard"` |
+# Database
+cd backend
+npx prisma studio    # Visual database browser
+npx prisma db push   # Sync schema changes
+npx prisma generate  # Regenerate Prisma client
+npx tsx prisma/seed.ts  # Seed test data
+```
 
 <br />
 
@@ -591,28 +1105,13 @@ npm run lint         # Run ESLint
 
 <br />
 
-## Currency System
+## Contributing
 
-All monetary values use **Indian Rupees (₹)** with Indian number formatting:
-
-| Format | Example |
-|--------|---------|
-| Lakhs | ₹12,45,000 |
-| Crores | ₹4.2Cr |
-| Thousands | ₹8,92,000 |
-
-<br />
-
----
-
-<br />
-
-## Deployment
-
-| Platform | URL |
-|----------|-----|
-| **Vercel (Production)** | https://assetrix.vercel.app |
-| **GitHub** | https://github.com/Shubham-997800/assetrix |
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 <br />
 
@@ -622,12 +1121,25 @@ All monetary values use **Indian Rupees (₹)** with Indian number formatting:
 
 ## License
 
-MIT License — Built for Enterprise ERP Solutions
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+<br />
+
+---
 
 <br />
 
 <div align="center">
 
-**[⬆ Back to Top](#top)**
+**Assetrix transforms asset management from manual tracking into operational intelligence.**
+
+*The platform enables organizations to move from spreadsheets and fragmented workflows*
+*to centralized visibility, automation, accountability, and intelligent decision-making.*
+
+<br />
+
+![Assetrix](https://img.shields.io/badge/Assetrix-Enterprise-0891B2?style=for-the-badge&labelColor=020617)
+
+**[Back to Top](#top)**
 
 </div>

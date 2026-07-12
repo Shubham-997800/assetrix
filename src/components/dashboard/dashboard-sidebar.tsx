@@ -95,9 +95,9 @@ const DashboardSidebar = memo(function DashboardSidebar() {
   const handleExpandedRecentToggle = useCallback(() => setExpandedRecent((prev) => !prev), []);
 
   const handleAiToggle = useCallback((isMobile: boolean) => {
-    setAiPanelOpen((prev) => !prev);
+    setAiPanelOpen(!aiPanelOpen);
     if (isMobile) setMobileDrawerOpen(false);
-  }, [setAiPanelOpen, setMobileDrawerOpen]);
+  }, [aiPanelOpen, setAiPanelOpen, setMobileDrawerOpen]);
 
   const handleShortcuts = useCallback((isMobile: boolean) => {
     setShortcutsOpen(true);

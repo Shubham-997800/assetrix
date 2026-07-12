@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 interface FavoriteItem {
@@ -158,6 +158,27 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     setIsLight(document.documentElement.classList.contains("light"));
   }, []);
 
+  const ctxValue = useMemo(
+    () => ({
+      sidebarCollapsed, toggleSidebar,
+      mobileDrawerOpen, setMobileDrawerOpen,
+      commandOpen, setCommandOpen,
+      searchOpen, setSearchOpen,
+      aiPanelOpen, setAiPanelOpen,
+      shortcutsOpen, setShortcutsOpen,
+      favorites, addFavorite, removeFavorite,
+      recentPages, addRecentPage,
+      isLight, toggleTheme,
+    }),
+    [
+      sidebarCollapsed, toggleSidebar,
+      mobileDrawerOpen, commandOpen, searchOpen, aiPanelOpen, shortcutsOpen,
+      favorites, addFavorite, removeFavorite,
+      recentPages, addRecentPage,
+      isLight, toggleTheme,
+    ]
+  );
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
@@ -179,19 +200,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [toggleSidebar, setSearchOpen, setCommandOpen, setAiPanelOpen, setShortcutsOpen, setMobileDrawerOpen, toggleTheme]);
 
   return (
-    <DashboardContext.Provider
-      value={{
-        sidebarCollapsed, toggleSidebar,
-        mobileDrawerOpen, setMobileDrawerOpen,
-        commandOpen, setCommandOpen,
-        searchOpen, setSearchOpen,
-        aiPanelOpen, setAiPanelOpen,
-        shortcutsOpen, setShortcutsOpen,
-        favorites, addFavorite, removeFavorite,
-        recentPages, addRecentPage,
-        isLight, toggleTheme,
-      }}
-    >
+    <DashboardContext.Provider value={ctxValue}>
       {children}
     </DashboardContext.Provider>
   );

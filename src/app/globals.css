@@ -197,13 +197,13 @@ body.modal-open {
 }
 
 @keyframes drawLine {
-  from { width: 0%; }
-  to { width: 100%; }
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 @keyframes drawLineVertical {
-  from { height: 0%; }
-  to { height: 100%; }
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
 }
 
 /* ── Animation Utilities ── */
@@ -256,11 +256,11 @@ body.modal-open {
 /* ── Button Animations ── */
 
 .btn-enterprise {
-  transition: transform 100ms ease-out, box-shadow 200ms ease-out, background-color 200ms ease-out;
+  transition: transform 100ms ease-out, background-color 200ms ease-out, border-color 200ms ease-out;
+  will-change: transform;
 }
 .btn-enterprise:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--foreground) 8%, transparent);
 }
 .btn-enterprise:active {
   transform: scale(0.98);
@@ -270,11 +270,11 @@ body.modal-open {
 /* ── Card Hover ── */
 
 .card-hover {
-  transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
+  transition: transform 200ms ease-out, border-color 200ms ease-out;
+  will-change: transform;
 }
 .card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--foreground) 8%, transparent);
+  transform: translateY(-2px);
   border-color: var(--primary);
 }
 

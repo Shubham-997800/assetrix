@@ -65,7 +65,7 @@ const DashboardNavbar = memo(function DashboardNavbar() {
   }, []);
 
   const handleSearchOpen = useCallback(() => setSearchOpen(true), [setSearchOpen]);
-  const handleToggleAiPanel = useCallback(() => setAiPanelOpen((prev) => !prev), [setAiPanelOpen]);
+  const handleToggleAiPanel = useCallback(() => setAiPanelOpen(!aiPanelOpen), [aiPanelOpen, setAiPanelOpen]);
   const handleToggleTasks = useCallback(() => setTasksOpen((prev) => !prev), []);
   const handleToggleNotifications = useCallback(() => setNotificationsOpen((prev) => !prev), []);
   const handleToggleProfile = useCallback(() => setProfileOpen((prev) => !prev), []);
