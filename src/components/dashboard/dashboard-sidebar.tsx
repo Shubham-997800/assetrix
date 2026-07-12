@@ -16,7 +16,6 @@ import {
   Bell,
   ScrollText,
   User,
-  Settings,
   ChevronLeft,
   Zap,
 } from "lucide-react";
@@ -58,11 +57,9 @@ const navGroups = [
     ],
   },
   {
-    label: "System",
+    label: "Account",
     items: [
-      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       { icon: User, label: "Profile", href: "/dashboard/profile" },
-      { icon: ScrollText, label: "Admin", href: "/dashboard/admin" },
     ],
   },
 ];
