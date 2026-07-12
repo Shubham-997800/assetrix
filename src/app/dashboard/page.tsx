@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useCountUp } from "@/hooks/use-count-up";
 import {
@@ -100,7 +100,7 @@ const departments = [
    KPI CARDS
    ═══════════════════════════════════════════════════════ */
 
-function KpiCard({ kpi, index }: { kpi: (typeof kpis)[0]; index: number }) {
+const KpiCard = memo(function KpiCard({ kpi, index }: { kpi: (typeof kpis)[0]; index: number }) {
   const count = useCountUp(kpi.value, 1200);
   const Icon = kpi.icon;
 
@@ -135,7 +135,7 @@ function KpiCard({ kpi, index }: { kpi: (typeof kpis)[0]; index: number }) {
       <p className="mt-0.5 text-xs text-muted-foreground">{kpi.label}</p>
     </Link>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    OVERDUE RETURNS
@@ -329,34 +329,43 @@ function ActivityTimeline() {
    NOTIFICATIONS WIDGET
    ═══════════════════════════════════════════════════════ */
 
+function typeColor(t: string) {
+  if (t === "alert") return "bg-red-500/10 text-red-600 dark:text-red-400";
+  if (t === "success")
+    return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+  if (t === "warning")
+    return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
+  return "bg-primary/10 text-primary";
+}
+
 type NotifFilter = "all" | "unread" | "alerts";
 
 function NotificationsWidget() {
   const [filter, setFilter] = useState<NotifFilter>("all");
   const [items, setItems] = useState(notifications);
 
-  const filtered =
-    filter === "unread"
-      ? items.filter((n) => !n.read)
-      : filter === "alerts"
-        ? items.filter((n) => n.type === "alert")
-        : items;
+  const filtered = useMemo(
+    () =>
+      filter === "unread"
+        ? items.filter((n) => !n.read)
+        : filter === "alerts"
+          ? items.filter((n) => n.type === "alert")
+          : items,
+    [items, filter],
+  );
 
-  const unreadCount = items.filter((n) => !n.read).length;
+  const unreadCount = useMemo(
+    () => items.filter((n) => !n.read).length,
+    [items],
+  );
 
-  const markRead = (id: number) =>
-    setItems((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-    );
-
-  const typeColor = (t: string) => {
-    if (t === "alert") return "bg-red-500/10 text-red-600 dark:text-red-400";
-    if (t === "success")
-      return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
-    if (t === "warning")
-      return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
-    return "bg-primary/10 text-primary";
-  };
+  const markRead = useCallback(
+    (id: number) =>
+      setItems((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+      ),
+    [],
+  );
 
   return (
     <div className="rounded-xl border border-border bg-card">
@@ -456,7 +465,7 @@ function NotificationsWidget() {
    ═══════════════════════════════════════════════════════ */
 
 function AssetStatusChart() {
-  const total = assetStatuses.reduce((a, s) => a + s.value, 0);
+  const total = useMemo(() => assetStatuses.reduce((a, s) => a + s.value, 0), []);
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -534,8 +543,10 @@ function AssetStatusChart() {
    ═══════════════════════════════════════════════════════ */
 
 function BookingPreview() {
-  const now = new Date();
-  const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+  const timeStr = useMemo(() => {
+    const now = new Date();
+    return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+  }, []);
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -609,7 +620,7 @@ function BookingPreview() {
    ═══════════════════════════════════════════════════════ */
 
 function DepartmentSummary() {
-  const maxAssets = Math.max(...departments.map((d) => d.assets));
+  const maxAssets = useMemo(() => Math.max(...departments.map((d) => d.assets)), []);
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -699,8 +710,19 @@ function SkeletonCard({ className = "" }: { className?: string }) {
    PAGE
    ═══════════════════════════════════════════════════════ */
 
-export default function DashboardPage() {
+export default memo(function DashboardPage() {
   const [loading, setLoading] = useState(true);
+
+  const dateString = useMemo(
+    () =>
+      new Date().toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }),
+    [],
+  );
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 800);
@@ -739,7 +761,7 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Operational command center — {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+          Operational command center — {dateString}
         </p>
       </div>
 
@@ -775,4 +797,4 @@ export default function DashboardPage() {
       <DepartmentSummary />
     </div>
   );
-}
+});
