@@ -11,9 +11,6 @@ import { DeveloperExperience } from "@/components/landing/developer-experience";
 import { Performance } from "@/components/landing/performance";
 import { Accessibility } from "@/components/landing/accessibility";
 import { Analytics } from "@/components/landing/analytics";
-import { CustomerStories } from "@/components/landing/customer-stories";
-import { FAQ } from "@/components/landing/faq";
-import { CTABanner } from "@/components/landing/cta-banner";
 import { Footer } from "@/components/landing/footer";
 
 export default function Home() {
@@ -33,9 +30,6 @@ export default function Home() {
         <Performance />
         <Accessibility />
         <Analytics />
-        <CustomerStories />
-        <FAQ />
-        <CTABanner />
       </main>
       <Footer />
     </div>
