@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useDashboard } from "@/contexts/dashboard-context";
 import {
   Settings, Shield, Bell, Palette, Database, Save, CheckCircle,
@@ -19,6 +19,31 @@ const TABS: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
   { id: "data", label: "Data & Privacy", icon: Database },
 ];
 
+const SESSIONS = [
+  { device: "Chrome on Windows", ip: "192.168.1.100", time: "Current session", current: true },
+  { device: "Safari on macOS", ip: "10.0.0.45", time: "2 hours ago", current: false },
+  { device: "Firefox on Linux", ip: "172.16.0.12", time: "1 day ago", current: false },
+] as const;
+
+const NOTIFICATION_ROWS = [
+  { key: "emailMaintenance" as const, label: "Maintenance Alerts", desc: "Email when tasks are assigned or overdue", type: "toggle" as const },
+  { key: "emailBooking" as const, label: "Booking Updates", desc: "Email on booking approval or rejection", type: "toggle" as const },
+  { key: "emailAllocation" as const, label: "Allocation Changes", desc: "Email when assets are allocated or returned", type: "toggle" as const },
+  { key: "emailWarranty" as const, label: "Warranty Expiry", desc: "Email 30/60/90 days before warranty expires", type: "toggle" as const },
+  { key: "pushMaintenance" as const, label: "Push: Maintenance", desc: "Browser push for maintenance events", type: "toggle" as const },
+  { key: "pushBooking" as const, label: "Push: Bookings", desc: "Browser push for booking events", type: "toggle" as const },
+  { key: "pushAllocation" as const, label: "Push: Allocations", desc: "Browser push for allocation events", type: "toggle" as const },
+  { key: "digest" as const, label: "Email Digest", desc: "Frequency of summary emails", type: "select" as const },
+] as const;
+
+const EXPORT_OPTIONS = [
+  { label: "Export as CSV", desc: "All asset data", icon: Download },
+  { label: "Export as PDF", desc: "Full report", icon: Download },
+  { label: "Export as Excel", desc: "Spreadsheet format", icon: Download },
+] as const;
+
+const ACCENT_COLORS = ["#0891B2", "#7C3AED", "#059669", "#D97706", "#DC2626"] as const;
+
 function GeneralSettings() {
   const [companyName, setCompanyName] = useState("Assetrix Corp");
   const [timezone, setTimezone] = useState("Asia/Kolkata");
@@ -26,7 +51,7 @@ function GeneralSettings() {
   const [currency, setCurrency] = useState("INR");
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const handleSave = useCallback(() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }, []);
 
   return (
     <div className="space-y-6">
@@ -80,7 +105,10 @@ function SecuritySettings() {
   const [twoFactor, setTwoFactor] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const handleSave = useCallback(() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }, []);
+  const toggleCurrent = useCallback(() => setShowCurrent((v) => !v), []);
+  const toggleNew = useCallback(() => setShowNew((v) => !v), []);
+  const toggleTwoFactor = useCallback(() => setTwoFactor((v) => !v), []);
 
   return (
     <div className="space-y-6">
@@ -91,7 +119,7 @@ function SecuritySettings() {
             <label htmlFor="current-pw" className="mb-1.5 block text-xs font-medium text-muted-foreground">Current Password</label>
             <div className="relative">
               <input id="current-pw" type={showCurrent ? "text" : "password"} className="w-full rounded-lg border border-border bg-muted/50 px-3 py-2 pr-10 text-sm text-foreground outline-none focus:border-primary/50" />
-              <button onClick={() => setShowCurrent(!showCurrent)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
+              <button onClick={toggleCurrent} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
                 {showCurrent ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
             </div>
@@ -100,7 +128,7 @@ function SecuritySettings() {
             <label htmlFor="new-pw" className="mb-1.5 block text-xs font-medium text-muted-foreground">New Password</label>
             <div className="relative">
               <input id="new-pw" type={showNew ? "text" : "password"} className="w-full rounded-lg border border-border bg-muted/50 px-3 py-2 pr-10 text-sm text-foreground outline-none focus:border-primary/50" />
-              <button onClick={() => setShowNew(!showNew)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
+              <button onClick={toggleNew} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
                 {showNew ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
             </div>
@@ -117,7 +145,7 @@ function SecuritySettings() {
             <p className="text-sm font-medium text-foreground">2FA via Authenticator App</p>
             <p className="text-xs text-muted-foreground">Add an extra layer of security to your account</p>
           </div>
-          <button onClick={() => setTwoFactor(!twoFactor)} className={`relative h-6 w-11 rounded-full transition-colors ${twoFactor ? "bg-primary" : "bg-muted"}`}>
+          <button onClick={toggleTwoFactor} className={`relative h-6 w-11 rounded-full transition-colors ${twoFactor ? "bg-primary" : "bg-muted"}`}>
             <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${twoFactor ? "left-[22px]" : "left-0.5"}`} />
           </button>
         </div>
@@ -125,11 +153,7 @@ function SecuritySettings() {
       <div className="border-t border-border pt-4 space-y-4">
         <h3 className="text-sm font-semibold text-foreground">Active Sessions</h3>
         <div className="space-y-2">
-          {[
-            { device: "Chrome on Windows", ip: "192.168.1.100", time: "Current session", current: true },
-            { device: "Safari on macOS", ip: "10.0.0.45", time: "2 hours ago", current: false },
-            { device: "Firefox on Linux", ip: "172.16.0.12", time: "1 day ago", current: false },
-          ].map((s, i) => (
+          {SESSIONS.map((s, i) => (
             <div key={i} className="flex items-center justify-between rounded-lg border border-border p-3">
               <div className="flex items-center gap-3">
                 <Monitor className="h-4 w-4 text-muted-foreground" />
@@ -164,23 +188,13 @@ function NotificationSettings() {
   });
   const [saved, setSaved] = useState(false);
 
-  const toggle = (key: keyof typeof prefs) => setPrefs((p) => ({ ...p, [key]: !p[key] }));
-  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
-
-  const rows: { key: keyof typeof prefs; label: string; desc: string; type: "toggle" | "select" }[] = [
-    { key: "emailMaintenance", label: "Maintenance Alerts", desc: "Email when tasks are assigned or overdue", type: "toggle" },
-    { key: "emailBooking", label: "Booking Updates", desc: "Email on booking approval or rejection", type: "toggle" },
-    { key: "emailAllocation", label: "Allocation Changes", desc: "Email when assets are allocated or returned", type: "toggle" },
-    { key: "emailWarranty", label: "Warranty Expiry", desc: "Email 30/60/90 days before warranty expires", type: "toggle" },
-    { key: "pushMaintenance", label: "Push: Maintenance", desc: "Browser push for maintenance events", type: "toggle" },
-    { key: "pushBooking", label: "Push: Bookings", desc: "Browser push for booking events", type: "toggle" },
-    { key: "pushAllocation", label: "Push: Allocations", desc: "Browser push for allocation events", type: "toggle" },
-    { key: "digest", label: "Email Digest", desc: "Frequency of summary emails", type: "select" },
-  ];
+  const toggle = useCallback((key: keyof typeof prefs) => setPrefs((p) => ({ ...p, [key]: !p[key] })), []);
+  const handleSelect = useCallback((key: keyof typeof prefs, value: string) => setPrefs((p) => ({ ...p, [key]: value })), []);
+  const handleSave = useCallback(() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }, []);
 
   return (
     <div className="space-y-4">
-      {rows.map((r) => (
+      {NOTIFICATION_ROWS.map((r) => (
         <div key={r.key} className="flex items-center justify-between rounded-lg border border-border p-4">
           <div>
             <p className="text-sm font-medium text-foreground">{r.label}</p>
@@ -191,7 +205,7 @@ function NotificationSettings() {
               <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[r.key] ? "left-[22px]" : "left-0.5"}`} />
             </button>
           ) : (
-            <select value={prefs[r.key] as string} onChange={(e) => setPrefs((p) => ({ ...p, [r.key]: e.target.value }))} className="rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs text-foreground outline-none">
+            <select value={prefs[r.key] as string} onChange={(e) => handleSelect(r.key, e.target.value)} className="rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs text-foreground outline-none">
               <option value="realtime">Real-time</option>
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -210,17 +224,20 @@ function NotificationSettings() {
 function AppearanceSettings() {
   const { isLight, toggleTheme } = useDashboard();
 
+  const selectDark = useCallback(() => { if (!isLight) toggleTheme(); }, [isLight, toggleTheme]);
+  const selectLight = useCallback(() => { if (isLight) toggleTheme(); }, [isLight, toggleTheme]);
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-foreground">Theme</h3>
         <div className="grid grid-cols-2 gap-3 max-w-md">
-          <button onClick={() => { if (!isLight) toggleTheme(); }} className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${!isLight ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
+          <button onClick={selectDark} className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${!isLight ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
             <Moon className="h-6 w-6 text-foreground" />
             <span className="text-xs font-medium text-foreground">Dark</span>
             {!isLight && <CheckCircle className="h-4 w-4 text-primary" />}
           </button>
-          <button onClick={() => { if (isLight) toggleTheme(); }} className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${isLight ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
+          <button onClick={selectLight} className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${isLight ? "border-primary bg-primary/5" : "border-border hover:border-border/80"}`}>
             <Sun className="h-6 w-6 text-foreground" />
             <span className="text-xs font-medium text-foreground">Light</span>
             {isLight && <CheckCircle className="h-4 w-4 text-primary" />}
@@ -230,7 +247,7 @@ function AppearanceSettings() {
       <div className="border-t border-border pt-4 space-y-4">
         <h3 className="text-sm font-semibold text-foreground">Accent Color</h3>
         <div className="flex items-center gap-3">
-          {["#0891B2", "#7C3AED", "#059669", "#D97706", "#DC2626"].map((c) => (
+          {ACCENT_COLORS.map((c) => (
             <button key={c} className="h-8 w-8 rounded-full border-2 border-transparent transition-all hover:scale-110" style={{ backgroundColor: c }} aria-label={`Theme color ${c}`} />
           ))}
         </div>
@@ -257,19 +274,18 @@ function DataSettings() {
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-foreground">Export Data</h3>
         <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            { label: "Export as CSV", desc: "All asset data", icon: Download },
-            { label: "Export as PDF", desc: "Full report", icon: Download },
-            { label: "Export as Excel", desc: "Spreadsheet format", icon: Download },
-          ].map((e) => (
-            <button key={e.label} className="flex items-center gap-3 rounded-xl border border-border p-4 text-left transition-colors hover:bg-muted">
-              <e.icon className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-xs font-medium text-foreground">{e.label}</p>
-                <p className="text-[10px] text-muted-foreground">{e.desc}</p>
-              </div>
-            </button>
-          ))}
+          {EXPORT_OPTIONS.map((e) => {
+            const Icon = e.icon;
+            return (
+              <button key={e.label} className="flex items-center gap-3 rounded-xl border border-border p-4 text-left transition-colors hover:bg-muted">
+                <Icon className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-xs font-medium text-foreground">{e.label}</p>
+                  <p className="text-[10px] text-muted-foreground">{e.desc}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
       <div className="border-t border-border pt-4 space-y-4">
@@ -290,16 +306,27 @@ function DataSettings() {
   );
 }
 
-const TAB_CONTENT: Record<SettingsTab, React.ReactNode> = {
-  general: <GeneralSettings />,
-  security: <SecuritySettings />,
-  notifications: <NotificationSettings />,
-  appearance: <AppearanceSettings />,
-  data: <DataSettings />,
-};
+function TabContent({ activeTab }: { activeTab: SettingsTab }) {
+  switch (activeTab) {
+    case "general": return <GeneralSettings />;
+    case "security": return <SecuritySettings />;
+    case "notifications": return <NotificationSettings />;
+    case "appearance": return <AppearanceSettings />;
+    case "data": return <DataSettings />;
+  }
+}
 
-export default function SettingsPage() {
+export default React.memo(function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("general");
+
+  const handleTabChange = useCallback((tab: SettingsTab) => { setActiveTab(tab); }, []);
+
+  const tabLabelMap = useMemo(() => {
+    return TABS.reduce<Record<SettingsTab, string>>((acc, tab) => {
+      acc[tab.id] = tab.label;
+      return acc;
+    }, {} as Record<SettingsTab, string>);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -314,23 +341,23 @@ export default function SettingsPage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
                   activeTab === tab.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
                 aria-current={activeTab === tab.id ? "page" : undefined}
               >
                 <Icon className="h-4 w-4" />
-                {tab.label}
+                {tabLabelMap[tab.id]}
                 {activeTab !== tab.id && <ChevronRight className="ml-auto hidden h-3 w-3 lg:block" />}
               </button>
             );
           })}
         </nav>
         <div className="flex-1 min-w-0 rounded-xl border border-border bg-card p-6">
-          {TAB_CONTENT[activeTab]}
+          <TabContent activeTab={activeTab} />
         </div>
       </div>
     </div>
   );
-}
+});
