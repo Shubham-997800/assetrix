@@ -47,7 +47,7 @@ export function BreadcrumbNav() {
         <span key={crumb.href} className="flex items-center gap-1">
           <ChevronRight className="h-3 w-3 text-muted-foreground/50" />
           {crumb.isLast ? (
-            <span className="font-medium text-foreground">{crumb.label}</span>
+            <span className="font-medium text-foreground" aria-current="page">{crumb.label}</span>
           ) : (
             <Link
               href={crumb.href}

@@ -104,6 +104,26 @@ export function GlobalSearch() {
 
   const closeSearch = useCallback(() => setSearchOpen(false), [setSearchOpen]);
 
+  useEffect(() => {
+    if (!searchOpen) return;
+    const container = document.querySelector<HTMLElement>("[aria-label='Global search'] .relative.z-10");
+    if (!container) return;
+    const focusable = container.querySelectorAll<HTMLElement>("input, button, [href], [tabindex]:not([tabindex='-1'])");
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener("keydown", trap);
+    return () => document.removeEventListener("keydown", trap);
+  }, [searchOpen]);
+
   const navigateTo = useCallback((href: string, _label: string) => {
     router.push(href);
     closeSearch();

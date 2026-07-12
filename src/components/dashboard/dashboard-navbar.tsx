@@ -51,7 +51,7 @@ export function DashboardNavbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center border-b border-border bg-card/80 backdrop-blur-md px-4 lg:px-6">
+    <header role="banner" className="sticky top-0 z-20 flex h-16 items-center border-b border-border bg-card/80 backdrop-blur-md px-4 lg:px-6">
       {/* Left */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
         {/* Mobile sidebar toggle */}
@@ -90,11 +90,13 @@ export function DashboardNavbar() {
 
         {/* Task Queue */}
         <div ref={tasksRef} className="relative">
-          <button
-            onClick={() => setTasksOpen(!tasksOpen)}
-            className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="Tasks"
-          >
+        <button
+          onClick={() => setTasksOpen(!tasksOpen)}
+          className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          title="Tasks"
+          aria-label={`Pending tasks: ${TASK_QUEUE.length}`}
+          aria-expanded={tasksOpen}
+        >
             <Zap className="h-4 w-4" />
             {TASK_QUEUE.length > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white">
@@ -122,11 +124,13 @@ export function DashboardNavbar() {
 
         {/* Notifications */}
         <div ref={notifRef} className="relative">
-          <button
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
-            className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="Notifications"
-          >
+        <button
+          onClick={() => setNotificationsOpen(!notificationsOpen)}
+          className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          title="Notifications"
+          aria-label={`Notifications: ${unreadCount} unread`}
+          aria-expanded={notificationsOpen}
+        >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
@@ -182,6 +186,8 @@ export function DashboardNavbar() {
           <button
             onClick={() => setProfileOpen(!profileOpen)}
             className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted"
+            aria-label="User menu"
+            aria-expanded={profileOpen}
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">RS</span>
             <div className="hidden sm:block text-left">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Camera, Pencil, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,13 +18,31 @@ export function ProfileHeader({ name, role, department, status, joinDate, initia
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+  const [sizeError, setSizeError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadModalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sizeError) return;
+    const t = setTimeout(() => setSizeError(false), 3000);
+    return () => clearTimeout(t);
+  }, [sizeError]);
+
+  useEffect(() => {
+    if (!showUpload) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setShowUpload(false); setUploadPreview(null); }
+    };
+    document.addEventListener("keydown", handler);
+    uploadModalRef.current?.querySelector<HTMLElement>("button")?.focus();
+    return () => document.removeEventListener("keydown", handler);
+  }, [showUpload]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size must be less than 5MB");
+      setSizeError(true);
       return;
     }
     const reader = new FileReader();
@@ -99,10 +117,16 @@ export function ProfileHeader({ name, role, department, status, joinDate, initia
         </div>
       </div>
 
+      {sizeError && (
+        <div className="mt-3 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-xs text-red-500 dark:text-red-400 animate-fade-in" role="alert">
+          File size must be less than 5MB
+        </div>
+      )}
+
       {/* Upload Modal */}
       {showUpload && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 animate-fade-in">
-          <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg animate-scale-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 animate-fade-in" role="dialog" aria-modal="true" aria-label="Update avatar">
+          <div ref={uploadModalRef} className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg animate-scale-in">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground">Update Avatar</h3>
               <button onClick={() => setShowUpload(false)} className="text-muted-foreground hover:text-foreground">

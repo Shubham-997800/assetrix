@@ -233,7 +233,7 @@ export function DashboardSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className={`hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 border-r border-border bg-card transition-all duration-300 ${isCollapsed ? "w-[80px]" : "w-[280px]"}`}>
+      <aside aria-label="Main navigation" className={`hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 border-r border-border bg-card transition-all duration-300 ${isCollapsed ? "w-[80px]" : "w-[280px]"}`}>
         {sidebarContent(false)}
       </aside>
 
@@ -241,7 +241,7 @@ export function DashboardSidebar() {
       {mobileDrawerOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden" onClick={() => setMobileDrawerOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 z-50 w-[280px] border-r border-border bg-card lg:hidden">
+          <aside aria-label="Mobile navigation" className="fixed inset-y-0 left-0 z-50 w-[280px] border-r border-border bg-card lg:hidden">
             {sidebarContent(true)}
           </aside>
         </>
