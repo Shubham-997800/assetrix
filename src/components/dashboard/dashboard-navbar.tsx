@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import Link from "next/link";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { BreadcrumbNav } from "@/components/shared/breadcrumb-nav";
@@ -14,7 +14,7 @@ const DUMMY_NOTIFICATIONS = [
   { id: "2", title: "Booking Approved", desc: "Meeting Room A booking confirmed for today 2PM", time: "3h ago", type: "success", read: false },
   { id: "3", title: "Warranty Expiring", desc: "AF-0008 warranty expires in 30 days", time: "1d ago", type: "warning", read: true },
   { id: "4", title: "Asset Allocated", desc: "MacBook Pro AF-0001 allocated to Priya Shah", time: "2d ago", type: "info", read: true },
-  { id: "5", title: "Audit Complete", desc: "Q3 audit cycle completed — 92% verified", time: "3d ago", type: "success", read: true },
+  { id: "5", title: "Audit Complete", desc: "Q3 audit cycle completed \u2014 92% verified", time: "3d ago", type: "success", read: true },
 ];
 
 const TASK_QUEUE = [
@@ -29,8 +29,22 @@ const TYPE_COLORS: Record<string, string> = {
   info: "text-primary",
 };
 
-export function DashboardNavbar() {
-  const { setSearchOpen, sidebarCollapsed, toggleSidebar, isLight, toggleTheme, aiPanelOpen, setAiPanelOpen } = useDashboard();
+const HEADER_CLASS = "sticky top-0 z-20 flex h-16 items-center border-b border-border bg-card/80 backdrop-blur-md px-4 lg:px-6";
+const SIDEBAR_TOGGLE_MOBILE = "rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden";
+const SIDEBAR_TOGGLE_DESKTOP = "hidden lg:flex rounded-lg p-2 min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground";
+const SEARCH_TRIGGER = "flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 min-h-[44px] text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground";
+const AI_TOGGLE_ACTIVE = "relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors bg-primary/10 text-primary";
+const AI_TOGGLE_INACTIVE = "relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors text-muted-foreground hover:bg-muted hover:text-foreground";
+const ICON_BUTTON = "relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground";
+const THEME_BUTTON = "rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground";
+const HELP_BUTTON = "hidden sm:flex rounded-lg p-2 min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground";
+const PROFILE_TRIGGER = "flex items-center gap-2 rounded-lg p-1.5 min-h-[44px] hover:bg-muted";
+const NOTIF_PANEL = "absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-96 rounded-xl border border-border bg-card shadow-2xl overflow-hidden";
+const TASK_PANEL = "absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-80 rounded-xl border border-border bg-card shadow-2xl overflow-hidden";
+const PROFILE_PANEL = "absolute right-0 top-full mt-2 w-52 rounded-xl border border-border bg-card shadow-2xl overflow-hidden";
+
+const DashboardNavbar = memo(function DashboardNavbar() {
+  const { setSearchOpen, toggleSidebar, isLight, toggleTheme, aiPanelOpen, setAiPanelOpen } = useDashboard();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(false);
@@ -38,7 +52,7 @@ export function DashboardNavbar() {
   const profileRef = useRef<HTMLDivElement>(null);
   const tasksRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = DUMMY_NOTIFICATIONS.filter((n) => !n.read).length;
+  const unreadCount = useMemo(() => DUMMY_NOTIFICATIONS.filter((n) => !n.read).length, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -50,53 +64,54 @@ export function DashboardNavbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const handleSearchOpen = useCallback(() => setSearchOpen(true), [setSearchOpen]);
+  const handleToggleAiPanel = useCallback(() => setAiPanelOpen((prev) => !prev), [setAiPanelOpen]);
+  const handleToggleTasks = useCallback(() => setTasksOpen((prev) => !prev), []);
+  const handleToggleNotifications = useCallback(() => setNotificationsOpen((prev) => !prev), []);
+  const handleToggleProfile = useCallback(() => setProfileOpen((prev) => !prev), []);
+  const handleShowHelp = useCallback(() => {
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "?", ctrlKey: true }));
+  }, []);
+  const handleCloseTasks = useCallback(() => setTasksOpen(false), []);
+  const handleCloseNotifications = useCallback(() => setNotificationsOpen(false), []);
+  const handleCloseProfile = useCallback(() => setProfileOpen(false), []);
+
   return (
-    <header role="banner" className="sticky top-0 z-20 flex h-16 items-center border-b border-border bg-card/80 backdrop-blur-md px-4 lg:px-6">
-      {/* Left */}
+    <header role="banner" className={HEADER_CLASS}>
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        {/* Mobile sidebar toggle */}
-        <button onClick={toggleSidebar} className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden">
+        <button onClick={toggleSidebar} className={SIDEBAR_TOGGLE_MOBILE}>
           <Menu className="h-5 w-5" />
         </button>
-        {/* Desktop sidebar toggle */}
-        <button onClick={toggleSidebar} className="hidden lg:flex rounded-lg p-2 min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground">
-          {sidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
+        <button onClick={toggleSidebar} className={SIDEBAR_TOGGLE_DESKTOP}>
+          <PanelLeft className="h-4 w-4" />
         </button>
-        {/* Search trigger */}
-        <button
-          onClick={() => setSearchOpen(true)}
-          className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 min-h-[44px] text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
-        >
+        <button onClick={handleSearchOpen} className={SEARCH_TRIGGER}>
           <Search className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Search...</span>
           <kbd className="hidden sm:inline-flex ml-2 rounded border border-border bg-background px-1 py-0.5 text-[9px] font-medium">Ctrl K</kbd>
         </button>
-        {/* Breadcrumbs */}
         <div className="hidden md:block ml-2">
           <BreadcrumbNav />
         </div>
       </div>
 
-      {/* Right */}
       <div className="flex items-center gap-1">
-        {/* AI Assistant toggle */}
         <button
-          onClick={() => setAiPanelOpen(!aiPanelOpen)}
-          className={`relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors ${aiPanelOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+          onClick={handleToggleAiPanel}
+          className={aiPanelOpen ? AI_TOGGLE_ACTIVE : AI_TOGGLE_INACTIVE}
           title="AI Assistant"
         >
           <Sparkles className="h-4 w-4" />
         </button>
 
-        {/* Task Queue */}
         <div ref={tasksRef} className="relative">
-        <button
-          onClick={() => setTasksOpen(!tasksOpen)}
-          className="relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
-          title="Tasks"
-          aria-label={`Pending tasks: ${TASK_QUEUE.length}`}
-          aria-expanded={tasksOpen}
-        >
+          <button
+            onClick={handleToggleTasks}
+            className={ICON_BUTTON}
+            title="Tasks"
+            aria-label={`Pending tasks: ${TASK_QUEUE.length}`}
+            aria-expanded={tasksOpen}
+          >
             <Zap className="h-4 w-4" />
             {TASK_QUEUE.length > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white">
@@ -105,14 +120,14 @@ export function DashboardNavbar() {
             )}
           </button>
           {tasksOpen && (
-            <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-80 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div className={TASK_PANEL}>
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <p className="text-xs font-semibold text-foreground">Pending Tasks</p>
                 <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-medium text-orange-500">{TASK_QUEUE.length} pending</span>
               </div>
               <div className="max-h-60 overflow-y-auto p-2">
                 {TASK_QUEUE.map((task) => (
-                  <Link key={task.id} href={task.href} onClick={() => setTasksOpen(false)} className="flex items-start gap-2.5 rounded-lg px-3 py-2.5 text-xs hover:bg-muted">
+                  <Link key={task.id} href={task.href} onClick={handleCloseTasks} className="flex items-start gap-2.5 rounded-lg px-3 py-2.5 text-xs hover:bg-muted">
                     <span className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${task.priority === "high" ? "bg-orange-500" : "bg-primary"}`} />
                     <span className="text-foreground">{task.label}</span>
                   </Link>
@@ -122,15 +137,14 @@ export function DashboardNavbar() {
           )}
         </div>
 
-        {/* Notifications */}
         <div ref={notifRef} className="relative">
-        <button
-          onClick={() => setNotificationsOpen(!notificationsOpen)}
-          className="relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
-          title="Notifications"
-          aria-label={`Notifications: ${unreadCount} unread`}
-          aria-expanded={notificationsOpen}
-        >
+          <button
+            onClick={handleToggleNotifications}
+            className={ICON_BUTTON}
+            title="Notifications"
+            aria-label={`Notifications: ${unreadCount} unread`}
+            aria-expanded={notificationsOpen}
+          >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
@@ -139,10 +153,10 @@ export function DashboardNavbar() {
             )}
           </button>
           {notificationsOpen && (
-            <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-96 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div className={NOTIF_PANEL}>
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <p className="text-xs font-semibold text-foreground">Notifications</p>
-                <Link href="/dashboard/notifications" onClick={() => setNotificationsOpen(false)} className="text-[10px] text-primary hover:underline">View all</Link>
+                <Link href="/dashboard/notifications" onClick={handleCloseNotifications} className="text-[10px] text-primary hover:underline">View all</Link>
               </div>
               <div className="max-h-80 overflow-y-auto">
                 {DUMMY_NOTIFICATIONS.map((n) => (
@@ -163,29 +177,26 @@ export function DashboardNavbar() {
           )}
         </div>
 
-        {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
+          className={THEME_BUTTON}
           title="Toggle theme"
         >
           {isLight ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
         </button>
 
-        {/* Help/shortcuts */}
         <button
-          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "?", ctrlKey: true }))}
-          className="hidden sm:flex rounded-lg p-2 min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground"
+          onClick={handleShowHelp}
+          className={HELP_BUTTON}
           title="Keyboard shortcuts"
         >
           <HelpCircle className="h-4 w-4" />
         </button>
 
-        {/* Profile dropdown */}
         <div ref={profileRef} className="relative ml-1">
           <button
-            onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-2 rounded-lg p-1.5 min-h-[44px] hover:bg-muted"
+            onClick={handleToggleProfile}
+            className={PROFILE_TRIGGER}
             aria-label="User menu"
             aria-expanded={profileOpen}
           >
@@ -197,19 +208,19 @@ export function DashboardNavbar() {
             <ChevronDown className="hidden sm:block h-3 w-3 text-muted-foreground" />
           </button>
           {profileOpen && (
-            <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div className={PROFILE_PANEL}>
               <div className="border-b border-border px-4 py-3">
                 <p className="text-xs font-semibold text-foreground">Rahul Shah</p>
                 <p className="text-[10px] text-muted-foreground">rahul@assetrix.com</p>
               </div>
               <div className="p-1.5">
-                <Link href="/dashboard/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                <Link href="/dashboard/profile" onClick={handleCloseProfile} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                   <User className="h-3.5 w-3.5" /> Profile
                 </Link>
-                <Link href="/dashboard/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                <Link href="/dashboard/settings" onClick={handleCloseProfile} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                   <Settings className="h-3.5 w-3.5" /> Settings
                 </Link>
-                <Link href="/login" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                <Link href="/login" onClick={handleCloseProfile} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                   <LogOut className="h-3.5 w-3.5" /> Sign out
                 </Link>
               </div>
@@ -219,4 +230,6 @@ export function DashboardNavbar() {
       </div>
     </header>
   );
-}
+});
+
+export { DashboardNavbar };
