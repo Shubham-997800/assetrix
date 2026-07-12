@@ -45,10 +45,16 @@ export function DeveloperExperience() {
             <p className="text-sm font-semibold uppercase tracking-widest text-primary">
               Developer Experience
             </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <h2
+              className="mt-3 font-bold tracking-tight text-foreground"
+              style={{ fontSize: "clamp(1.75rem, 0.5rem + 2vw, 2.25rem)" }}
+            >
               Built for teams who ship
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p
+              className="mt-4 text-muted-foreground"
+              style={{ fontSize: "clamp(0.95rem, 0.2rem + 0.8vw, 1.125rem)" }}
+            >
               Modular ERP architecture with reusable components, role-based
               routing, and a workflow engine that scales with your organization.
             </p>

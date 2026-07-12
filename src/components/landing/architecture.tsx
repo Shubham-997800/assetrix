@@ -28,10 +28,16 @@ export function PlatformArchitecture() {
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Architecture
           </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2
+            className="mt-3 font-bold tracking-tight text-foreground"
+            style={{ fontSize: "clamp(1.75rem, 0.5rem + 2vw, 2.25rem)" }}
+          >
             ERP architecture built for enterprise
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p
+            className="mt-4 text-muted-foreground"
+            style={{ fontSize: "clamp(0.95rem, 0.2rem + 0.8vw, 1.125rem)" }}
+          >
             A layered architecture that ensures data flows cleanly from
             department registration to analytics and compliance reporting.
           </p>
@@ -62,18 +68,18 @@ export function PlatformArchitecture() {
         </div>
 
         {/* Horizontal Pipeline - Desktop */}
-        <div className="mt-8 sm:mt-12 md:mt-16 hidden lg:block">
-          <div className="relative flex items-start justify-between">
+        <div className="mt-8 sm:mt-12 md:mt-16 hidden lg:block overflow-x-auto">
+          <div className="relative flex items-start justify-between min-w-[800px]">
             {steps.map((step) => (
               <div key={step.label} className="relative flex flex-1 flex-col items-center z-10">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-all hover:shadow-md xl:h-20 xl:w-20">
                   <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl ${step.color}`}
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${step.color} xl:h-12 xl:w-12`}
                   >
                     <step.icon className="h-5 w-5" aria-hidden="true" />
                   </div>
                 </div>
-                <p className="mt-4 text-center text-xs font-semibold text-foreground">
+                <p className="mt-3 text-center text-[11px] font-semibold text-foreground xl:text-xs">
                   {step.label}
                 </p>
               </div>

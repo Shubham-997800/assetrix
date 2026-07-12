@@ -20,10 +20,16 @@ export function AIIntelligence() {
             <p className="text-sm font-semibold uppercase tracking-widest text-primary">
               AI Operational Intelligence
             </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <h2
+              className="mt-3 font-bold tracking-tight text-foreground"
+              style={{ fontSize: "clamp(1.75rem, 0.5rem + 2vw, 2.25rem)" }}
+            >
               Decisions powered by intelligence
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p
+              className="mt-4 text-muted-foreground"
+              style={{ fontSize: "clamp(0.95rem, 0.2rem + 0.8vw, 1.125rem)" }}
+            >
               Our AI layer processes your asset and operational data through a
               multi-stage pipeline to deliver actionable recommendations with
               measurable confidence scores.
@@ -48,7 +54,7 @@ export function AIIntelligence() {
           </div>
 
           {/* Right Side - AI Recommendation Card */}
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
             <div className="mb-6 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Sparkles className="h-5 w-5" />

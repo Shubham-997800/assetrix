@@ -9,7 +9,6 @@ import { Workflow } from "@/components/landing/workflow";
 import { Security } from "@/components/landing/security";
 import { DeveloperExperience } from "@/components/landing/developer-experience";
 import { Performance } from "@/components/landing/performance";
-import { Accessibility } from "@/components/landing/accessibility";
 import { Analytics } from "@/components/landing/analytics";
 import { Footer } from "@/components/landing/footer";
 
@@ -28,7 +27,6 @@ export default function Home() {
         <Security />
         <DeveloperExperience />
         <Performance />
-        <Accessibility />
         <Analytics />
       </main>
       <Footer />

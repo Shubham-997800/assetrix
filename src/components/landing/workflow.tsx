@@ -66,10 +66,16 @@ export function Workflow() {
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Workflow
           </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2
+            className="mt-3 font-bold tracking-tight text-foreground"
+            style={{ fontSize: "clamp(1.75rem, 0.5rem + 2vw, 2.25rem)" }}
+          >
             From registration to retirement
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p
+            className="mt-4 text-muted-foreground"
+            style={{ fontSize: "clamp(0.95rem, 0.2rem + 0.8vw, 1.125rem)" }}
+          >
             A complete lifecycle pipeline that handles every stage of asset
             management from day one to disposal.
           </p>
@@ -98,8 +104,8 @@ export function Workflow() {
                 style={{ transitionDelay: `${i * 120}ms` }}
               >
                 {/* Step Circle */}
-                <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/30">
-                  <step.icon className="h-7 w-7 text-primary" />
+                <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/30 sm:h-20 sm:w-20">
+                  <step.icon className="h-6 w-6 text-primary sm:h-7 sm:w-7" />
                 </div>
 
                 {/* Arrow */}

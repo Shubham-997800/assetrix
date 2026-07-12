@@ -55,17 +55,23 @@ export function Analytics() {
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Analytics
           </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          <h2
+            className="mt-3 font-bold tracking-tight text-foreground"
+            style={{ fontSize: "clamp(1.75rem, 0.5rem + 2vw, 3rem)" }}
+          >
             Measure what matters
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p
+            className="mt-4 text-muted-foreground"
+            style={{ fontSize: "clamp(0.95rem, 0.2rem + 0.8vw, 1.125rem)" }}
+          >
             Real-time analytics dashboards with drillable charts, exportable
             reports, and automated insights for asset operations.
           </p>
         </div>
 
         {/* Metric Cards */}
-        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:mt-16 lg:grid-cols-5">
+        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:mt-16 sm:grid-cols-3 lg:grid-cols-5">
           {metrics.map((m) => (
             <div
               key={m.label}

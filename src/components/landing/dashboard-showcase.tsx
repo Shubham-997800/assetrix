@@ -17,10 +17,16 @@ export function DashboardShowcase() {
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Dashboard
           </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2
+            className="mt-3 font-bold tracking-tight text-foreground"
+            style={{ fontSize: "clamp(1.75rem, 0.5rem + 2vw, 2.25rem)" }}
+          >
             A command center for your assets
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p
+            className="mt-4 text-muted-foreground"
+            style={{ fontSize: "clamp(0.95rem, 0.2rem + 0.8vw, 1.125rem)" }}
+          >
             Monitor every asset from allocation to retirement from a unified,
             real-time dashboard designed for operations managers.
           </p>
@@ -188,16 +194,21 @@ export function DashboardShowcase() {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      {["Asset ID", "Department", "Status", "Custodian", "Last Audit", "Next Due"].map(
-                        (h) => (
-                          <th
-                            key={h}
-                            className="pb-3 pr-4 text-xs font-medium text-muted-foreground"
-                          >
-                            {h}
-                          </th>
-                        )
-                      )}
+                      {[
+                        { label: "Asset ID", show: true },
+                        { label: "Department", show: true },
+                        { label: "Status", show: true },
+                        { label: "Custodian", show: false },
+                        { label: "Last Audit", show: false },
+                        { label: "Next Due", show: false },
+                      ].map((h) => (
+                        <th
+                          key={h.label}
+                          className={`pb-3 pr-4 text-xs font-medium text-muted-foreground ${h.show ? "" : "hidden sm:table-cell"}`}
+                        >
+                          {h.label}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
@@ -231,11 +242,11 @@ export function DashboardShowcase() {
                             {row.status}
                           </span>
                         </td>
-                        <td className="py-3 pr-4 text-muted-foreground">
+                        <td className="py-3 pr-4 text-muted-foreground hidden sm:table-cell">
                           {row.custodian}
                         </td>
-                        <td className="py-3 pr-4 text-muted-foreground">{row.audit}</td>
-                        <td className="py-3 text-muted-foreground">{row.next}</td>
+                        <td className="py-3 pr-4 text-muted-foreground hidden sm:table-cell">{row.audit}</td>
+                        <td className="py-3 text-muted-foreground hidden sm:table-cell">{row.next}</td>
                       </tr>
                     ))}
                   </tbody>

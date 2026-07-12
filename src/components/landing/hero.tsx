@@ -18,7 +18,7 @@ export function Hero() {
   return (
     <section className="border-b border-border bg-background overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-8 py-12 sm:gap-12 sm:py-16 lg:grid-cols-2 lg:py-24">
+        <div className="grid items-center gap-8 py-10 sm:gap-12 sm:py-16 lg:grid-cols-2 lg:py-24">
           {/* Left Side */}
           <div>
             <Badge
@@ -29,11 +29,17 @@ export function Hero() {
               Trusted by hospitals, universities & enterprises
             </Badge>
 
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1] animate-fade-in-up delay-50">
+            <h1
+              className="font-bold tracking-tight text-foreground animate-fade-in-up delay-50"
+              style={{ fontSize: "clamp(2rem, 0.5rem + 3vw, 3.25rem)", lineHeight: "1.1" }}
+            >
               Enterprise Asset & Resource Management Platform
             </h1>
 
-            <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground animate-fade-in-up delay-100">
+            <p
+              className="mt-6 max-w-lg leading-relaxed text-muted-foreground animate-fade-in-up delay-100"
+              style={{ fontSize: "clamp(0.95rem, 0.2rem + 0.8vw, 1.125rem)" }}
+            >
               Track assets, eliminate allocation conflicts, automate maintenance
               workflows and manage resource bookings from a single operational
               platform.
@@ -53,7 +59,7 @@ export function Hero() {
               </Link>
             </div>
 
-            <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+            <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-4 sm:mt-12 sm:grid-cols-4 sm:gap-x-8">
               {[
                 { value: "24,580+", label: "Assets Managed" },
                 { value: "3,200+", label: "Active Bookings" },
@@ -120,7 +126,7 @@ export function Hero() {
             </div>
 
             {/* Dashboard */}
-            <div className="rounded-2xl border border-border bg-card shadow-lg" role="img" aria-label="Assetrix dashboard preview showing asset status, booking calendar, and maintenance queue">
+            <div className="rounded-2xl border border-border bg-card shadow-lg overflow-hidden max-h-[480px] sm:max-h-none" role="img" aria-label="Assetrix dashboard preview showing asset status, booking calendar, and maintenance queue">
               <div className="rounded-t-2xl border-b border-border bg-muted/30 px-4 py-3">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full bg-red-400" aria-hidden="true" />
