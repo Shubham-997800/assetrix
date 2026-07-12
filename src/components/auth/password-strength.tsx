@@ -22,10 +22,10 @@ const rules: Rule[] = [
 function getStrength(password: string) {
   if (!password) return { score: 0, label: "", color: "" };
   const passed = rules.filter((r) => r.test(password)).length;
-  if (passed <= 2) return { score: 1, label: "Weak", color: "bg-red-500" };
+  if (passed <= 2) return { score: 1, label: "Weak", color: "bg-destructive" };
   if (passed === 3) return { score: 2, label: "Medium", color: "bg-amber-500" };
-  if (passed === 4) return { score: 3, label: "Strong", color: "bg-emerald-500" };
-  return { score: 4, label: "Very Strong", color: "bg-emerald-500" };
+  if (passed === 4) return { score: 3, label: "Strong", color: "bg-primary" };
+  return { score: 4, label: "Very Strong", color: "bg-primary" };
 }
 
 export function PasswordStrength({ password }: PasswordStrengthProps) {
@@ -41,10 +41,10 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
           <span className="text-xs font-medium text-muted-foreground">Password strength</span>
           <span className={`text-xs font-semibold ${
             strength.score <= 1
-              ? "text-red-500"
+              ? "text-destructive"
               : strength.score === 2
               ? "text-amber-500"
-              : "text-emerald-500"
+              : "text-primary"
           }`}>
             {strength.label}
           </span>
@@ -76,7 +76,7 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
           return (
             <div key={rule.label} className="flex items-center gap-2">
               {passed ? (
-                <Check className="h-3 w-3 text-emerald-500" />
+                <Check className="h-3 w-3 text-primary" />
               ) : (
                 <X className="h-3 w-3 text-muted-foreground/50" />
               )}

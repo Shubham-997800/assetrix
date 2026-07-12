@@ -1,20 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, Shield, Brain, BarChart3, CheckCircle, Lock } from "lucide-react";
+import {
+  Zap,
+  Shield,
+  Brain,
+  BarChart3,
+  CheckCircle,
+  Lock,
+} from "lucide-react";
 
 const features = [
   { icon: Shield, label: "Enterprise Security" },
-  { icon: Brain, label: "AI Powered Workflows" },
-  { icon: BarChart3, label: "Real Time Analytics" },
-  { icon: CheckCircle, label: "Role Based Access" },
-  { icon: Lock, label: "Audit Logs" },
+  { icon: Brain, label: "AI-Powered Workflows" },
+  { icon: BarChart3, label: "Real-Time Analytics" },
+  { icon: CheckCircle, label: "Role-Based Access" },
+  { icon: Lock, label: "Audit Logs & Compliance" },
 ];
 
 const metrics = [
-  { value: "99.99%", label: "Availability" },
+  { value: "99.99%", label: "Uptime SLA" },
   { value: "10M+", label: "Events Processed" },
-  { value: "250K+", label: "Users" },
+  { value: "250K+", label: "Assets Managed" },
   { value: "42", label: "Countries" },
 ];
 
@@ -36,11 +43,13 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
           {/* Tagline */}
           <h2 className="mt-10 text-3xl font-bold leading-tight text-foreground lg:text-4xl">
-            The operating system for modern business workflows.
+            The enterprise platform for asset
+            <br />
+            and resource management.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Automate approvals, analyze data, manage operations and make faster
-            decisions using AI powered workflows.
+            Track assets, automate maintenance, manage bookings, and make
+            faster decisions with AI-powered workflows and real-time analytics.
           </p>
 
           {/* Features */}
@@ -50,7 +59,9 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
                   <f.icon className="h-4 w-4 text-primary" />
                 </div>
-                <span className="text-sm font-medium text-foreground">{f.label}</span>
+                <span className="text-sm font-medium text-foreground">
+                  {f.label}
+                </span>
               </div>
             ))}
           </div>
@@ -63,6 +74,21 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
                 <p className="text-xs text-muted-foreground">{m.label}</p>
               </div>
             ))}
+          </div>
+
+          {/* Trust Badge */}
+          <div className="mt-10 flex items-center gap-2 text-xs text-muted-foreground/60">
+            <svg
+              className="h-3.5 w-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0110 0v4" />
+            </svg>
+            <span>SOC 2 Type II compliant · GDPR ready · ISO 27001</span>
           </div>
         </div>
       </div>

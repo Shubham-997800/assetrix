@@ -5,7 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/shared/auth-layout";
 import { AuthInput } from "@/components/auth/auth-input";
-import { PasswordStrength, getPasswordStrength } from "@/components/auth/password-strength";
+import {
+  PasswordStrength,
+  getPasswordStrength,
+} from "@/components/auth/password-strength";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, CheckCircle } from "lucide-react";
 
@@ -27,7 +30,7 @@ export default function ResetPasswordPage() {
     if (!password) {
       newErrors.password = "Password is required";
     } else if (getPasswordStrength(password).score < 2) {
-      newErrors.password = "Password is too weak";
+      newErrors.password = "Password does not meet requirements";
     }
     if (!confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password";
@@ -47,7 +50,6 @@ export default function ResetPasswordPage() {
     setSuccess(true);
     setLoading(false);
 
-    // Redirect after 3s
     setTimeout(() => router.push("/login"), 3000);
   };
 
@@ -62,7 +64,8 @@ export default function ResetPasswordPage() {
                 Set new password
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Choose a strong password for your account.
+                Choose a strong password for your account. It must include
+                uppercase, lowercase, numbers, and special characters.
               </p>
             </div>
 
@@ -77,7 +80,8 @@ export default function ResetPasswordPage() {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                    if (errors.password)
+                      setErrors((prev) => ({ ...prev, password: undefined }));
                   }}
                   autoComplete="new-password"
                 />
@@ -92,7 +96,11 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
-                  if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+                  if (errors.confirmPassword)
+                    setErrors((prev) => ({
+                      ...prev,
+                      confirmPassword: undefined,
+                    }));
                 }}
                 autoComplete="new-password"
               />
@@ -117,8 +125,8 @@ export default function ResetPasswordPage() {
         ) : (
           /* Success State */
           <div className="text-center animate-fade-in-up">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10">
-              <CheckCircle className="h-8 w-8 text-emerald-500" />
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+              <CheckCircle className="h-8 w-8 text-primary" />
             </div>
             <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">
               Password reset successful

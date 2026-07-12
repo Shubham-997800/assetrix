@@ -5,9 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/shared/auth-layout";
 import { AuthInput } from "@/components/auth/auth-input";
-import { PasswordStrength, getPasswordStrength } from "@/components/auth/password-strength";
+import {
+  PasswordStrength,
+  getPasswordStrength,
+} from "@/components/auth/password-strength";
 import { Button } from "@/components/ui/button";
-import { Loader2, Mail, User } from "lucide-react";
+import { Loader2, Mail, User, Shield, ArrowRight, CheckCircle } from "lucide-react";
 
 interface FormErrors {
   name?: string;
@@ -18,6 +21,13 @@ interface FormErrors {
   general?: string;
 }
 
+const workflowSteps = [
+  "You create an Employee account",
+  "Admin reviews your registration",
+  "Admin assigns your role and department",
+  "You receive access to your workspace",
+];
+
 export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -27,22 +37,23 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [marketing, setMarketing] = useState(false);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
     if (!name.trim()) {
       newErrors.name = "Full name is required";
+    } else if (name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters";
     }
     if (!email) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = "Please enter a valid work email address";
     }
     if (!password) {
       newErrors.password = "Password is required";
     } else if (getPasswordStrength(password).score < 2) {
-      newErrors.password = "Password is too weak";
+      newErrors.password = "Password does not meet requirements";
     }
     if (!confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password";
@@ -69,19 +80,40 @@ export default function RegisterPage() {
   return (
     <AuthLayout>
       <div className="space-y-8">
+        {/* Employee Only Notice */}
+        <div className="rounded-xl border border-border bg-muted/30 px-4 py-3">
+          <div className="flex items-start gap-3">
+            <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Employee Accounts Only
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                All new registrations are created as Employee accounts.
+                Administrative roles are assigned internally by system
+                administrators.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Create your account
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Start your 14-day free trial. No credit card required.
+            Join your organization&apos;s workspace. Your admin will assign
+            roles after registration.
           </p>
         </div>
 
         {/* Error Banner */}
         {errors.general && (
-          <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 animate-fade-in" role="alert">
+          <div
+            className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 animate-fade-in"
+            role="alert"
+          >
             <p className="text-sm text-destructive">{errors.general}</p>
           </div>
         )}
@@ -97,7 +129,8 @@ export default function RegisterPage() {
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-              if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+              if (errors.name)
+                setErrors((prev) => ({ ...prev, name: undefined }));
             }}
             autoComplete="name"
           />
@@ -111,7 +144,8 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+              if (errors.email)
+                setErrors((prev) => ({ ...prev, email: undefined }));
             }}
             autoComplete="email"
           />
@@ -125,7 +159,8 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                if (errors.password)
+                  setErrors((prev) => ({ ...prev, password: undefined }));
               }}
               autoComplete="new-password"
             />
@@ -140,7 +175,11 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
-              if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+              if (errors.confirmPassword)
+                setErrors((prev) => ({
+                  ...prev,
+                  confirmPassword: undefined,
+                }));
             }}
             autoComplete="new-password"
           />
@@ -154,38 +193,33 @@ export default function RegisterPage() {
                 checked={acceptTerms}
                 onChange={(e) => {
                   setAcceptTerms(e.target.checked);
-                  if (errors.terms) setErrors((prev) => ({ ...prev, terms: undefined }));
+                  if (errors.terms)
+                    setErrors((prev) => ({ ...prev, terms: undefined }));
                 }}
                 className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
               />
               <label htmlFor="terms" className="text-sm text-muted-foreground">
                 I agree to the{" "}
-                <Link href="#" className="font-medium text-foreground underline hover:text-primary">
+                <Link
+                  href="#"
+                  className="font-medium text-foreground underline hover:text-primary"
+                >
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="#" className="font-medium text-foreground underline hover:text-primary">
+                <Link
+                  href="#"
+                  className="font-medium text-foreground underline hover:text-primary"
+                >
                   Privacy Policy
                 </Link>
               </label>
             </div>
             {errors.terms && (
-              <p className="text-xs text-destructive" role="alert">{errors.terms}</p>
+              <p className="text-xs text-destructive" role="alert">
+                {errors.terms}
+              </p>
             )}
-          </div>
-
-          {/* Marketing */}
-          <div className="flex items-start gap-2.5">
-            <input
-              id="marketing"
-              type="checkbox"
-              checked={marketing}
-              onChange={(e) => setMarketing(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
-            />
-            <label htmlFor="marketing" className="text-sm text-muted-foreground">
-              Send me product updates and tips (optional)
-            </label>
           </div>
 
           {/* Submit */}
@@ -205,6 +239,23 @@ export default function RegisterPage() {
             )}
           </Button>
         </form>
+
+        {/* Role Assignment Workflow */}
+        <div className="rounded-xl border border-border bg-muted/30 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            How access works
+          </p>
+          <div className="mt-3 space-y-2.5">
+            {workflowSteps.map((step, i) => (
+              <div key={i} className="flex items-center gap-2.5">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                  {i + 1}
+                </div>
+                <p className="text-xs text-muted-foreground">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Footer */}
         <p className="text-center text-sm text-muted-foreground">
