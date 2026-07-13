@@ -117,15 +117,15 @@ app.use(errorHandler);
 // ─── SERVER START ─────────────────────────────────────────
 const startServer = async (): Promise<void> => {
   try {
-    await connectDatabase();
-    await getRedisConnection();
-    logger.info('Redis connected');
-
     app.listen(config.port, () => {
       logger.info(`Assetrix API running on port ${config.port}`);
       logger.info(`Environment: ${config.nodeEnv}`);
       logger.info(`API Docs: http://localhost:${config.port}/api-docs`);
     });
+
+    await connectDatabase();
+    await getRedisConnection();
+    logger.info('Redis connected');
   } catch (error) {
     logger.error({ error }, 'Failed to start server');
     process.exit(1);
