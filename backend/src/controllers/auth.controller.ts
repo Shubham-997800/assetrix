@@ -63,7 +63,7 @@ export const register = async (req: AuthenticatedRequest, res: Response): Promis
       .cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000,
         path: '/api/v1/auth',
       })
@@ -97,7 +97,7 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<v
       .cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge,
         path: '/api/v1/auth',
       })
@@ -136,7 +136,7 @@ export const refreshToken = async (req: AuthenticatedRequest, res: Response): Pr
       .cookie('refreshToken', tokens.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000,
         path: '/api/v1/auth',
       })
@@ -165,7 +165,7 @@ export const logout = async (req: AuthenticatedRequest, res: Response): Promise<
       .clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         path: '/api/v1/auth',
       })
       .json(successResponse('Logged out successfully'));
@@ -192,7 +192,7 @@ export const logoutAll = async (req: AuthenticatedRequest, res: Response): Promi
       .clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         path: '/api/v1/auth',
       })
       .json(successResponse('Logged out from all devices successfully'));

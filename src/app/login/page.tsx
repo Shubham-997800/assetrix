@@ -23,6 +23,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const validate = (): boolean => {
     const e: FormErrors = {};
@@ -40,7 +41,7 @@ function LoginForm() {
     setLoading(true);
     setErrors({});
     try {
-      await login(email, password, true);
+      await login(email, password, rememberMe);
       const redirect = searchParams.get("redirect") || "/dashboard";
       router.push(redirect);
     } catch (err: unknown) {
@@ -160,9 +161,11 @@ function LoginForm() {
           </div>
 
           {/* Remember */}
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
             <input
               type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
               className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20"
             />
             Remember me

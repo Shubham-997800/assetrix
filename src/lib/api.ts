@@ -13,12 +13,12 @@ function getCookie(name: string): string | null {
 
 function setCookie(name: string, value: string, maxAgeSeconds: number) {
   if (typeof document === "undefined") return;
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}; SameSite=Lax`;
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}; SameSite=None; Secure`;
 }
 
 function deleteCookie(name: string) {
   if (typeof document === "undefined") return;
-  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+  document.cookie = `${name}=; path=/; max-age=0; SameSite=None; Secure`;
 }
 
 export function setAccessToken(token: string | null) {
