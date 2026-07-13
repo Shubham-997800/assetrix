@@ -4,10 +4,10 @@ import logger from './logger';
 
 let redis: Redis | null = null;
 
-export const getRedisConnection = (): Redis => {
+export const getRedisConnection = async (): Promise<Redis> => {
   if (!redis) {
     const opts: Record<string, unknown> = config.redis.url
-      ? { 
+      ? {
           lazyConnect: true,
           retryStrategy(times: number) {
             const delay = Math.min(times * 200, 2000);
@@ -18,6 +18,7 @@ export const getRedisConnection = (): Redis => {
           host: config.redis.host,
           port: config.redis.port,
           password: config.redis.password,
+          lazyConnect: true,
           maxRetriesPerRequest: 3,
           retryStrategy(times: number) {
             const delay = Math.min(times * 200, 2000);
@@ -39,9 +40,11 @@ export const getRedisConnection = (): Redis => {
       logger.warn('Redis connection closed');
     });
 
-    redis.connect().catch((err) => {
+    try {
+      await redis.connect();
+    } catch (err) {
       logger.error({ error: err }, 'Redis initial connection failed');
-    });
+    }
   }
   return redis;
 };

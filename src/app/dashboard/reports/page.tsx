@@ -1,18 +1,13 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState } from "react";
-=======
-import React from "react";
->>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
+import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw, Loader2 } from "lucide-react";
 import { ReportTabs } from "./_components/report-tabs";
 import { reportApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 
-<<<<<<< HEAD
-export default function ReportsPage() {
+function ReportsPage() {
   const [exporting, setExporting] = useState(false);
 
   const handleExportAll = async () => {
@@ -31,9 +26,6 @@ export default function ReportsPage() {
     }
   };
 
-=======
-function ReportsPage() {
->>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -42,8 +34,7 @@ function ReportsPage() {
           <p className="mt-1 text-sm text-muted-foreground">Assetrix ERP &mdash; Asset intelligence and insights</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="btn-enterprise" onClick={() => window.location.reload()}><RefreshCw className="h-3.5 w-3.5" /> Refresh</Button>
-          <Button size="sm" className="btn-enterprise" onClick={handleExportAll} disabled={exporting}>
+          <Button variant="outline" size="sm" className="btn-enterprise" onClick={handleExportAll} disabled={exporting}>
             {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />} {exporting ? "Exporting..." : "Export All"}
           </Button>
         </div>
@@ -53,4 +44,4 @@ function ReportsPage() {
   );
 }
 
-export default React.memo(ReportsPage);
+export default memo(ReportsPage);

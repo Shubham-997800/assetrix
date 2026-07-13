@@ -1,12 +1,7 @@
 "use client";
 
-<<<<<<< HEAD
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { assetApi } from "@/lib/api";
-=======
-import { useState, useCallback, memo } from "react";
-import { MOCK_ASSETS } from "./_components/data";
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
 import { AssetDirectoryTable } from "./_components/asset-directory-table";
 import { RegisterAssetForm } from "./_components/register-asset-form";
 import { AssetDetailsView } from "./_components/asset-details-view";
@@ -15,7 +10,6 @@ import type { Asset, AssetStatus, AssetCondition } from "./_components/types";
 
 type View = "directory" | "register" | "details" | "lifecycle";
 
-<<<<<<< HEAD
 const STATUS_MAP: Record<string, AssetStatus> = {
   AVAILABLE: "Available",
   ALLOCATED: "Allocated",
@@ -32,6 +26,14 @@ const CONDITION_MAP: Record<string, AssetCondition> = {
   POOR: "Poor",
   DAMAGED: "Damaged",
 };
+
+const ASSET_TABS: { id: View; label: string }[] = [
+  { id: "directory", label: "All Assets" },
+  { id: "register", label: "Register Asset" },
+  { id: "lifecycle", label: "Lifecycle" },
+] as const;
+
+const HIDE_TABS_VIEWS: ReadonlySet<View> = new Set(["details", "register"]);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- backend assets return loosely-typed data with nested objects
 function mapBackendAsset(apiAsset: Record<string, any>): Asset {
@@ -78,18 +80,7 @@ function mapBackendAsset(apiAsset: Record<string, any>): Asset {
   };
 }
 
-export default function AssetsPage() {
-=======
-const ASSET_TABS: { id: View; label: string }[] = [
-  { id: "directory", label: "All Assets" },
-  { id: "register", label: "Register Asset" },
-  { id: "lifecycle", label: "Lifecycle" },
-] as const;
-
-const HIDE_TABS_VIEWS: ReadonlySet<View> = new Set(["details", "register"]);
-
 function AssetsPage() {
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
   const [view, setView] = useState<View>("directory");
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -130,14 +121,10 @@ function AssetsPage() {
     setView("register");
   }, []);
 
-<<<<<<< HEAD
-  const handleRegisterSubmit = () => {
-    fetchAssets();
-=======
   const handleRegisterSubmit = useCallback(() => {
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
+    fetchAssets();
     setView("directory");
-  }, []);
+  }, [fetchAssets]);
 
   const handleBack = useCallback(() => {
     setSelectedAsset(null);

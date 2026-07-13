@@ -1,10 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
-import { useMemo, useEffect, useState, useCallback } from "react";
-=======
-import { useMemo, useCallback, memo } from "react";
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
+import { useMemo, useEffect, useState, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Wrench,
@@ -110,7 +106,6 @@ function MaintenancePage() {
           </div>
         )}
 
-<<<<<<< HEAD
         {loading && !showForm ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -121,11 +116,7 @@ function MaintenancePage() {
             <Button variant="outline" size="sm" className="btn-enterprise mt-3" onClick={fetchRequests}>Retry</Button>
           </div>
         ) : showForm ? (
-          <RaiseRequestForm onSubmit={() => { setShowForm(false); fetchRequests(); }} onCancel={() => setShowForm(false)} />
-=======
-        {showForm ? (
-          <RaiseRequestForm onSubmit={handleHideForm} onCancel={handleHideForm} />
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
+          <RaiseRequestForm onSubmit={() => { setShowForm(false); fetchRequests(); }} onCancel={handleHideForm} />
         ) : (
           <MaintenanceTabs initialRequests={requests} onRefresh={fetchRequests} />
         )}

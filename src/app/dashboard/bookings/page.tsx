@@ -1,10 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState, useEffect } from "react";
-=======
-import { useState, useCallback, useMemo, memo } from "react";
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   CalendarClock,
@@ -32,7 +28,6 @@ import type { Booking as ApiBooking } from "@/lib/types";
 type Tab = "calendar" | "resources" | "upcoming" | "ongoing" | "completed" | "cancelled" | "history";
 type View = "tabs" | "form";
 
-<<<<<<< HEAD
 function mapBookingStatus(b: ApiBooking): string {
   switch (b.status) {
     case "PENDING": return "Upcoming";
@@ -50,19 +45,6 @@ function mapBookingStatus(b: ApiBooking): string {
     default: return "Upcoming";
   }
 }
-=======
-const BOOKING_TAB_LABELS: Record<Tab, { label: string; icon: React.ElementType }> = {
-  calendar: { label: "Calendar View", icon: Calendar },
-  resources: { label: "Resources", icon: MapPin },
-  upcoming: { label: "Upcoming", icon: CalendarClock },
-  ongoing: { label: "Ongoing", icon: Clock },
-  completed: { label: "Completed", icon: CheckCircle },
-  cancelled: { label: "Cancelled", icon: XCircle },
-  history: { label: "Booking History", icon: History },
-};
-
-const TAB_ORDER: Tab[] = ["calendar", "resources", "upcoming", "ongoing", "completed", "cancelled", "history"];
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
 
 const TAB_CONTENT: Record<Tab, React.ElementType | null> = {
   calendar: CalendarViewTab,
@@ -91,7 +73,9 @@ function BookingsPage() {
         });
         setCounts(c);
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Failed to fetch bookings:", err);
+      });
   }, []);
 
   const tabs: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
@@ -103,13 +87,6 @@ function BookingsPage() {
     { id: "cancelled", label: "Cancelled", icon: XCircle, count: counts.cancelled },
     { id: "history", label: "Booking History", icon: History },
   ];
-
-  const counts = useMemo(() => ({
-    upcoming: MOCK_BOOKINGS.filter((b) => b.status === "Upcoming").length,
-    ongoing: MOCK_BOOKINGS.filter((b) => b.status === "Ongoing").length,
-    completed: MOCK_BOOKINGS.filter((b) => b.status === "Completed").length,
-    cancelled: MOCK_BOOKINGS.filter((b) => b.status === "Cancelled").length,
-  }), []);
 
   const handleNewBooking = useCallback(() => {
     setView("form");
@@ -145,30 +122,28 @@ function BookingsPage() {
 
       {/* Tabs */}
       {view === "tabs" && (
-        <div className="flex items-center gap-1 rounded-lg border border-border bg-muted p-1">
-          {TAB_ORDER.map((id) => {
-            const { label, icon: Icon } = BOOKING_TAB_LABELS[id];
-            const count = counts[id as keyof typeof counts];
-            return (
+        <div className="border-b border-border">
+          <nav className="flex gap-1 overflow-x-auto">
+            {tabs.map((t) => (
               <button
-                key={id}
-                onClick={() => handleSetActiveTab(id)}
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
-                  activeTab === id
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                key={t.id}
+                onClick={() => handleSetActiveTab(t.id)}
+                className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  activeTab === t.id
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
-                {label}
-                {count !== undefined && (
+                <t.icon className="h-4 w-4" />
+                {t.label}
+                {t.count !== undefined && (
                   <span className="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
-                    {count}
+                    {t.count}
                   </span>
                 )}
               </button>
-            );
-          })}
+            ))}
+          </nav>
         </div>
       )}
 

@@ -33,8 +33,20 @@ const app = express();
 
 // ─── GLOBAL MIDDLEWARE ────────────────────────────────────
 app.use(helmet());
+const allowedOrigins = [
+  config.frontendUrl,
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
+
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -95,6 +107,7 @@ const startServer = async (): Promise<void> => {
   try {
     await connectDatabase();
     await getRedisConnection();
+    logger.info('Redis connected');
 
     app.listen(config.port, () => {
       logger.info(`Assetrix API running on port ${config.port}`);

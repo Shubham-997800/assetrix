@@ -143,7 +143,7 @@ async function main() {
         name: cat.name,
         code: cat.code,
         description: cat.description,
-        depreciationRate: cat.depreciationRate,
+        defaultUsefulLife: cat.depreciationRate,
       },
     });
     createdCats[cat.code] = created.id;
@@ -175,6 +175,7 @@ async function main() {
         data: {
           name: template.name,
           assetTag: generateAssetTag(categoryCode, i),
+          qrCode: `QR-${categoryCode}-${String(i + 1).padStart(4, '0')}`,
           serialNumber: generateSerialNumber(),
           description: `${template.brand} ${template.model}`,
           status,

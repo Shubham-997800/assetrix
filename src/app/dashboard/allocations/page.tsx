@@ -1,10 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState, useEffect } from "react";
-=======
-import { useState, useCallback, memo } from "react";
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
+import { useState, useEffect, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeftRight,
@@ -31,9 +27,6 @@ import {
 type Tab = "active" | "allocate" | "transfers" | "approvals" | "overdue" | "returned" | "history";
 type View = "tabs" | "form";
 
-<<<<<<< HEAD
-export default function AllocationsPage() {
-=======
 const ALLOCATION_TABS: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
   { id: "active", label: "Active Allocations", icon: ArrowLeftRight },
   { id: "transfers", label: "Transfer Requests", icon: ArrowRight },
@@ -54,7 +47,6 @@ const TAB_CONTENT: Record<Tab, React.ElementType | null> = {
 };
 
 function AllocationsPage() {
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
   const [view, setView] = useState<View>("tabs");
   const [activeTab, setActiveTab] = useState<Tab>("active");
   const [allocations, setAllocations] = useState<Allocation[]>([]);
@@ -84,17 +76,10 @@ function AllocationsPage() {
           }))
         );
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Failed to fetch allocations:", err);
+      });
   }, []);
-
-  const tabs: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
-    { id: "active", label: "Active Allocations", icon: ArrowLeftRight },
-    { id: "transfers", label: "Transfer Requests", icon: ArrowRight },
-    { id: "approvals", label: "Pending Approvals", icon: Clock },
-    { id: "overdue", label: "Overdue Returns", icon: AlertTriangle },
-    { id: "returned", label: "Returned Assets", icon: RotateCcw },
-    { id: "history", label: "Allocation History", icon: History },
-  ];
 
   const handleAllocate = useCallback(() => {
     setView("form");
@@ -160,15 +145,9 @@ function AllocationsPage() {
 
       {view === "form" && (
         <AllocateAssetForm
-<<<<<<< HEAD
           existingAllocations={allocations}
-          onSubmit={() => setView("tabs")}
-          onCancel={() => setView("tabs")}
-=======
-          existingAllocations={MOCK_ALLOCATIONS}
           onSubmit={handleViewTabs}
           onCancel={handleViewTabs}
->>>>>>> 95ccf54 (perf: optimize assets, allocations, bookings, maintenance, audit pages)
         />
       )}
     </div>

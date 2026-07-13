@@ -1,17 +1,12 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState, useCallback } from "react";
-=======
-import React from "react";
->>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
+import { useState, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Bell, RefreshCw } from "lucide-react";
 import { NotificationTabs } from "./_components/notification-tabs";
 import { notificationApi } from "@/lib/api";
 
-<<<<<<< HEAD
-export default function NotificationsPage() {
+function NotificationsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [markingAll, setMarkingAll] = useState(false);
 
@@ -27,9 +22,6 @@ export default function NotificationsPage() {
     }
   }, []);
 
-=======
-function NotificationsPage() {
->>>>>>> 96f7f5d (perf: optimize reports, notifications, profile, logs pages)
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -47,4 +39,4 @@ function NotificationsPage() {
   );
 }
 
-export default React.memo(NotificationsPage);
+export default memo(NotificationsPage);
