@@ -73,11 +73,13 @@ export function ProfileHeader({ name, role, department, status, joinDate, initia
         {/* Avatar */}
         <div className="relative self-center sm:self-start">
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-2xl font-bold text-primary overflow-hidden">
+            {/* eslint-disable @next/next/no-img-element */}
             {avatarUrl ? (
               <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
             ) : (
               initials
             )}
+            {/* eslint-enable @next/next/no-img-element */}
           </div>
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -135,6 +137,7 @@ export function ProfileHeader({ name, role, department, status, joinDate, initia
             </div>
             <div className="mt-4 flex justify-center">
               <div className="h-32 w-32 overflow-hidden rounded-2xl bg-muted">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 {uploadPreview && <img src={uploadPreview} alt="Preview" className="h-full w-full object-cover" />}
               </div>
             </div>

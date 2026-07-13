@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Monitor, Smartphone, LogOut, Globe, Loader2 } from "lucide-react";
 import { authApi, ApiError } from "@/lib/api";
@@ -58,7 +58,11 @@ export function ActiveSessions() {
     return Monitor;
   };
 
-  const nowMs = useMemo(() => Date.now(), []);
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
+  useEffect(() => {
+    setNowMs(Date.now());
+  }, []);
 
   const formatTime = (dateStr: string) => {
     const diff = nowMs - new Date(dateStr).getTime();

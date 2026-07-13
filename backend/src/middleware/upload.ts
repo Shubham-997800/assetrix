@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { config } from '../config';
-import { HTTP_STATUS, ALLOWED_FILE_TYPES } from '../constants';
+import { HTTP_STATUS, ALLOWED_FILE_TYPES, ALLOWED_MIME_TYPES, MAX_FILE_SIZE_BYTES } from '../constants';
 import { errorResponse } from '../utils/response';
 import { generateId } from '../utils';
 
@@ -11,24 +11,34 @@ const storage = multer.diskStorage({
     cb(null, config.upload.dir);
   },
   filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${generateId()}${ext}`);
+    const ext = path.extname(file.originalname).toLowerCase();
+    const sanitizedExt = (ALLOWED_FILE_TYPES as Record<string, string>)[file.mimetype] || ext;
+    cb(null, `${generateId()}${sanitizedExt}`);
   },
 });
 
+const ALLOWED_EXTENSIONS: Set<string> = new Set(Object.values(ALLOWED_FILE_TYPES));
+
 const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback): void => {
-  if (Object.keys(ALLOWED_FILE_TYPES).includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error(`File type ${file.mimetype} is not allowed`));
+  if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    cb(new Error(`File type "${file.mimetype}" is not allowed. Accepted types: images (JPEG, PNG, GIF, WebP), documents (PDF, DOC, DOCX, XLS, XLSX).`));
+    return;
   }
+
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (!ALLOWED_EXTENSIONS.has(ext)) {
+    cb(new Error(`File extension "${ext}" is not allowed.`));
+    return;
+  }
+
+  cb(null, true);
 };
 
 export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: config.upload.maxFileSize,
+    fileSize: config.upload.maxFileSize || MAX_FILE_SIZE_BYTES,
   },
 });
 

@@ -2,7 +2,7 @@
 
 import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw, Loader2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import { ReportTabs } from "./_components/report-tabs";
 import { reportApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PASSWORD_REGEX, PASSWORD_MIN_MSG } from '../constants';
 
 const userRoles = ['SUPER_ADMIN', 'ADMIN', 'DEPARTMENT_MANAGER', 'TECHNICIAN', 'EMPLOYEE'] as const;
 const userStatuses = ['ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING_VERIFICATION'] as const;
@@ -13,10 +14,7 @@ export const createUserSchema = z.object({
     .string()
     .min(8, 'Password must be at least 8 characters')
     .max(128, 'Password must not exceed 128 characters')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
-      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-    ),
+    .regex(PASSWORD_REGEX, PASSWORD_MIN_MSG),
   firstName: z
     .string()
     .min(1, 'First name is required')
@@ -42,7 +40,7 @@ export const createUserSchema = z.object({
     .nullable(),
   designation: z
     .string()
-    .max(150, 'Designation must not exceed 150 characters')
+    .max(100, 'Designation must not exceed 100 characters')
     .trim()
     .optional()
     .nullable(),
@@ -85,7 +83,7 @@ export const updateUserSchema = z.object({
     .nullable(),
   designation: z
     .string()
-    .max(150, 'Designation must not exceed 150 characters')
+    .max(100, 'Designation must not exceed 100 characters')
     .trim()
     .optional()
     .nullable(),

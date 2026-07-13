@@ -393,6 +393,14 @@ export const UserService = {
       throw new AppError('You cannot change your own role', HTTP_STATUS.FORBIDDEN);
     }
 
+    const privilegedRoles = ['ADMIN', 'DEPARTMENT_MANAGER'];
+    if (privilegedRoles.includes(data.role) && performedByRole !== 'SUPER_ADMIN') {
+      throw new AppError(
+        'Only a Super Admin can assign Admin or Department Manager roles',
+        HTTP_STATUS.FORBIDDEN
+      );
+    }
+
     const oldRole = target.role;
 
     const updated = await prisma.user.update({

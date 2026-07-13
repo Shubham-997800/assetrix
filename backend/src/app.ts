@@ -32,16 +32,28 @@ import swaggerUi from 'swagger-ui-express';
 const app = express();
 
 // ─── GLOBAL MIDDLEWARE ────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginEmbedderPolicy: false,
+}));
 const allowedOrigins = [
   config.frontendUrl,
+  process.env.CORS_ORIGIN || 'http://localhost:5173',
   'http://localhost:3000',
-  'http://localhost:5173',
+  'https://*.vercel.app',
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    const allowed = allowedOrigins.some((o) => {
+      if (o.includes('*')) {
+        const pattern = new RegExp('^' + o.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+        return pattern.test(origin);
+      }
+      return o === origin;
+    });
+    if (allowed) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -52,8 +64,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(compression());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 app.use(requestLogger);
 app.use(rateLimiter);

@@ -67,7 +67,7 @@ const storeSession = async (
   deviceInfo: DeviceInfo,
   rememberMe: boolean
 ): Promise<void> => {
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
   const ttl = rememberMe ? REFRESH_REMEMBER_ME_TTL_SECONDS : REFRESH_TTL_SECONDS;
 
   const session = await prisma.session.create({
@@ -109,7 +109,7 @@ const storeSession = async (
 };
 
 const revokeSession = async (userId: string): Promise<void> => {
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
 
   await prisma.session.updateMany({
     where: { userId, isActive: true },
@@ -148,7 +148,7 @@ const detectSuspiciousLogin = async (
   ipAddress?: string,
   userAgent?: string
 ): Promise<{ isSuspicious: boolean; reason?: string }> => {
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
   const recentLogins = await prisma.loginHistory.findMany({
     where: {
       userId,
@@ -263,7 +263,7 @@ export const register = async (
       employeeId: data.employeeId || null,
       designation: data.designation || null,
       departmentId: data.departmentId || null,
-      role: (data.role as any) || 'EMPLOYEE',
+      role: 'EMPLOYEE',
       status: 'PENDING_VERIFICATION',
       emailVerified: false,
       termsAccepted: true,
@@ -278,7 +278,7 @@ export const register = async (
     },
   });
 
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
   await redis.setex(
     REDIS_KEYS.EMAIL_VERIFICATION(user.email),
     verificationTtl,
@@ -373,7 +373,7 @@ export const login = async (
 
   if (!user || user.deletedAt) {
     if (ipAddress) {
-      const redis = getRedisConnection();
+      const redis = await getRedisConnection();
       await redis.incr(REDIS_KEYS.FAILED_LOGINS(ipAddress));
       await redis.expire(REDIS_KEYS.FAILED_LOGINS(ipAddress), AUTH_CONSTANTS.IP_LOCKOUT_WINDOW_MINUTES * 60);
     }
@@ -449,10 +449,13 @@ export const login = async (
   }
 
   if (!user.emailVerified) {
-    throw new AppError(
-      'Please verify your email address before logging in',
-      HTTP_STATUS.FORBIDDEN
-    );
+    if (config.nodeEnv === 'production') {
+      throw new AppError(
+        'Please verify your email address before logging in',
+        HTTP_STATUS.FORBIDDEN
+      );
+    }
+    await prisma.user.update({ where: { id: user.id }, data: { emailVerified: true } });
   }
 
   await enforceConcurrentSessionLimit(user.id);
@@ -604,7 +607,7 @@ export const refreshToken = async (
     throw new AppError('Account is no longer active', HTTP_STATUS.FORBIDDEN);
   }
 
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
   const storedRefreshToken = await redis.get(REDIS_KEYS.REFRESH_TOKEN(user.id));
 
   if (!storedRefreshToken || storedRefreshToken !== refreshTokenStr) {
@@ -661,7 +664,7 @@ export const logout = async (
   userId: string,
   refreshTokenStr?: string
 ): Promise<void> => {
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
 
   if (refreshTokenStr) {
     await prisma.session.updateMany({
@@ -730,7 +733,7 @@ export const forgotPassword = async (email: string): Promise<void> => {
   }
 
   const resetToken = generateToken(32);
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
 
   await redis.setex(
     REDIS_KEYS.PASSWORD_RESET(user.email),
@@ -785,7 +788,7 @@ export const resetPassword = async (
   token: string,
   newPassword: string
 ): Promise<void> => {
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
 
   const keys = await redis.keys('password-reset:*');
   let matchedEmail: string | null = null;
@@ -808,80 +811,16 @@ export const resetPassword = async (
       throw new AppError('Invalid or expired reset token', HTTP_STATUS.BAD_REQUEST);
     }
 
-    const user = await prisma.user.findUnique({
+    const lookupUser = await prisma.user.findUnique({
       where: { id: dbToken.userId },
       select: { id: true, email: true, password: true, status: true, deletedAt: true },
     });
 
-    if (!user || user.deletedAt) {
+    if (!lookupUser || lookupUser.deletedAt) {
       throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
     }
 
-    matchedEmail = user.email;
-  } else {
-    const user = await prisma.user.findUnique({
-      where: { email: matchedEmail },
-      select: { id: true, email: true, password: true, status: true, deletedAt: true },
-    });
-
-    if (!user || user.deletedAt) {
-      throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
-    }
-
-    const isSamePassword = await comparePassword(newPassword, user.password);
-    if (isSamePassword) {
-      throw new AppError(
-        'New password must be different from your current password',
-        HTTP_STATUS.BAD_REQUEST
-      );
-    }
-
-    const hashedPassword = await hashPassword(newPassword);
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        password: hashedPassword,
-        loginAttempts: 0,
-        lockedUntil: null,
-      },
-    });
-
-    await redis.del(REDIS_KEYS.PASSWORD_RESET(matchedEmail));
-    await revokeSession(user.id);
-
-    await prisma.passwordResetToken.updateMany({
-      where: { userId: user.id, isUsed: false },
-      data: { isUsed: true },
-    });
-
-    await emailQueue.add('send-email', {
-      to: user.email,
-      subject: 'Your Assetrix password has been changed',
-      html: `
-        <h1>Password Changed</h1>
-        <p>Your password has been successfully changed.</p>
-        <p>If you did not make this change, please contact support immediately.</p>
-      `,
-    });
-
-    await createNotification({
-      userId: user.id,
-      type: NotificationType.PASSWORD_CHANGED,
-      title: 'Password Changed',
-      message: 'Your password has been successfully changed.',
-      channel: 'EMAIL',
-    });
-
-    await createAuditLog({
-      userId: user.id,
-      action: 'RESET_PASSWORD',
-      entity: 'User',
-      entityId: user.id,
-    });
-
-    logger.info({ userId: user.id }, 'Password reset successfully');
-    return;
+    matchedEmail = lookupUser.email;
   }
 
   const user = await prisma.user.findUnique({
@@ -951,7 +890,7 @@ export const resetPassword = async (
 // ─── VERIFY EMAIL ─────────────────────────────────────────
 
 export const verifyEmail = async (token: string): Promise<void> => {
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
 
   const keys = await redis.keys('email-verify:*');
   let matchedEmail: string | null = null;
@@ -1062,7 +1001,7 @@ export const resendVerification = async (email: string): Promise<void> => {
     throw new AppError('Email is already verified', HTTP_STATUS.BAD_REQUEST);
   }
 
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
   await redis.del(REDIS_KEYS.EMAIL_VERIFICATION(email));
   await prisma.verificationToken.deleteMany({ where: { userId: user.id } });
 
@@ -1165,7 +1104,7 @@ export const deleteSession = async (
   });
 
   if (activeSessions === 0) {
-    const redis = getRedisConnection();
+    const redis = await getRedisConnection();
     await redis.del(REDIS_KEYS.REFRESH_TOKEN(userId));
     await redis.del(REDIS_KEYS.SESSION(userId));
   }

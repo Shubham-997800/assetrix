@@ -37,8 +37,8 @@ export const config = {
   },
 
   jwt: {
-    secret: isProduction ? requireEnv('JWT_SECRET') : (process.env.JWT_SECRET || 'dev-secret-change-in-production'),
-    refreshSecret: isProduction ? requireEnv('JWT_REFRESH_SECRET') : (process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret-change-in-production'),
+    secret: isProduction ? requireEnv('JWT_SECRET') : (process.env.JWT_SECRET || (() => { throw new Error('Missing required environment variable: JWT_SECRET'); })()),
+    refreshSecret: isProduction ? requireEnv('JWT_REFRESH_SECRET') : (process.env.JWT_REFRESH_SECRET || (() => { throw new Error('Missing required environment variable: JWT_REFRESH_SECRET'); })()),
     accessExpiry: process.env.JWT_ACCESS_EXPIRY || '15m',
     refreshExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
   },

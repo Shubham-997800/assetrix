@@ -211,6 +211,9 @@ function LogsPage() {
           <p className="mt-1 text-sm text-muted-foreground">Monitor system activity and audit trails</p>
         </div>
         <div className="flex items-center gap-2">
+          <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[10px] font-medium text-amber-700 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300" role="status">
+            Demo Data
+          </span>
           <Button variant="outline" size="sm" className="btn-enterprise">
             <Download className="h-3.5 w-3.5" /> Export Logs
           </Button>

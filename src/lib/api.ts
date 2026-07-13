@@ -5,13 +5,29 @@ const API_PREFIX = "/api/v1";
 
 let accessToken: string | null = null;
 
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setCookie(name: string, value: string, maxAgeSeconds: number) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}; SameSite=Lax`;
+}
+
+function deleteCookie(name: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+}
+
 export function setAccessToken(token: string | null) {
   accessToken = token;
   if (typeof window !== "undefined") {
     if (token) {
-      localStorage.setItem("assetrix-token", token);
+      setCookie("assetrix-token", token, 7 * 24 * 60 * 60);
     } else {
-      localStorage.removeItem("assetrix-token");
+      deleteCookie("assetrix-token");
     }
   }
 }
@@ -19,7 +35,7 @@ export function setAccessToken(token: string | null) {
 export function getAccessToken(): string | null {
   if (accessToken) return accessToken;
   if (typeof window !== "undefined") {
-    accessToken = localStorage.getItem("assetrix-token");
+    accessToken = getCookie("assetrix-token");
   }
   return accessToken;
 }
@@ -29,23 +45,50 @@ interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
 }
 
-async function refreshToken(): Promise<boolean> {
-  try {
-    const res = await fetch(`${API_BASE}${API_PREFIX}/auth/refresh`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!res.ok) return false;
-    const data = await res.json();
-    if (data.success && data.data?.accessToken) {
-      setAccessToken(data.data.accessToken);
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+let pendingRequests: Array<{ resolve: (token: string) => void; reject: (err: Error) => void }> = [];
+
+function waitForRefresh(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    pendingRequests.push({ resolve, reject });
+  });
+}
+
+async function doRefresh(): Promise<boolean> {
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
   }
+  isRefreshing = true;
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_BASE}${API_PREFIX}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      if (data.success && data.data?.accessToken) {
+        setAccessToken(data.data.accessToken);
+        const token = data.data.accessToken;
+        pendingRequests.forEach((r) => r.resolve(token));
+        pendingRequests = [];
+        return true;
+      }
+      pendingRequests.forEach((r) => r.reject(new ApiError("Session expired", 401)));
+      pendingRequests = [];
+      return false;
+    } catch {
+      pendingRequests.forEach((r) => r.reject(new ApiError("Session expired", 401)));
+      pendingRequests = [];
+      return false;
+    } finally {
+      isRefreshing = false;
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
 }
 
 export class ApiError extends Error {
@@ -88,33 +131,63 @@ async function request<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(url, {
-    credentials: "include",
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-    ...rest,
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      credentials: "include",
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+      ...rest,
+    });
+  } catch {
+    throw new ApiError("Unable to connect to server. Please check your connection.", 0);
+  }
 
   if (res.status === 401 && token) {
-    const refreshed = await refreshToken();
-    if (refreshed) {
-      headers["Authorization"] = `Bearer ${getAccessToken()}`;
-      const retryRes = await fetch(url, {
-        credentials: "include",
-        headers,
-        body: body ? JSON.stringify(body) : undefined,
-        ...rest,
-      });
-      if (!retryRes.ok) {
-        const errData = await retryRes.json().catch(() => null);
-        throw new ApiError(
-          errData?.message || `Request failed (${retryRes.status})`,
-          retryRes.status,
-          errData?.errors
-        );
+    if (isRefreshing) {
+      try {
+        const newToken = await waitForRefresh();
+        headers["Authorization"] = `Bearer ${newToken}`;
+        let retryRes: Response;
+        try {
+          retryRes = await fetch(url, { credentials: "include", headers, body: body ? JSON.stringify(body) : undefined, ...rest });
+        } catch {
+          throw new ApiError("Unable to connect to server.", 0);
+        }
+        if (!retryRes.ok) {
+          const errData = await retryRes.json().catch(() => null);
+          throw new ApiError(errData?.message || `Request failed (${retryRes.status})`, retryRes.status, errData?.errors);
+        }
+        return retryRes.json();
+      } catch (err) {
+        if (err instanceof ApiError) throw err;
+        throw new ApiError("Session expired", 401);
       }
-      return retryRes.json();
-    } else {
+    }
+    try {
+      const refreshed = await doRefresh();
+      if (refreshed) {
+        headers["Authorization"] = `Bearer ${getAccessToken()}`;
+        let retryRes: Response;
+        try {
+          retryRes = await fetch(url, { credentials: "include", headers, body: body ? JSON.stringify(body) : undefined, ...rest });
+        } catch {
+          throw new ApiError("Unable to connect to server.", 0);
+        }
+        if (!retryRes.ok) {
+          const errData = await retryRes.json().catch(() => null);
+          throw new ApiError(errData?.message || `Request failed (${retryRes.status})`, retryRes.status, errData?.errors);
+        }
+        return retryRes.json();
+      } else {
+        setAccessToken(null);
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+          window.location.href = "/login";
+        }
+        throw new ApiError("Session expired", 401);
+      }
+    } catch (err) {
+      if (err instanceof ApiError) throw err;
       setAccessToken(null);
       if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
         window.location.href = "/login";

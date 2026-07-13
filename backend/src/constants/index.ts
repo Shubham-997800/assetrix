@@ -86,11 +86,18 @@ export const HTTP_STATUS = {
 export const ALLOWED_FILE_TYPES = {
   'image/jpeg': '.jpg',
   'image/png': '.png',
+  'image/gif': '.gif',
+  'image/webp': '.webp',
   'application/pdf': '.pdf',
-  'application/msword': '.docx',
+  'application/msword': '.doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+  'application/vnd.ms-excel': '.xls',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
-  'text/csv': '.csv',
 } as const;
+
+export const ALLOWED_MIME_TYPES = Object.keys(ALLOWED_FILE_TYPES) as readonly string[];
+
+export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export const AUTH_CONSTANTS = {
   MAX_LOGIN_ATTEMPTS: 5,
@@ -130,6 +137,9 @@ export const CACHE_TTL = {
   LONG: 3600,
   DAY: 86400,
 } as const;
+
+export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+export const PASSWORD_MIN_MSG = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
 
 export const PAGINATION_DEFAULTS = {
   PAGE: 1,

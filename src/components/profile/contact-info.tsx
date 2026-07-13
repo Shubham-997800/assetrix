@@ -44,6 +44,8 @@ export function ContactInfo({ editMode, user }: ContactInfoProps) {
     setSaving(true);
     setError(null);
     try {
+      // TODO: Backend does not yet support email change (requires verification flow).
+      // Only phone is updated for now. Email edit should trigger a verification email.
       await userApi.updateProfile({ phone: data.phone });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -83,8 +85,8 @@ export function ContactInfo({ editMode, user }: ContactInfoProps) {
         <div>
           <label className="text-xs font-medium text-muted-foreground">Email Address</label>
           <div className="relative mt-1.5">
-            <input type="email" value={data.email} disabled={!editMode}
-              onChange={(e) => handleChange("email", e.target.value)} className={`${ic} pr-20`} />
+            <input type="email" value={data.email} disabled
+              className={`${ic} pr-20 opacity-70`} aria-label="Email address (contact support to change)" />
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
               {emailVerified ? (
                 <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">

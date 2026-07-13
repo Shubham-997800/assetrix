@@ -408,10 +408,14 @@ export function OverdueReturnsTab() {
       .finally(() => setLoading(false));
   }, []);
 
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
+  useEffect(() => {
+    setNowMs(Date.now());
+  }, []);
+
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
-
-  const nowMs = Date.now();
 
   return (
     <div className="space-y-4">

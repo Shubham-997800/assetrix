@@ -122,7 +122,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
                 <p className="text-[10px] text-muted-foreground -mt-0.5">Enterprise ERP</p>
               </div>
             </Link>
-            <button onClick={() => isMobile ? setMobileDrawerOpen(false) : toggleSidebar()} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+            <button onClick={() => isMobile ? setMobileDrawerOpen(false) : toggleSidebar()} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label={isMobile ? "Close navigation" : "Toggle sidebar"}>
               <PanelLeftClose className="h-4 w-4" />
             </button>
           </>
@@ -132,7 +132,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
       <div className="flex-1 overflow-y-auto py-3 px-2">
         {favorites.length > 0 && (
           <div className="mb-3">
-            <button onClick={handleExpandedFavToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`}>
+            <button onClick={handleExpandedFavToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedFav} aria-label="Toggle favorites">
               {isCollapsed ? <Star className="h-3 w-3" /> : (<><Star className="h-3 w-3" /> Favorites {expandedFav ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>)}
             </button>
             {expandedFav && !isCollapsed && favorites.map((fav) => (
@@ -146,7 +146,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
 
         {recentPages.length > 0 && (
           <div className="mb-3">
-            <button onClick={handleExpandedRecentToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`}>
+            <button onClick={handleExpandedRecentToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedRecent} aria-label="Toggle recent pages">
               {isCollapsed ? <FileText className="h-3 w-3" /> : (<><FileText className="h-3 w-3" /> Recent {expandedRecent ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>)}
             </button>
             {expandedRecent && !isCollapsed && recentPagesLimited.map((page) => (
@@ -162,7 +162,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
 
         {NAV_GROUPS.map((group) => (
           <div key={group.title} className="mb-3">
-            <button onClick={() => toggleGroup(group.title)} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`}>
+            <button onClick={() => toggleGroup(group.title)} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedGroups[group.title]} aria-label={`Toggle ${group.title} section`}>
               {isCollapsed ? null : (<>{group.title} {expandedGroups[group.title] ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>)}
             </button>
             {expandedGroups[group.title] && group.items.map((item) => (
@@ -194,6 +194,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
                     onClick={(e) => { e.preventDefault(); toggleFavorite(item); }}
                     className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground/0 group-hover/fav:text-muted-foreground hover:text-yellow-500 transition-colors"
                     title={isFavorited(item.href) ? "Remove from favorites" : "Add to favorites"}
+                    aria-label={isFavorited(item.href) ? `Remove ${item.label} from favorites` : `Add ${item.label} to favorites`}
                   >
                     <Star className={`h-3 w-3 ${isFavorited(item.href) ? "fill-yellow-500 text-yellow-500" : ""}`} />
                   </button>
@@ -212,6 +213,8 @@ const DashboardSidebar = memo(function DashboardSidebar() {
           onClick={() => handleAiToggle(isMobile)}
           className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors ${aiPanelOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"} ${isCollapsed ? "justify-center px-2" : ""}`}
           title="AI Assistant"
+          aria-label="Toggle AI Assistant panel"
+          aria-expanded={aiPanelOpen}
         >
           <Sparkles className="h-4 w-4" />
           {!isCollapsed && "AI Assistant"}
@@ -220,6 +223,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
           onClick={() => handleShortcuts(isMobile)}
           className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground ${isCollapsed ? "justify-center px-2" : ""}`}
           title="Keyboard shortcuts"
+          aria-label="Open keyboard shortcuts"
         >
           <HelpCircle className="h-4 w-4" />
           {!isCollapsed && "Shortcuts"}
@@ -234,6 +238,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
         <button
           onClick={() => logout()}
           className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground ${isCollapsed ? "justify-center px-2" : ""}`}
+          aria-label="Sign out"
         >
           <LogOut className="h-4 w-4" />
           {!isCollapsed && "Sign Out"}

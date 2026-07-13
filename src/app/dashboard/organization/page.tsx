@@ -302,14 +302,22 @@ function DepartmentsTab({
     }
   };
 
+  const resolveParentId = (parentName: string): string | undefined => {
+    if (!parentName || parentName === "—") return undefined;
+    return departments.find((d) => d.name === parentName)?.id;
+  };
+
   const createDept = async (data: Omit<Department, "id" | "employees" | "assets">) => {
     try {
-      const res = await departmentApi.create({
+      const payload: Record<string, unknown> = {
         name: data.name,
         code: data.code,
         description: data.description,
         status: data.status === "Active" ? "ACTIVE" : "INACTIVE",
-      });
+      };
+      const parentId = resolveParentId(data.parent);
+      if (parentId) payload.parentId = parentId;
+      const res = await departmentApi.create(payload);
       const created = res.data as ApiDepartment;
       setDepartments((prev) => [...prev, mapApiDepartment(created, [])]);
       setCreateOpen(false);
@@ -321,12 +329,16 @@ function DepartmentsTab({
 
   const updateDept = async (data: Department) => {
     try {
-      await departmentApi.update(data.id, {
+      const payload: Record<string, unknown> = {
         name: data.name,
         code: data.code,
         description: data.description,
         status: data.status === "Active" ? "ACTIVE" : "INACTIVE",
-      });
+      };
+      const parentId = resolveParentId(data.parent);
+      if (parentId) payload.parentId = parentId;
+      else payload.parentId = null;
+      await departmentApi.update(data.id, payload);
       setDepartments((prev) => prev.map((d) => (d.id === data.id ? data : d)));
       setEditDept(null);
       showToast("Department updated");
@@ -596,6 +608,9 @@ function CategoriesTab({
         name: data.name,
         code: data.code,
         description: data.description,
+        sharedAllowed: data.sharedAllowed,
+        maintenanceRequired: data.maintenanceRequired,
+        warrantyTracking: data.warrantyTracking,
       });
       const created = res.data as ApiAssetCategory;
       setCategories((prev) => [...prev, mapApiCategory(created)]);
@@ -612,6 +627,9 @@ function CategoriesTab({
         name: data.name,
         code: data.code,
         description: data.description,
+        sharedAllowed: data.sharedAllowed,
+        maintenanceRequired: data.maintenanceRequired,
+        warrantyTracking: data.warrantyTracking,
       });
       setCategories((prev) => prev.map((c) => (c.id === data.id ? data : c)));
       setEditCat(null);
@@ -815,7 +833,7 @@ function CategoryForm({
       </div>
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="outline" size="sm" onClick={onCancel} className="btn-enterprise">Cancel</Button>
-        <Button size="sm" onClick={() => onSubmit({ name, code, description, sharedAllowed: shared, maintenanceRequired: maintenance, warrantyTracking: warranty, fields, status: "Active" })} className="btn-enterprise">
+        <Button size="sm" onClick={() => onSubmit({ name, code, description, sharedAllowed: shared, maintenanceRequired: maintenance, warrantyTracking: warranty, fields, status: initial?.status ?? "Active" })} className="btn-enterprise">
           {initial ? "Save Changes" : "Create Category"}
         </Button>
       </div>

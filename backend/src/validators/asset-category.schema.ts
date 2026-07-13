@@ -30,7 +30,7 @@ export const assetCategoryQuerySchema = z.object({
   search: z.string().max(200).optional(),
   sortBy: z.enum(['name', 'code', 'createdAt', 'updatedAt', 'isActive']).optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
-  isActive: z.string().transform((val) => val === 'true').optional(),
+  isActive: z.string().transform((val) => val.toLowerCase() === 'true').optional(),
   parentId: z.string().uuid().optional(),
 });
 
@@ -41,3 +41,4 @@ export const assetCategoryParamsSchema = z.object({
 export type CreateAssetCategoryInput = z.infer<typeof createAssetCategorySchema>;
 export type UpdateAssetCategoryInput = z.infer<typeof updateAssetCategorySchema>;
 export type AssetCategoryQueryInput = z.infer<typeof assetCategoryQuerySchema>;
+export type AssetCategoryParamsInput = z.infer<typeof assetCategoryParamsSchema>;

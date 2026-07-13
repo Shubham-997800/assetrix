@@ -1,0 +1,10 @@
+export { KpiCard } from "./kpi-card";
+export { OverdueReturns } from "./overdue-returns";
+export { QuickActions } from "./quick-actions";
+export { ActivityTimeline } from "./activity-timeline";
+export { NotificationsWidget } from "./notifications-widget";
+export { AssetStatusChart } from "./asset-status-chart";
+export { BookingPreview } from "./booking-preview";
+export { DepartmentSummary } from "./department-summary";
+export { defaultStats, buildKpis } from "./dashboard-data";
+export type { DashboardStats } from "@/lib/types";

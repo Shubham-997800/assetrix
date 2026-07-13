@@ -30,10 +30,10 @@ export const createAssetSchema = z.object({
 export const updateAssetSchema = createAssetSchema.partial();
 
 export const assetQuerySchema = z.object({
-  page: z.string().optional().default('1'),
-  limit: z.string().optional().default('20'),
+  page: z.string().optional().default('1').transform(Number).pipe(z.number().int().min(1)),
+  limit: z.string().optional().default('20').transform(Number).pipe(z.number().int().min(1).max(100)),
   search: z.string().optional(),
-  sortBy: z.string().optional().default('createdAt'),
+  sortBy: z.enum(['name', 'serialNumber', 'status', 'condition', 'purchaseDate', 'purchasePrice', 'currentValue', 'location', 'createdAt', 'updatedAt']).optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
   status: assetStatusEnum.optional(),
   condition: assetConditionEnum.optional(),
@@ -74,3 +74,5 @@ export type AssetQueryInput = z.infer<typeof assetQuerySchema>;
 export type ChangeStatusInput = z.infer<typeof changeStatusSchema>;
 export type ChangeConditionInput = z.infer<typeof changeConditionSchema>;
 export type AssignAssetInput = z.infer<typeof assignAssetSchema>;
+export type AssetParamsInput = z.infer<typeof assetParamsSchema>;
+export type QrCodeParamsInput = z.infer<typeof qrCodeParamsSchema>;

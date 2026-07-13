@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 
 interface FavoriteItem {
   label: string;
@@ -85,6 +86,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [recentPages, setRecentPages] = useState<RecentPage[]>([]);
+  const { theme, setTheme } = useTheme();
   const [isLight, setIsLight] = useState(false);
   const pathname = usePathname();
   const hydrated = useRef(false);
@@ -124,20 +126,14 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [recentPages]);
 
   useEffect(() => {
+    setIsLight(theme === "light");
+  }, [theme]);
+
+  useEffect(() => {
     if (!hydrated.current) return;
     const label = getPageLabel(pathname);
     addRecentPage({ label, href: pathname });
   }, [pathname, addRecentPage]);
-
-  useEffect(() => {
-    const check = () => {
-      setIsLight(document.documentElement.classList.contains("light"));
-    };
-    check();
-    const observer = new MutationObserver(check);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
 
   const toggleSidebar = useCallback(() => setSidebarCollapsed((p) => !p), []);
 
@@ -153,10 +149,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const toggleTheme = useCallback(() => {
-    document.documentElement.classList.toggle("light");
-    document.documentElement.classList.toggle("dark");
-    setIsLight(document.documentElement.classList.contains("light"));
-  }, []);
+    setTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, setTheme]);
 
   const ctxValue = useMemo(
     () => ({

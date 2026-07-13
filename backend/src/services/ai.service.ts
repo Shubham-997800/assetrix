@@ -11,7 +11,8 @@ const redis = () => getRedisConnection();
 
 const getCached = async <T>(key: string): Promise<T | null> => {
   try {
-    const cached = await redis().get(key);
+    const client = await redis();
+    const cached = await client.get(key);
     return cached ? (JSON.parse(cached) as T) : null;
   } catch {
     return null;
@@ -20,7 +21,8 @@ const getCached = async <T>(key: string): Promise<T | null> => {
 
 const setCache = async (key: string, data: unknown, ttl: number): Promise<void> => {
   try {
-    await redis().set(key, JSON.stringify(data), 'EX', ttl);
+    const client = await redis();
+    await client.set(key, JSON.stringify(data), 'EX', ttl);
   } catch (err) {
     logger.warn({ key, error: err }, 'Redis cache write failed');
   }

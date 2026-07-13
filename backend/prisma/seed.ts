@@ -26,14 +26,14 @@ const DEPARTMENTS = [
 ];
 
 const CATEGORIES = [
-  { name: 'Laptops', code: 'LAP', description: 'Portable computing devices', depreciationRate: 25 },
-  { name: 'Monitors', code: 'MON', description: 'Display screens and monitors', depreciationRate: 20 },
-  { name: 'Projectors', code: 'PRJ', description: 'Presentation and projection equipment', depreciationRate: 15 },
-  { name: 'Meeting Rooms', code: 'ROOM', description: 'Conference and meeting room resources', depreciationRate: 5 },
-  { name: 'Vehicles', code: 'VEH', description: 'Company vehicles and transport', depreciationRate: 15 },
-  { name: 'Servers', code: 'SRV', description: 'Server hardware and networking equipment', depreciationRate: 20 },
-  { name: 'Peripherals', code: 'PER', description: 'Keyboards, mice, headsets, accessories', depreciationRate: 30 },
-  { name: 'Cameras', code: 'CAM', description: 'Photography and videography equipment', depreciationRate: 20 },
+  { name: 'Laptops', code: 'LAP', description: 'Portable computing devices', defaultUsefulLife: 25 },
+  { name: 'Monitors', code: 'MON', description: 'Display screens and monitors', defaultUsefulLife: 20 },
+  { name: 'Projectors', code: 'PRJ', description: 'Presentation and projection equipment', defaultUsefulLife: 15 },
+  { name: 'Meeting Rooms', code: 'ROOM', description: 'Conference and meeting room resources', defaultUsefulLife: 5 },
+  { name: 'Vehicles', code: 'VEH', description: 'Company vehicles and transport', defaultUsefulLife: 15 },
+  { name: 'Servers', code: 'SRV', description: 'Server hardware and networking equipment', defaultUsefulLife: 20 },
+  { name: 'Peripherals', code: 'PER', description: 'Keyboards, mice, headsets, accessories', defaultUsefulLife: 30 },
+  { name: 'Cameras', code: 'CAM', description: 'Photography and videography equipment', defaultUsefulLife: 20 },
 ];
 
 const ASSET_TEMPLATES = {
@@ -143,7 +143,7 @@ async function main() {
         name: cat.name,
         code: cat.code,
         description: cat.description,
-        defaultUsefulLife: cat.depreciationRate,
+        defaultUsefulLife: cat.defaultUsefulLife,
       },
     });
     createdCats[cat.code] = created.id;

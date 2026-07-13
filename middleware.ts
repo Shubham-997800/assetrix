@@ -37,6 +37,7 @@ export function middleware(request: NextRequest) {
 }
 
 function addSecurityHeaders(response: NextResponse): NextResponse {
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -49,7 +50,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' http://localhost:5000 http://localhost:5173 https://*.vercel.app",
+      `connect-src 'self' ${backendUrl} http://localhost:5000 http://localhost:5173 https://*.vercel.app`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

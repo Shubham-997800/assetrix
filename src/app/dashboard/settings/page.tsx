@@ -119,7 +119,7 @@ function SecuritySettings() {
             <label htmlFor="current-pw" className="mb-1.5 block text-xs font-medium text-muted-foreground">Current Password</label>
             <div className="relative">
               <input id="current-pw" type={showCurrent ? "text" : "password"} className="w-full rounded-lg border border-border bg-muted/50 px-3 py-2 pr-10 text-sm text-foreground outline-none focus:border-primary/50" />
-              <button onClick={toggleCurrent} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
+              <button onClick={toggleCurrent} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground" aria-label={showCurrent ? "Hide current password" : "Show current password"}>
                 {showCurrent ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
             </div>
@@ -128,7 +128,7 @@ function SecuritySettings() {
             <label htmlFor="new-pw" className="mb-1.5 block text-xs font-medium text-muted-foreground">New Password</label>
             <div className="relative">
               <input id="new-pw" type={showNew ? "text" : "password"} className="w-full rounded-lg border border-border bg-muted/50 px-3 py-2 pr-10 text-sm text-foreground outline-none focus:border-primary/50" />
-              <button onClick={toggleNew} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
+              <button onClick={toggleNew} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground" aria-label={showNew ? "Hide new password" : "Show new password"}>
                 {showNew ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
             </div>
@@ -145,7 +145,7 @@ function SecuritySettings() {
             <p className="text-sm font-medium text-foreground">2FA via Authenticator App</p>
             <p className="text-xs text-muted-foreground">Add an extra layer of security to your account</p>
           </div>
-          <button onClick={toggleTwoFactor} className={`relative h-6 w-11 rounded-full transition-colors ${twoFactor ? "bg-primary" : "bg-muted"}`}>
+          <button onClick={toggleTwoFactor} className={`relative h-6 w-11 rounded-full transition-colors ${twoFactor ? "bg-primary" : "bg-muted"}`} aria-label={`Two-factor authentication: ${twoFactor ? "enabled" : "disabled"}`} aria-pressed={twoFactor}>
             <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${twoFactor ? "left-[22px]" : "left-0.5"}`} />
           </button>
         </div>
@@ -165,7 +165,7 @@ function SecuritySettings() {
               {s.current ? (
                 <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-500">Active</span>
               ) : (
-                <button className="rounded-md px-2 py-1 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground">Revoke</button>
+                <button className="rounded-md px-2 py-1 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground" aria-label={`Revoke session: ${s.device}`}>Revoke</button>
               )}
             </div>
           ))}
@@ -201,7 +201,7 @@ function NotificationSettings() {
             <p className="text-xs text-muted-foreground">{r.desc}</p>
           </div>
           {r.type === "toggle" ? (
-            <button onClick={() => toggle(r.key)} className={`relative h-6 w-11 rounded-full transition-colors ${prefs[r.key] ? "bg-primary" : "bg-muted"}`}>
+            <button onClick={() => toggle(r.key)} className={`relative h-6 w-11 rounded-full transition-colors ${prefs[r.key] ? "bg-primary" : "bg-muted"}`} aria-label={`${r.label}: ${prefs[r.key] ? "enabled" : "disabled"}`} aria-pressed={prefs[r.key] as boolean}>
               <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[r.key] ? "left-[22px]" : "left-0.5"}`} />
             </button>
           ) : (
@@ -259,7 +259,7 @@ function AppearanceSettings() {
             <p className="text-sm font-medium text-foreground">Compact Sidebar</p>
             <p className="text-xs text-muted-foreground">Show icons only in the sidebar</p>
           </div>
-          <button onClick={() => {}} className="relative h-6 w-11 rounded-full bg-muted">
+          <button onClick={() => {}} className="relative h-6 w-11 rounded-full bg-muted" aria-label="Toggle compact sidebar" aria-pressed={false}>
             <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow" />
           </button>
         </div>
@@ -277,7 +277,7 @@ function DataSettings() {
           {EXPORT_OPTIONS.map((e) => {
             const Icon = e.icon;
             return (
-              <button key={e.label} className="flex items-center gap-3 rounded-xl border border-border p-4 text-left transition-colors hover:bg-muted">
+              <button key={e.label} className="flex items-center gap-3 rounded-xl border border-border p-4 text-left transition-colors hover:bg-muted" aria-label={e.label}>
                 <Icon className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-xs font-medium text-foreground">{e.label}</p>
@@ -333,6 +333,9 @@ export default React.memo(function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">Manage your account and application preferences</p>
+      </div>
+      <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200" role="status">
+        <span className="font-medium">Demo mode</span> — Settings are saved locally and not persisted to a server. Changes will reset on page reload.
       </div>
       <div className="flex flex-col gap-6 lg:flex-row">
         <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:w-56 flex-shrink-0" aria-label="Settings sections">

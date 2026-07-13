@@ -49,6 +49,7 @@ export const allocationQuerySchema = z.object({
 
 export type CreateAllocationInput = z.infer<typeof createAllocationSchema>;
 export type ReturnAllocationInput = z.infer<typeof returnAllocationSchema>;
+export type AllocationIdParamInput = z.infer<typeof allocationIdParamSchema>;
 export type TransferAllocationInput = z.infer<typeof transferAllocationSchema>;
 export type ApproveTransferInput = z.infer<typeof approveTransferSchema>;
 export type RejectTransferInput = z.infer<typeof rejectTransferSchema>;

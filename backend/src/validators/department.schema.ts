@@ -149,7 +149,7 @@ export const departmentQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
   isActive: z
     .string()
-    .transform((val) => val === 'true')
+    .transform((val) => val.toLowerCase() === 'true')
     .optional(),
   parentId: z.string().uuid('Invalid parent department ID').optional(),
 });

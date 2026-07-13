@@ -142,8 +142,13 @@ export const AIPanel = memo(function AIPanel() {
             <Bot className="h-4 w-4 text-primary" />
           </span>
           <div>
-            <p className="text-sm font-semibold text-foreground">AI Assistant</p>
-            <p className="text-[10px] text-muted-foreground">Assetrix Intelligence</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-foreground">AI Assistant</p>
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-amber-600 dark:text-amber-400">
+                Demo
+              </span>
+            </div>
+            <p className="text-[10px] text-muted-foreground">Simulated responses &mdash; not connected to live data</p>
           </div>
         </div>
         <button
@@ -224,6 +229,7 @@ export const AIPanel = memo(function AIPanel() {
             </span>
             <p className="text-sm font-medium text-foreground">Ask anything</p>
             <p className="mt-1 text-xs text-muted-foreground">I can help with assets, maintenance, bookings, and more.</p>
+            <p className="mt-2 text-[10px] text-amber-600 dark:text-amber-400 font-medium">Demo mode &mdash; responses are simulated</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {SUGGESTION_QUESTIONS.map((q) => (
                 <button
@@ -275,7 +281,7 @@ export const AIPanel = memo(function AIPanel() {
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-            placeholder="Ask about assets, maintenance, budget..."
+            placeholder="Demo: Ask about assets, maintenance, budget..."
             className="flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button

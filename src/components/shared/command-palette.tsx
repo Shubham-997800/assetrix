@@ -59,6 +59,7 @@ function CommandPaletteInner() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const prevOpen = useRef(commandOpen);
 
@@ -115,7 +116,7 @@ function CommandPaletteInner() {
 
   useEffect(() => {
     if (!commandOpen) return;
-    const container = document.querySelector<HTMLElement>("[aria-label='Command palette'] .relative.z-10");
+    const container = dialogRef.current;
     if (!container) return;
     const focusable = container.querySelectorAll<HTMLElement>("input, button, [href], [tabindex]:not([tabindex='-1'])");
     const first = focusable[0];
@@ -155,7 +156,7 @@ function CommandPaletteInner() {
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] sm:pt-[18vh]" role="dialog" aria-modal="true" aria-label="Command palette">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setCommandOpen(false)} />
-      <div className="relative z-10 w-full max-w-xl mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+      <div ref={dialogRef} className="relative z-10 w-full max-w-xl mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
         <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input

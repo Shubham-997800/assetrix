@@ -1,7 +1,5 @@
 import { z } from 'zod';
-
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/;
-const passwordMinMsg = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+import { PASSWORD_REGEX, PASSWORD_MIN_MSG } from '../constants';
 
 export const registerSchema = z
   .object({
@@ -17,7 +15,7 @@ export const registerSchema = z
       .min(1, 'Password is required')
       .min(8, 'Password must be at least 8 characters')
       .max(128, 'Password must be at most 128 characters')
-      .regex(passwordRegex, passwordMinMsg),
+      .regex(PASSWORD_REGEX, PASSWORD_MIN_MSG),
     confirmPassword: z.string().min(1, 'Confirm password is required'),
     firstName: z
       .string()
@@ -32,6 +30,7 @@ export const registerSchema = z
     phone: z
       .string()
       .max(20, 'Phone must be at most 20 characters')
+      .regex(/^\+?[\d\s\-()]+$/, 'Invalid phone number format')
       .optional()
       .or(z.literal('')),
     employeeId: z
@@ -44,14 +43,6 @@ export const registerSchema = z
       .max(100, 'Designation must be at most 100 characters')
       .optional()
       .or(z.literal('')),
-    departmentId: z
-      .string()
-      .uuid('Invalid department ID')
-      .optional()
-      .or(z.literal('')),
-    role: z
-      .enum(['SUPER_ADMIN', 'ADMIN', 'DEPARTMENT_MANAGER', 'TECHNICIAN', 'EMPLOYEE'])
-      .optional(),
     termsAccepted: z
       .boolean()
       .refine((val) => val === true, {
@@ -94,7 +85,7 @@ export const resetPasswordSchema = z
       .min(1, 'Password is required')
       .min(8, 'Password must be at least 8 characters')
       .max(128, 'Password must be at most 128 characters')
-      .regex(passwordRegex, passwordMinMsg),
+      .regex(PASSWORD_REGEX, PASSWORD_MIN_MSG),
     confirmPassword: z.string().min(1, 'Confirm password is required'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -126,7 +117,7 @@ export const changePasswordSchema = z
       .min(1, 'New password is required')
       .min(8, 'New password must be at least 8 characters')
       .max(128, 'New password must be at most 128 characters')
-      .regex(passwordRegex, passwordMinMsg),
+      .regex(PASSWORD_REGEX, PASSWORD_MIN_MSG),
     confirmNewPassword: z.string().min(1, 'Confirm new password is required'),
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
@@ -135,7 +126,7 @@ export const changePasswordSchema = z
   });
 
 export const refreshTokenSchema = z.object({
-  refreshToken: z.string().optional(),
+  refreshToken: z.string().min(1, 'Refresh token required').optional(),
 });
 
 export const logoutSchema = z.object({

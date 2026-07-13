@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import Link from "next/link";
 import { useDashboard } from "@/contexts/dashboard-context";
+import { useAuth } from "@/contexts/auth-context";
 import { BreadcrumbNav } from "@/components/shared/breadcrumb-nav";
 import {
   Search, Bell, Menu, PanelLeft, Sun, Moon, CheckCircle, AlertTriangle,
@@ -45,6 +46,7 @@ const PROFILE_PANEL = "absolute right-0 top-full mt-2 w-52 rounded-xl border bor
 
 const DashboardNavbar = memo(function DashboardNavbar() {
   const { setSearchOpen, toggleSidebar, isLight, toggleTheme, aiPanelOpen, setAiPanelOpen } = useDashboard();
+  const { user } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(false);
@@ -53,6 +55,22 @@ const DashboardNavbar = memo(function DashboardNavbar() {
   const tasksRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = useMemo(() => DUMMY_NOTIFICATIONS.filter((n) => !n.read).length, []);
+  const userInitials = useMemo(() => {
+    if (!user) return "U";
+    return `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase();
+  }, [user]);
+  const userName = useMemo(() => user ? `${user.firstName} ${user.lastName}` : "User", [user]);
+  const userRole = useMemo(() => {
+    if (!user) return "";
+    const roleMap: Record<string, string> = {
+      SUPER_ADMIN: "Super Admin",
+      ADMIN: "Admin",
+      DEPARTMENT_MANAGER: "Dept Manager",
+      TECHNICIAN: "Technician",
+      EMPLOYEE: "Employee",
+    };
+    return roleMap[user.role] ?? user.role;
+  }, [user]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -200,18 +218,18 @@ const DashboardNavbar = memo(function DashboardNavbar() {
             aria-label="User menu"
             aria-expanded={profileOpen}
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">RS</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{userInitials}</span>
             <div className="hidden sm:block text-left">
-              <p className="text-xs font-medium text-foreground leading-tight">Rahul Shah</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">IT Administrator</p>
+              <p className="text-xs font-medium text-foreground leading-tight">{userName}</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">{userRole}</p>
             </div>
             <ChevronDown className="hidden sm:block h-3 w-3 text-muted-foreground" />
           </button>
           {profileOpen && (
             <div className={PROFILE_PANEL}>
               <div className="border-b border-border px-4 py-3">
-                <p className="text-xs font-semibold text-foreground">Rahul Shah</p>
-                <p className="text-[10px] text-muted-foreground">rahul@assetrix.com</p>
+                <p className="text-xs font-semibold text-foreground">{userName}</p>
+                <p className="text-[10px] text-muted-foreground">{user?.email ?? ""}</p>
               </div>
               <div className="p-1.5">
                 <Link href="/dashboard/profile" onClick={handleCloseProfile} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">

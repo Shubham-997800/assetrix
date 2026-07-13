@@ -3,6 +3,8 @@ import { config } from '../config';
 import { HTTP_STATUS } from '../constants';
 import { errorResponse } from '../utils/response';
 
+// NOTE: In production, replace the default MemoryStore with a Redis-backed store
+// (e.g., rate-limit-redis) to share rate limits across multiple instances.
 export const rateLimiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.maxRequests,

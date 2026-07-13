@@ -167,7 +167,7 @@ export const getSystemHealth = async () => {
   let redisLatencyMs = 0;
 
   try {
-    const redis = getRedisConnection();
+    const redis = await getRedisConnection();
     const redisStart = Date.now();
     await redis.ping();
     redisLatencyMs = Date.now() - redisStart;
@@ -279,7 +279,7 @@ export const forceLogout = async (userId: string): Promise<number> => {
     data: { isActive: false },
   });
 
-  const redis = getRedisConnection();
+  const redis = await getRedisConnection();
   await redis.del(`auth:session:${userId}`);
   await redis.del(`auth:refresh:${userId}`);
 

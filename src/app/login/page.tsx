@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AuthLayout } from "@/components/shared/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { authApi, setAccessToken } from "@/lib/api";
+import { useAuth } from "@/contexts/auth-context";
 
 interface FormErrors {
   email?: string;
@@ -17,6 +17,7 @@ interface FormErrors {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [email, setEmail] = useState("");
@@ -29,7 +30,6 @@ function LoginForm() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       e.email = "Enter a valid email";
     if (!password) e.password = "Password is required";
-    else if (password.length < 6) e.password = "Min 6 characters";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -40,14 +40,9 @@ function LoginForm() {
     setLoading(true);
     setErrors({});
     try {
-      const res = await authApi.login({ email, password, rememberMe: true });
-      if (res.success && res.data) {
-        setAccessToken(res.data.accessToken);
-        const redirect = searchParams.get("redirect") || "/dashboard";
-        router.push(redirect);
-      } else {
-        setErrors({ general: res.message || "Invalid email or password." });
-      }
+      await login(email, password, true);
+      const redirect = searchParams.get("redirect") || "/dashboard";
+      router.push(redirect);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Invalid email or password.";
       setErrors({ general: message });
