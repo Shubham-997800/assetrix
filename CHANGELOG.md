@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `docs/HEALTH_REPORT.md` and `docs/FINAL_REPORT.md`.
 - Added `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`, issue templates, and PR template.
 
+### Fixed
+- Dashboard widgets (overdue returns, activity timeline, asset status, booking preview) now consume real API data with demo fallbacks; backend dashboard stats now also return `activeBookings`, `pendingTransfers`, `overdueReturns`, and `overdueItems`.
+- Command palette actions wired up (toggle sidebar, toggle theme, sign out).
+- Navbar dropdowns close on Escape; aria-labels added to AI/theme/help/sidebar toggles.
+- Asset directory PDF export now generates a real PDF instead of a `.txt` placeholder.
+- `PrivacyDialog` now uses `role="dialog"` + `aria-modal` with focus trap.
+- Reused shared `PasswordStrength` component in change-password (removed duplicate logic).
+- Fixed dead "Learn more" links on landing features; decorative showcase buttons are now non-interactive.
+- Added aria-labels to AI panel close/send controls and chat input.
+- Pinned the live domain `assetrix-nu.vercel.app` in homepage, metadata, and CORS origin.
+
 ## [1.0.0] - 2026-07-30
 
 ### Added
