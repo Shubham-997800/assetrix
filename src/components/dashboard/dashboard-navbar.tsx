@@ -46,7 +46,7 @@ const PROFILE_PANEL = "absolute right-0 top-full mt-2 w-52 rounded-xl border bor
 
 const DashboardNavbar = memo(function DashboardNavbar() {
   const { setSearchOpen, toggleSidebar, isLight, toggleTheme, aiPanelOpen, setAiPanelOpen } = useDashboard();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(false);
@@ -93,6 +93,10 @@ const DashboardNavbar = memo(function DashboardNavbar() {
   const handleCloseTasks = useCallback(() => setTasksOpen(false), []);
   const handleCloseNotifications = useCallback(() => setNotificationsOpen(false), []);
   const handleCloseProfile = useCallback(() => setProfileOpen(false), []);
+  const handleSignOut = useCallback(() => {
+    handleCloseProfile();
+    void logout();
+  }, [handleCloseProfile, logout]);
 
   return (
     <header role="banner" className={HEADER_CLASS}>
@@ -238,9 +242,9 @@ const DashboardNavbar = memo(function DashboardNavbar() {
                 <Link href="/dashboard/settings" onClick={handleCloseProfile} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                   <Settings className="h-3.5 w-3.5" /> Settings
                 </Link>
-                <Link href="/login" onClick={handleCloseProfile} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                <button onClick={handleSignOut} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                   <LogOut className="h-3.5 w-3.5" /> Sign out
-                </Link>
+                </button>
               </div>
             </div>
           )}
