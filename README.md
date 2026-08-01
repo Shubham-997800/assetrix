@@ -255,6 +255,51 @@ We believe asset management should never be an **operational bottleneck**. Asset
 
 > **Scale:** 19 page files, 46 components, 9 landing sections, 2 contexts, 3 hooks, 5 UI primitives — client/server components properly separated. Fonts: `Inter` via `next/font/google`.
 
+### Design System — "Aura Cyan"
+
+The design tokens live in `src/app/globals.css` as CSS variables, mapped through Tailwind v4's `@theme inline` block. Three layers:
+
+| Layer | What It Defines |
+|-------|-----------------|
+| **Color tokens** | `--background`, `--foreground`, `--card`, `--popover`, `--primary`, `--secondary`, `--muted`, `--accent`, `--destructive`, `--border`, `--input`, `--ring` |
+| **Chart tokens** | `--chart-1` … `--chart-5` (cyan, emerald, amber, red scale) |
+| **Sidebar tokens** | `--sidebar`, `--sidebar-foreground`, `--sidebar-primary`, `--sidebar-accent`, `--sidebar-border`, `--sidebar-ring` |
+| **Radius scale** | `--radius-sm` … `--radius-4xl` derived from `--radius: 1rem` |
+| **Typography** | `--font-sans: var(--font-inter)`, `--font-mono`, `--font-heading` |
+
+**Aura Cyan Light** (`:root`) — background `#F8FAFC`, surface `#FFFFFF`, primary `#0891B2` (cyan-700), text `#0F172A` (slate-900).
+
+**Aura Cyan Dark** (`.dark`) — background `#020617` (slate-950), surface `#0F172A`, primary `#0891B2`, text `#F8FAFC`, accent `#0C4A5E` with `#A5F3FC` text.
+
+Theme switching is handled by `next-themes` (`attribute="class"`, `defaultTheme="dark"`, `enableSystem`) in `src/components/theme-provider.tsx`; the toggle lives in `src/components/theme-toggle.tsx`.
+
+### Pages & Routes
+
+```
+/                                   Landing page (9 sections: hero, features, workflow,
+                                    architecture, dashboard showcase, analytics,
+                                    AI intelligence, navbar, footer)
+/login                              Login (password strength + toggle visibility)
+/register                           Registration
+/forgot-password                    Request password reset
+/reset-password                     Reset with token
+/verify-email                       Email verification
+/session-expired                    Session timeout notice
+/dashboard                          KPI cards, utilization trend, maintenance queue,
+                                    activity timeline, upcoming returns, quick actions
+/dashboard/assets                   Asset directory, register form, QR modal, details
+/dashboard/allocations              Active allocations, transfers, approvals
+/dashboard/bookings                 Bookings + overlap validation
+/dashboard/maintenance              Tasks, schedules, technician assignment
+/dashboard/audit                    Audit cycles, verification, discrepancies
+/dashboard/reports                  Reports + CSV/PDF/Excel export
+/dashboard/notifications            In-app notification center + preferences
+/dashboard/organization             Department tree, employee directory
+/dashboard/profile                  Personal info, password, sessions, devices
+/dashboard/settings                 Platform configuration
+/dashboard/logs                     Activity logs
+```
+
 ---
 
 ## 🛠️ Tech Stack
@@ -287,6 +332,9 @@ We believe asset management should never be an **operational bottleneck**. Asset
 | **Zod** | ^3.24.4 | Runtime validation | Schema-first request validation |
 | **Helmet** | ^8.0.0 | Security headers | XSS, clickjacking, MIME sniffing protection |
 | **express-rate-limit** | ^7.5.0 | Rate limiting | Global + auth-tier limits |
+| **cors** | ^2.8.5 | CORS allow-list | Frontend-origin restriction |
+| **cookie-parser** | ^1.4.7 | Refresh-token cookies | `httpOnly` cookie handling |
+| **compression** | ^1.7.5 | Gzip responses | Smaller payloads |
 | **Nodemailer** | ^9.0.3 | Transactional email | Welcome, verification, reset, alerts |
 | **Pino** | ^9.6.0 | Structured logging | Fast JSON logs, pino-pretty in dev |
 | **ExcelJS** | ^4.4.0 | `.xlsx` export | Report generation |
@@ -294,6 +342,9 @@ We believe asset management should never be an **operational bottleneck**. Asset
 | **Swagger / OpenAPI** | ^6.2.8 / ^5.0.1 | API docs | Auto-generated `/api-docs` |
 | **multer** | ^1.4.5-lts.1 | File uploads | 10 MB, MIME allow-list |
 | **uuid** | ^11.1.0 | IDs & tokens | ID generation |
+| **dotenv** | ^16.4.7 | Env loading | `.env` configuration |
+
+**Backend tooling (dev):** `tsx` (dev runner) · `ts-node` (seed runner) · `jest ^29` + `supertest` + `ts-jest` (unit/integration) · `eslint ^9` + `typescript-eslint` · `prettier ^3.5` + `eslint-config-prettier` · `husky ^9` + `lint-staged` (pre-commit hooks) · `prisma ^6.9.0` (CLI).
 
 ### Infrastructure
 
@@ -316,7 +367,7 @@ We believe asset management should never be an **operational bottleneck**. Asset
 │                                                                         │
 │  ┌───────────────────── FRONTEND (Vercel) ───────────────────────────┐  │
 │  │                                                                   │  │
-│  │  Next.js 16 + React 19 + Tailwind 4 + Base UI + Recharts        │  │
+│  │  Next.js 16 + React 19 + Tailwind 4 + Base UI (SVG charts)    │  │
 │  │                                                                   │  │
 │  │  ┌─────────┐ ┌───────────┐ ┌──────────┐ ┌──────────┐            │  │
 │  │  │ Landing │ │ Dashboard │ │  Assets  │ │  Audit   │            │  │
@@ -455,8 +506,12 @@ assetrix/
 │   │
 │   ├── components/
 │   │   ├── ui/                             # badge, button, input, sheet, table
-│   │   ├── landing/                        # 9 landing sections
-│   │   └── dashboard/                      # Widgets, navbar, sidebar
+│   │   ├── landing/                        # 9 sections (hero, features, workflow, …)
+│   │   ├── dashboard/                      # widgets + charts/ (kpi-card, activity, …)
+│   │   ├── shared/                         # command-palette, global-search, ai-panel, …
+│   │   ├── profile/                        # 9 profile components
+│   │   ├── auth/                           # auth-input, password-strength
+│   │   └── theme-provider.tsx
 │   │
 │   ├── contexts/
 │   │   ├── auth-context.tsx
@@ -470,7 +525,7 @@ assetrix/
 │   ├── lib/
 │   │   ├── api.ts                          # Fetch wrapper
 │   │   ├── types.ts                        # DashboardStats + shared types
-│   │   └── utils.ts                        # cn() helper
+│   │   └── utils.ts                        # cn() helper (clsx + tailwind-merge)
 │   │
 │   ├── next.config.ts                      # /api rewrites → backend
 │   └── package.json
@@ -490,6 +545,7 @@ assetrix/
 │   ├── prisma/
 │   │   └── schema.prisma                   # 27 models, 15 enums
 │   │
+│   ├── tests/                              # Jest + supertest
 │   ├── Dockerfile
 │   └── package.json
 │
@@ -498,6 +554,25 @@ assetrix/
 ├── README.md
 └── LICENSE
 ```
+
+### Backend Module Map (16 domains)
+
+| Domain | Routes | Controllers | Services |
+|--------|--------|-------------|----------|
+| 🔐 Auth | `auth.routes.ts` | `auth.controller.ts` | `auth.service.ts`, `email.service.ts` |
+| 👥 Users | `user.routes.ts` | `user.controller.ts` | `user.service.ts` |
+| 🏛️ Departments | `department.routes.ts` | `department.controller.ts` | `department.service.ts` |
+| 🗂️ Asset Categories | `asset-category.routes.ts` | `asset-category.controller.ts` | `asset-category.service.ts` |
+| 🖥️ Assets | `asset.routes.ts` | `asset.controller.ts` | `asset.service.ts` |
+| 🔁 Allocations | `allocation.routes.ts` | `allocation.controller.ts` | `allocation.service.ts` |
+| 📅 Bookings | `booking.routes.ts` | `booking.controller.ts` | `booking.service.ts` |
+| 🔧 Maintenance | `maintenance.routes.ts` | `maintenance.controller.ts` | `maintenance.service.ts` |
+| 🛡️ Audit | `audit.routes.ts` + `audit-cycle.routes.ts` | `audit.controller.ts` + `audit-cycle.controller.ts` | `audit.service.ts` + `audit-cycle.service.ts` |
+| 📈 Analytics | `analytics.routes.ts` | `analytics.controller.ts` | `analytics.service.ts` |
+| 📄 Reports | `report.routes.ts` | `report.controller.ts` | `report.service.ts` |
+| 🔔 Notifications | `notification.routes.ts` + `notification-preference.routes.ts` | `notification.controller.ts` + `notification-preference.controller.ts` | `notification.service.ts` + `notification-preference.service.ts` |
+| 🧠 AI | `ai.routes.ts` | `ai.controller.ts` | `ai.service.ts` |
+| 🛠️ Admin | `admin.routes.ts` | `admin.controller.ts` | `admin.service.ts` |
 
 ---
 
