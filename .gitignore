@@ -37,9 +37,13 @@ yarn-error.log*
 .env.vercel
 .env.production
 .env.*.local
+.env.vercel-prod
+.env.vercel-prod2
+.env.development
 
 # Keep .env.example tracked
 !.env.example
+!backend/.env.example
 
 # vercel
 .vercel
