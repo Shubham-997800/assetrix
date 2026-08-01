@@ -1,10 +1,24 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { ChevronRight } from "lucide-react";
-import { assetStatuses } from "./dashboard-data";
+import { assetStatuses as demoStatuses } from "./dashboard-data";
+import type { DashboardStats } from "@/lib/types";
 
-export function AssetStatusChart() {
-  const total = useMemo(() => assetStatuses.reduce((a, s) => a + s.value, 0), []);
+export function AssetStatusChart({ stats }: { stats?: DashboardStats }) {
+  const statuses = useMemo(() => {
+    if (!stats || stats.totalAssets === 0) return demoStatuses;
+    const built = [
+      { label: "Available", value: stats.availableAssets, color: "#10B981" },
+      { label: "Allocated", value: stats.allocatedAssets, color: "#0891B2" },
+      { label: "Under Maintenance", value: stats.maintenanceAssets, color: "#F59E0B" },
+      { label: "Lost", value: stats.lostAssets ?? 0, color: "#EF4444" },
+      { label: "Retired", value: stats.retiredAssets ?? 0, color: "#64748B" },
+      { label: "Stolen", value: stats.stolenAssets ?? 0, color: "#475569" },
+    ];
+    return built.filter((s) => s.value > 0);
+  }, [stats]);
+
+  const total = useMemo(() => statuses.reduce((a, s) => a + s.value, 0), [statuses]);
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -28,7 +42,7 @@ export function AssetStatusChart() {
       <div className="mt-5 flex items-center gap-5">
         <div className="relative h-32 w-32 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
-            {assetStatuses.reduce(
+            {statuses.reduce(
               (acc, s) => {
                 const dash = (s.value / total) * 100;
                 acc.elements.push(
@@ -57,7 +71,7 @@ export function AssetStatusChart() {
           </div>
         </div>
         <div className="flex-1 space-y-2">
-          {assetStatuses.map((s) => (
+          {statuses.map((s) => (
             <div key={s.label} className="flex items-center gap-2">
               <div
                 className="h-2 w-2 rounded-full"
@@ -67,7 +81,7 @@ export function AssetStatusChart() {
                 {s.label}
               </span>
               <span className="text-xs font-medium text-foreground">
-                {s.value}%
+                {s.value}{total > 0 ? ` (${Math.round((s.value / total) * 100)}%)` : ""}
               </span>
             </div>
           ))}

@@ -87,9 +87,9 @@ export function DashboardShowcase() {
                       Monthly allocation vs available
                     </p>
                   </div>
-                  <button className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
+                  <span className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-muted-foreground" aria-hidden="true">
                     <MoreHorizontal className="h-4 w-4" />
-                  </button>
+                  </span>
                 </div>
                 <div className="flex items-end gap-1.5" style={{ height: 180 }}>
                   {[35, 48, 42, 60, 52, 72, 65, 82, 78, 90, 85, 95].map(
@@ -186,9 +186,9 @@ export function DashboardShowcase() {
                 <p className="text-sm font-semibold text-foreground">
                   Recent Asset Activity
                 </p>
-                <button className="min-h-[44px] min-w-[44px] rounded-lg px-3 py-2 text-xs font-medium text-primary hover:bg-primary/5">
+                <span className="min-h-[44px] min-w-[44px] rounded-lg px-3 py-2 text-xs font-medium text-primary" aria-hidden="true">
                   Export CSV
-                </button>
+                </span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">

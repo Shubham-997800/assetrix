@@ -48,7 +48,7 @@ const retirement = [
 
 export function Analytics() {
   return (
-    <section className="border-b border-border bg-muted/30 py-16 sm:py-20 md:py-28">
+    <section id="analytics" className="border-b border-border bg-muted/30 py-16 sm:py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">

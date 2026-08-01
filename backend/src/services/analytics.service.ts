@@ -55,6 +55,9 @@ export const getDashboardStats = async () => {
     recentActivity,
     assetsByDepartment,
     recentBookings,
+    activeBookings,
+    pendingTransfers,
+    overdueReturns,
   ] = await Promise.all([
     prisma.asset.count({ where: { deletedAt: null } }),
     prisma.asset.groupBy({
@@ -118,6 +121,36 @@ export const getDashboardStats = async () => {
         user: { select: { id: true, firstName: true, lastName: true } },
       },
     }),
+    prisma.booking.count({
+      where: {
+        status: 'APPROVED',
+        startDate: { lte: now },
+        endDate: { gte: now },
+        deletedAt: null,
+      },
+    }),
+    prisma.allocation.count({
+      where: {
+        status: 'ACTIVE',
+        transferStatus: 'PENDING',
+      },
+    }),
+    prisma.allocation.findMany({
+      where: {
+        status: 'ACTIVE',
+        expectedReturn: { lt: now },
+        returnedAt: null,
+      },
+      take: 5,
+      orderBy: { expectedReturn: 'asc' },
+      select: {
+        id: true,
+        expectedReturn: true,
+        asset: { select: { id: true, name: true, assetTag: true } },
+        user: { select: { id: true, firstName: true, lastName: true } },
+        department: { select: { id: true, name: true } },
+      },
+    }),
   ]);
 
   const statusBreakdown: Record<string, number> = {};
@@ -146,6 +179,21 @@ export const getDashboardStats = async () => {
     recentActivity,
     assetsByDepartment,
     upcomingBookings: recentBookings,
+    activeBookings,
+    pendingTransfers,
+    activeAllocations: utilizationResult,
+    overdueReturns: overdueReturns.length,
+    overdueItems: overdueReturns.map((o) => ({
+      id: o.id,
+      tag: o.asset.assetTag,
+      name: o.asset.name,
+      holder: o.user ? `${o.user.firstName} ${o.user.lastName}` : 'Unknown',
+      dept: o.department?.name ?? 'Unassigned',
+      returnDate: o.expectedReturn
+        ? o.expectedReturn.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '',
+      days: Math.max(1, Math.floor((now.getTime() - (o.expectedReturn?.getTime() ?? now.getTime())) / (24 * 60 * 60 * 1000))),
+    })),
   };
 
   await setCache(cacheKey, data, CACHE_TTL.SHORT);

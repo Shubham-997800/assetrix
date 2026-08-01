@@ -2,17 +2,9 @@
 
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, X, Lock, Loader2 } from "lucide-react";
-import { getPasswordStrength } from "@/components/auth/password-strength";
+import { Lock, Loader2 } from "lucide-react";
+import { getPasswordStrength, PasswordStrength } from "@/components/auth/password-strength";
 import { userApi, ApiError } from "@/lib/api";
-
-const rules = [
-  { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
-  { label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
-  { label: "One lowercase letter", test: (p: string) => /[a-z]/.test(p) },
-  { label: "One number", test: (p: string) => /\d/.test(p) },
-  { label: "One special character", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
-];
 
 export function ChangePassword() {
   const [loading, setLoading] = useState(false);
@@ -96,25 +88,8 @@ export function ChangePassword() {
           {errors.newPass && <p className="mt-1 text-xs text-destructive">{errors.newPass}</p>}
 
           {newPass && (
-            <div className="mt-3 space-y-2 animate-fade-in">
-              <div className="flex gap-1">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                    i <= strength.score ? strength.score <= 1 ? "bg-red-500" : strength.score === 2 ? "bg-amber-500" : "bg-emerald-500" : "bg-muted"
-                  }`} />
-                ))}
-              </div>
-              <div className="space-y-1">
-                {rules.map((r) => {
-                  const pass = r.test(newPass);
-                  return (
-                    <div key={r.label} className="flex items-center gap-2">
-                      {pass ? <Check className="h-3 w-3 text-emerald-500" /> : <X className="h-3 w-3 text-muted-foreground/50" />}
-                      <span className={`text-xs ${pass ? "text-foreground" : "text-muted-foreground"}`}>{r.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
+            <div className="mt-3 animate-fade-in">
+              <PasswordStrength password={newPass} />
             </div>
           )}
         </div>

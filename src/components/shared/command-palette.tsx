@@ -3,11 +3,12 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
+import { useAuth } from "@/contexts/auth-context";
 import {
   Search, LayoutDashboard, Package, Users, Building2, CalendarClock,
   Wrench, ClipboardCheck, BarChart3, Bell, FileText, Settings, LogOut,
-  ArrowLeftRight, ChevronRight, Plus, Download, RefreshCw, UserPlus,
-  Upload,
+  ArrowLeftRight, ChevronRight, Plus, Download, UserPlus,
+  Upload, PanelLeft, Moon,
 } from "lucide-react";
 
 interface CommandItem {
@@ -47,14 +48,15 @@ const COMMAND_ITEMS: Omit<CommandItem, "action">[] = [
   { id: "e4", category: "Employees", label: "Sneha Reddy", sublabel: "Finance Analyst", icon: Users, href: "/dashboard/organization" },
   { id: "e5", category: "Employees", label: "Kavita Nair", sublabel: "Operations Head", icon: Users, href: "/dashboard/organization" },
   { id: "e6", category: "Employees", label: "Devendra Joshi", sublabel: "Audit Manager", icon: Users, href: "/dashboard/organization" },
-  { id: "c1", category: "Commands", label: "Toggle Sidebar", icon: LayoutDashboard, shortcut: "Ctrl+B" },
-  { id: "c2", category: "Commands", label: "Toggle Theme", icon: RefreshCw, shortcut: "Ctrl+Shift+T" },
+  { id: "c1", category: "Commands", label: "Toggle Sidebar", icon: PanelLeft, shortcut: "Ctrl+B" },
+  { id: "c2", category: "Commands", label: "Toggle Theme", icon: Moon, shortcut: "Ctrl+Shift+T" },
   { id: "c3", category: "Commands", label: "View Profile", icon: Users, href: "/dashboard/profile", shortcut: "Ctrl+Shift+P" },
-  { id: "c4", category: "Commands", label: "Sign Out", icon: LogOut, href: "/login" },
+  { id: "c4", category: "Commands", label: "Sign Out", icon: LogOut },
 ];
 
 function CommandPaletteInner() {
-  const { commandOpen, setCommandOpen } = useDashboard();
+  const { commandOpen, setCommandOpen, toggleSidebar, toggleTheme } = useDashboard();
+  const { logout } = useAuth();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -63,16 +65,37 @@ function CommandPaletteInner() {
   const router = useRouter();
   const prevOpen = useRef(commandOpen);
 
+  const items = useMemo<CommandItem[]>(() => {
+    const commands: Record<string, () => void> = {
+      c1: () => {
+        toggleSidebar();
+        setCommandOpen(false);
+      },
+      c2: () => {
+        toggleTheme();
+        setCommandOpen(false);
+      },
+      c4: () => {
+        setCommandOpen(false);
+        void logout().finally(() => router.push("/login"));
+      },
+    };
+    return COMMAND_ITEMS.map((item) => ({
+      ...item,
+      action: commands[item.id],
+    }));
+  }, [logout, router, setCommandOpen, toggleSidebar, toggleTheme]);
+
   const filtered = useMemo(() => {
-    if (!query.trim()) return COMMAND_ITEMS;
+    if (!query.trim()) return items;
     const q = query.toLowerCase();
-    return COMMAND_ITEMS.filter(
+    return items.filter(
       (item) =>
         item.label.toLowerCase().includes(q) ||
         (item.sublabel && item.sublabel.toLowerCase().includes(q)) ||
         item.category.toLowerCase().includes(q)
     );
-  }, [query]);
+  }, [query, items]);
 
   const grouped = useMemo(() => {
     const groups: Record<string, typeof filtered> = {};
@@ -134,7 +157,11 @@ function CommandPaletteInner() {
     return () => document.removeEventListener("keydown", trap);
   }, [commandOpen]);
 
-  const executeItem = useCallback((item: (typeof COMMAND_ITEMS)[number]) => {
+  const executeItem = useCallback((item: CommandItem) => {
+    if (item.action) {
+      item.action();
+      return;
+    }
     if (item.href) router.push(item.href);
     setCommandOpen(false);
   }, [router, setCommandOpen]);
@@ -165,6 +192,7 @@ function CommandPaletteInner() {
             onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
             onKeyDown={handleKeyDown}
             placeholder="Type a command, page, or action..."
+            aria-label="Search commands"
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">ESC</kbd>

@@ -1,13 +1,28 @@
 import Link from "next/link";
-import { useMemo } from "react";
 import { CalendarDays, ChevronRight } from "lucide-react";
-import { bookings } from "./dashboard-data";
+import { bookings as demoBookings } from "./dashboard-data";
+import type { UpcomingBooking } from "@/lib/types";
 
-export function BookingPreview() {
-  const timeStr = useMemo(() => {
-    const now = new Date();
-    return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-  }, []);
+function fmtTime(iso: string) {
+  const d = new Date(iso);
+  return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+}
+
+export function BookingPreview({ bookings }: { bookings?: UpcomingBooking[] }) {
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+
+  const list = bookings && bookings.length > 0
+    ? bookings.map((b) => ({
+        id: b.id,
+        room: b.asset?.name ?? "Unnamed asset",
+        owner: b.user ? `${b.user.firstName} ${b.user.lastName}` : "Unknown",
+        start: fmtTime(b.startDate),
+        end: fmtTime(b.endDate),
+        startDate: b.startDate,
+        endDate: b.endDate,
+      }))
+    : demoBookings;
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -21,7 +36,7 @@ export function BookingPreview() {
               Today&apos;s Bookings
             </h3>
             <p className="text-xs text-muted-foreground">
-              {bookings.length} reservations
+              {list.length} reservations
             </p>
           </div>
         </div>
@@ -34,9 +49,11 @@ export function BookingPreview() {
         </Link>
       </div>
       <div className="mt-4 space-y-2">
-        {bookings.map((b, i) => {
+        {list.map((b, i) => {
           const isOngoing =
-            timeStr >= b.start && timeStr < b.end;
+            "startDate" in b
+              ? new Date(b.startDate) <= now && now < new Date(b.endDate)
+              : timeStr >= b.start && timeStr < b.end;
           return (
             <div
               key={i}

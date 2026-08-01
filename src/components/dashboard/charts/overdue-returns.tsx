@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Send, ChevronRight } from "lucide-react";
 import { overdueItems } from "./dashboard-data";
+import type { OverdueReturnItem } from "@/lib/types";
 
 function priorityStyle(p: "warning" | "high" | "critical") {
   if (p === "critical")
@@ -10,7 +11,8 @@ function priorityStyle(p: "warning" | "high" | "critical") {
   return "border-l-yellow-500 bg-yellow-500/5 text-yellow-600 dark:text-yellow-400";
 }
 
-export function OverdueReturns() {
+export function OverdueReturns({ items }: { items?: OverdueReturnItem[] }) {
+  const list = items && items.length > 0 ? items : overdueItems;
   return (
     <div className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -23,7 +25,7 @@ export function OverdueReturns() {
               Overdue Returns
             </h3>
             <p className="text-xs text-muted-foreground">
-              {overdueItems.length} items past return date
+              {list.length} items past return date
             </p>
           </div>
         </div>
@@ -36,46 +38,49 @@ export function OverdueReturns() {
         </Link>
       </div>
       <div className="divide-y divide-border">
-        {overdueItems.map((item) => (
-          <div
-            key={item.tag}
-            className={`flex items-center gap-4 border-l-2 px-5 py-3 transition-colors hover:bg-muted/30 ${priorityStyle(item.priority)}`}
-          >
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-medium text-muted-foreground">
-                  {item.tag}
-                </span>
-                <span className="text-sm font-medium text-foreground">
-                  {item.name}
-                </span>
+        {list.map((item) => {
+          const priority = item.days >= 7 ? "critical" : item.days >= 4 ? "high" : "warning";
+          return (
+            <div
+              key={item.tag}
+              className={`flex items-center gap-4 border-l-2 px-5 py-3 transition-colors hover:bg-muted/30 ${priorityStyle(priority)}`}
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-medium text-muted-foreground">
+                    {item.tag}
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    {item.name}
+                  </span>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {item.holder} &middot; {item.dept} &middot; Due {item.returnDate}
+                </p>
               </div>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {item.holder} &middot; {item.dept} &middot; Due {item.returnDate}
-              </p>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                    priority === "critical"
+                      ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                      : priority === "high"
+                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                        : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                  }`}
+                >
+                  {item.days}d overdue
+                </span>
+                <button
+                  className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  title="Send reminder"
+                  aria-label={`Send reminder for ${item.name}`}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span
-                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                  item.priority === "critical"
-                    ? "bg-red-500/10 text-red-600 dark:text-red-400"
-                    : item.priority === "high"
-                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                      : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                }`}
-              >
-                {item.days}d overdue
-              </span>
-              <button
-                className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                title="Send reminder"
-                aria-label={`Send reminder for ${item.name}`}
-              >
-                <Send className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

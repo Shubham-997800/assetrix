@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 
 interface PrivacyDialogProps {
@@ -70,10 +70,34 @@ export function PrivacyDialog({
   type = "privacy",
 }: PrivacyDialogProps) {
   const data = content[type];
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = `privacy-dialog-title-${type}`;
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      const focusables = dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (active === first || active === dialog)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     },
     [onClose],
   );
@@ -82,6 +106,7 @@ export function PrivacyDialog({
     if (open) {
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
+      closeRef.current?.focus();
     }
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
@@ -100,16 +125,23 @@ export function PrivacyDialog({
       />
 
       {/* Dialog */}
-      <div className="relative z-10 mx-4 max-h-[80vh] w-full max-w-lg animate-scale-in overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="relative z-10 mx-4 max-h-[80vh] w-full max-w-lg animate-scale-in overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div>
-            <h2 className="text-lg font-bold text-foreground">{data.title}</h2>
+            <h2 id={titleId} className="text-lg font-bold text-foreground">{data.title}</h2>
             <p className="text-xs text-muted-foreground">
               Last updated: {data.lastUpdated}
             </p>
           </div>
           <button
+            ref={closeRef}
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Close"

@@ -154,6 +154,7 @@ export const AIPanel = memo(function AIPanel() {
         <button
           onClick={() => setAiPanelOpen(false)}
           className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label="Close AI Assistant panel"
         >
           <X className="h-4 w-4" />
         </button>
@@ -282,12 +283,14 @@ export const AIPanel = memo(function AIPanel() {
             onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             placeholder="Demo: Ask about assets, maintenance, budget..."
+            aria-label="Chat message"
             className="flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button
             onClick={handleSend}
             disabled={!chatInput.trim()}
             className="rounded-lg bg-primary p-1.5 text-primary-foreground disabled:opacity-30"
+            aria-label="Send message"
           >
             <Send className="h-3.5 w-3.5" />
           </button>

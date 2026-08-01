@@ -123,7 +123,7 @@ export default memo(function DashboardPage() {
       </div>
 
       {/* Overdue Returns */}
-      <OverdueReturns />
+      <OverdueReturns items={stats.overdueItems} />
 
       {/* Quick Actions */}
       <QuickActions />
@@ -132,14 +132,14 @@ export default memo(function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column */}
         <div className="space-y-6 lg:col-span-2">
-          <ActivityTimeline />
-          <AssetStatusChart />
+          <ActivityTimeline items={stats.recentActivity} />
+          <AssetStatusChart stats={stats} />
         </div>
 
         {/* Right column */}
         <div className="space-y-6">
           <NotificationsWidget />
-          <BookingPreview />
+          <BookingPreview bookings={stats.upcomingBookings} />
         </div>
       </div>
 

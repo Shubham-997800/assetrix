@@ -78,8 +78,19 @@ const DashboardNavbar = memo(function DashboardNavbar() {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
       if (tasksRef.current && !tasksRef.current.contains(e.target as Node)) setTasksOpen(false);
     };
+    const escapeHandler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setNotificationsOpen(false);
+        setProfileOpen(false);
+        setTasksOpen(false);
+      }
+    };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("keydown", escapeHandler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", escapeHandler);
+    };
   }, []);
 
   const handleSearchOpen = useCallback(() => setSearchOpen(true), [setSearchOpen]);
@@ -101,10 +112,10 @@ const DashboardNavbar = memo(function DashboardNavbar() {
   return (
     <header role="banner" className={HEADER_CLASS}>
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <button onClick={toggleSidebar} className={SIDEBAR_TOGGLE_MOBILE}>
+        <button onClick={toggleSidebar} className={SIDEBAR_TOGGLE_MOBILE} aria-label="Toggle navigation menu">
           <Menu className="h-5 w-5" />
         </button>
-        <button onClick={toggleSidebar} className={SIDEBAR_TOGGLE_DESKTOP}>
+        <button onClick={toggleSidebar} className={SIDEBAR_TOGGLE_DESKTOP} aria-label="Collapse sidebar">
           <PanelLeft className="h-4 w-4" />
         </button>
         <button onClick={handleSearchOpen} className={SEARCH_TRIGGER}>
@@ -121,6 +132,8 @@ const DashboardNavbar = memo(function DashboardNavbar() {
         <button
           onClick={handleToggleAiPanel}
           className={aiPanelOpen ? AI_TOGGLE_ACTIVE : AI_TOGGLE_INACTIVE}
+          aria-label="Toggle AI Assistant panel"
+          aria-expanded={aiPanelOpen}
           title="AI Assistant"
         >
           <Sparkles className="h-4 w-4" />
@@ -202,6 +215,7 @@ const DashboardNavbar = memo(function DashboardNavbar() {
         <button
           onClick={toggleTheme}
           className={THEME_BUTTON}
+          aria-label={isLight ? "Switch to dark theme" : "Switch to light theme"}
           title="Toggle theme"
         >
           {isLight ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
@@ -210,6 +224,7 @@ const DashboardNavbar = memo(function DashboardNavbar() {
         <button
           onClick={handleShowHelp}
           className={HELP_BUTTON}
+          aria-label="Keyboard shortcuts"
           title="Keyboard shortcuts"
         >
           <HelpCircle className="h-4 w-4" />

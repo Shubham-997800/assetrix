@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   description:
     "Track assets, eliminate allocation conflicts, automate maintenance workflows and manage resource bookings from a single operational platform.",
   keywords: ["asset management", "ERP", "resource management", "maintenance", "audit", "enterprise"],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://assetrix.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://assetrix-nu.vercel.app"),
   openGraph: {
     title: "Assetrix — Enterprise Asset & Resource Management Platform",
     description: "Track assets, eliminate allocation conflicts, automate maintenance workflows and manage resource bookings from a single operational platform.",

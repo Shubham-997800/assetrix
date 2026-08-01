@@ -197,6 +197,53 @@ export interface DashboardStats {
   pendingTransfers: number;
   overdueReturns: number;
   activeAllocations: number;
+  totalValue?: number;
+  totalPurchaseValue?: number;
+  utilizationRate?: number;
+  retiredAssets?: number;
+  lostAssets?: number;
+  stolenAssets?: number;
+  upcomingMaintenanceCount?: number;
+  recentActivity?: ActivityLogItem[];
+  assetsByDepartment?: DepartmentAssetCount[];
+  upcomingBookings?: UpcomingBooking[];
+  overdueItems?: OverdueReturnItem[];
+}
+
+export interface ActivityLogItem {
+  id: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  description?: string | null;
+  createdAt: string;
+  user?: { id: string; firstName: string; lastName: string } | null;
+}
+
+export interface DepartmentAssetCount {
+  id: string;
+  name: string;
+  _count: { assets: number };
+}
+
+export interface UpcomingBooking {
+  id: string;
+  purpose: string;
+  startDate: string;
+  endDate: string;
+  status: BookingStatus;
+  asset?: { id: string; name: string; assetTag: string } | null;
+  user?: { id: string; firstName: string; lastName: string } | null;
+}
+
+export interface OverdueReturnItem {
+  id: string;
+  tag: string;
+  name: string;
+  holder: string;
+  dept: string;
+  returnDate: string;
+  days: number;
 }
 
 export interface Session {

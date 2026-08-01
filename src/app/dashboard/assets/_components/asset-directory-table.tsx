@@ -32,6 +32,49 @@ import { CATEGORIES, DEPARTMENTS, LOCATIONS } from "./data";
 import { MultiDropdown, TableDropdown } from "./table-dropdown";
 import { AssetQRModal } from "./asset-qr-modal";
 
+function escapePdfText(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)")
+    .replace(/[^\x20-\x7E]/g, "-");
+}
+
+function buildPdf(lines: string[]): string {
+  const lineHeight = 14;
+  const margin = 40;
+  const maxLines = Math.floor((792 - margin * 2) / lineHeight);
+  const body = lines.slice(0, maxLines);
+
+  const textOps = body
+    .map((line, i) => `${i === 0 ? "" : "T* "}(${escapePdfText(line)}) Tj`)
+    .join(" ");
+  const content = `BT /F1 9 Tf ${margin} ${792 - margin} Td ${lineHeight} TL ${textOps} ET`;
+
+  const objects: string[] = [
+    "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj",
+    "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj",
+    "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj",
+    "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>\nendobj",
+    `5 0 obj\n<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj`,
+  ];
+
+  let pdf = "%PDF-1.4\n";
+  const offsets: number[] = [0];
+  objects.forEach((obj) => {
+    offsets.push(pdf.length);
+    pdf += `${obj}\n`;
+  });
+  const xrefStart = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((o) => {
+    pdf += `${String(o).padStart(10, "0")} 00000 n \n`;
+  });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF\n`;
+
+  return pdf;
+}
+
 interface AssetDirectoryTableProps {
   assets: Asset[];
   onViewAsset: (asset: Asset) => void;
@@ -244,22 +287,21 @@ export function AssetDirectoryTable({
       `Generated: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`,
       `Total Assets: ${filtered.length}`,
       "",
-      "─".repeat(100),
+      "=".repeat(80),
     ];
     filtered.forEach((a) => {
       lines.push(`${a.tag} | ${a.name}`);
       lines.push(`  Category: ${a.category} | Dept: ${a.department} | Status: ${a.status}`);
-      lines.push(`  Holder: ${a.currentHolder ?? "—"} | Location: ${a.location}`);
+      lines.push(`  Holder: ${a.currentHolder ?? "-"} | Location: ${a.location}`);
       lines.push(`  Serial: ${a.serialNumber} | Cost: ${formatCurrency(a.acquisitionCost)}`);
       lines.push("");
     });
-    lines.push("─".repeat(100));
+    lines.push("=".repeat(80));
     lines.push("END OF REPORT");
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
+    const blob = new Blob([buildPdf(lines)], { type: "application/pdf" });    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `asset-directory-${new Date().toISOString().slice(0, 10)}.txt`;
+    link.download = `asset-directory-${new Date().toISOString().slice(0, 10)}.pdf`;
     link.click();
     URL.revokeObjectURL(url);
   };
