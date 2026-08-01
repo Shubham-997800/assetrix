@@ -147,44 +147,65 @@ Rule-based health scoring, maintenance predictions, idle-asset detection, and re
 
 ## Tech Stack
 
+> All versions below are pinned in the repository (`package.json` / `backend/package.json`) — nothing is invented.
+
 ### Frontend
 
-| Technology | Purpose |
-|:-----------|:--------|
-| [Next.js 16](https://nextjs.org) | App Router, Server Components, Turbopack |
-| [React 19](https://react.dev) | UI library |
-| [TypeScript 5](https://www.typescriptlang.org) | Strict type safety |
-| [Tailwind CSS v4](https://tailwindcss.com) | Utility-first styling, Aura Cyan design tokens |
-| [shadcn/ui](https://ui.shadcn.com) + @base-ui/react | Accessible component primitives |
-| [Recharts](https://recharts.org) | Data visualization |
-| [Lucide React](https://lucide.dev) | Icon system |
-| [next-themes](https://github.com/pacocoursey/next-themes) | Dark/Light/System themes |
+| Technology | Version | Purpose |
+|:-----------|:--------|:--------|
+| [Next.js](https://nextjs.org) | `16.2.10` | App Router, Server Components, Turbopack bundler, Edge Middleware |
+| [React](https://react.dev) | `19.2.4` | UI library (concurrent rendering) |
+| [TypeScript](https://www.typescriptlang.org) | `^5` | Strict type safety across the whole frontend |
+| [Tailwind CSS](https://tailwindcss.com) | `^4` | Utility-first styling with the **Aura Cyan** design-token system |
+| [@base-ui/react](https://base-ui.com) | `^1.6.0` | Headless, accessible primitives (Button, Dialog/Sheet, Render) |
+| [shadcn/ui](https://ui.shadcn.com) | `^4.13.0` (CLI) | Component scaffolding + style conventions |
+| [class-variance-authority](https://cva.style) | `^0.7.1` | Variant API for `button` / `badge` (cva `variants`) |
+| [clsx](https://github.com/lukeed/clsx) | `^2.1.1` | Conditional class joining |
+| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | `^3.6.0` | Dedupes conflicting Tailwind classes (`cn()` helper) |
+| [Recharts](https://recharts.org) | `^3.9.2` | Dashboard data visualization (charts) |
+| [Lucide React](https://lucide.dev) | `^1.24.0` | Icon system (500+ stroke icons) |
+| [next-themes](https://github.com/pacocoursey/next-themes) | `^0.4.6` | Dark / Light / System theme provider |
+| [tw-animate-css](https://github.com/CosmoDevDev/tw-animate-css) | `^1.4.0` | Tailwind-compatible animation utilities (fade, bounce, pulse) |
+| [ESLint](https://eslint.org) + `eslint-config-next` | `^9` / `16.2.10` | Linting (`npm run lint`) |
+| [@tailwindcss/postcss](https://tailwindcss.com) | `^4` | Tailwind v4 PostCSS plugin |
 
 ### Backend
 
-| Technology | Purpose |
-|:-----------|:--------|
-| [Express.js 4](https://expressjs.com) | REST API framework |
-| [Prisma ORM 6](https://www.prisma.io) | Type-safe database access, schema-first |
-| [PostgreSQL 16](https://www.postgresql.org) | Primary database (27 models) |
-| [Redis 7](https://redis.io) | Sessions, caching, rate limiting, BullMQ |
-| [BullMQ](https://docs.bullmq.io) | Background job queues (email, reports, AI) |
-| [JWT](https://jwt.io) | Access tokens (15 min) + refresh-token rotation (7 d) |
-| [bcrypt](https://github.com/kelektiv/node.bcrypt.js) | Password hashing (12 salt rounds) |
-| [Zod](https://zod.dev) | Request validation |
-| [Helmet](https://helmetjs.github.io) | Security headers |
-| [Swagger / OpenAPI](https://swagger.io) | Auto-generated API docs (dev) |
-| [Nodemailer](https://nodemailer.com) | Transactional email |
-| [ExcelJS](https://github.com/exceljs/exceljs) + [PDFKit](https://pdfkit.org) | Excel/PDF export |
+| Technology | Version | Purpose |
+|:-----------|:--------|:--------|
+| [Node.js](https://nodejs.org) | `^22` (types) | Runtime |
+| [Express.js](https://expressjs.com) | `^4.21.2` | REST API framework (`/api/v1`) |
+| [Prisma ORM](https://www.prisma.io) | `^6.9.0` | Type-safe schema-first database access (27 models, 15 enums) |
+| [PostgreSQL](https://www.postgresql.org) | — (schema: `postgresql`) | Primary database |
+| [Redis](https://redis.io) + [ioredis](https://github.com/redis/ioredis) | `^5.6.0` | Sessions, refresh-token store, cache, rate-limit backing |
+| [BullMQ](https://docs.bullmq.io) | `^5.25.0` | Background job queues (email, notifications, reports, AI, audit, cleanup, maintenance, images) |
+| [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) | `^9.0.2` | JWT access tokens (15 min) + refresh-token rotation (7 d) |
+| [bcrypt](https://github.com/kelektiv/node.bcrypt.js) | `^5.1.1` | Password hashing (12 salt rounds) |
+| [Zod](https://zod.dev) | `^3.24.4` | Runtime request validation (10 validator modules) |
+| [Helmet](https://helmetjs.github.io) | `^8.0.0` | Security HTTP headers |
+| [express-rate-limit](https://express-rate-limit.github.io) | `^7.5.0` | Rate limiting (global 100/15 min, auth 10/15 min) |
+| [cors](https://github.com/expressjs/cors) | `^2.8.5` | Cross-origin resource sharing (allow-list) |
+| [cookie-parser](https://github.com/expressjs/cookie-parser) | `^1.4.7` | Refresh-token httpOnly cookies |
+| [compression](https://github.com/expressjs/compression) | `^1.7.5` | Gzip response compression |
+| [multer](https://github.com/expressjs/multer) | `^1.4.5-lts.1` | Multipart file upload middleware (10 MB, MIME allow-list) |
+| [Nodemailer](https://nodemailer.com) | `^9.0.3` | Transactional email (welcome, verification, reset, alerts) |
+| [Pino](https://getpino.io) | `^9.6.0` | Structured logging (`pino-pretty` in dev) |
+| [Swagger / OpenAPI](https://swagger.io) | `swagger-jsdoc ^6.2.8`, `swagger-ui-express ^5.0.1` | Auto-generated API docs at `/api-docs` (dev) |
+| [ExcelJS](https://github.com/exceljs/exceljs) | `^4.4.0` | `.xlsx` report export |
+| [PDFKit](https://pdfkit.org) | `^0.19.1` | PDF report generation |
+| [uuid](https://github.com/uuidjs/uuid) | `^11.1.0` | ID + token generation |
+| [dotenv](https://github.com/motdotla/dotenv) | `^16.4.7` | Environment variable loading |
+
+**Backend tooling** — `tsx` (dev runner), `ts-node` (seed runner), `jest ^29` + `supertest` + `ts-jest` (unit/integration tests), `eslint ^9` + `typescript-eslint`, `prettier ^3.5`, `husky ^9` + `lint-staged` (pre-commit hooks).
 
 ### Infrastructure
 
 | Technology | Purpose |
 |:-----------|:--------|
-| Vercel | Frontend hosting (Edge network) |
-| Railway | Backend hosting + managed PostgreSQL + Redis |
-| Docker | Multi-stage backend build |
-| GitHub | Source control + CI/CD |
+| [Vercel](https://vercel.com) | Frontend hosting + Edge Network (live: `assetrix-nu.vercel.app`) |
+| [Railway](https://railway.app) | Backend hosting + managed PostgreSQL + Redis |
+| [Docker](https://www.docker.com) | Multi-stage backend build (`backend/Dockerfile` + `docker-compose.yml`) |
+| [GitHub](https://github.com/Shubham-997800/assetrix) | Source control, issues, PR templates |
 
 <br/>
 
