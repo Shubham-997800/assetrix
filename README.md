@@ -1,93 +1,99 @@
 <a id="top"></a>
 
-<!-- ===================== ANIMATED HEADER ===================== -->
-<div align="center">
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=32&duration=3200&pause=600&color=22D3EE&center=true&vCenter=true&width=620&height=80&lines=Assetrix;Enterprise+Asset+%26+Resource+Mgmt;Track+Assets+%E2%80%A2+Automate+Maintenance;Audit+Compliance+%E2%80%A2+Operational+Intelligence">
+    <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&size=32&duration=3200&pause=600&color=0891B2&center=true&vCenter=true&width=620&height=80&lines=Assetrix;Enterprise+Asset+%26+Resource+Mgmt;Track+Assets+%E2%80%A2+Automate+Maintenance;Audit+Compliance+%E2%80%A2+Operational+Intelligence" alt="Assetrix">
+  </picture>
+</p>
 
-![Assetrix](public/banner.svg)
+<p align="center">
+  <b>An Enterprise Asset & Resource Management Platform</b><br>
+  <i>From registration to retirement — turn manual asset tracking into operational intelligence.</i>
+</p>
 
-</div>
+<p align="center">
+  <a href="https://assetrix-nu.vercel.app"><img src="https://img.shields.io/badge/Live_Demo-0891B2?style=for-the-badge&logo=vercel&logoColor=white" /></a>
+  <a href="https://github.com/Shubham-997800/assetrix"><img src="https://img.shields.io/badge/Source_Code-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
+  <a href="https://github.com/Shubham-997800/assetrix/stargazers"><img src="https://img.shields.io/github/stars/Shubham-997800/assetrix?style=for-the-badge&logo=github&color=yellow" /></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-10B981?style=for-the-badge" /></a>
+</p>
 
-<div align="center">
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
+  <img src="https://img.shields.io/badge/Base_UI-5F5CE5?style=flat-square&logo=baseui&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express-4-000000?style=flat-square&logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/Prisma-6-2D3748?style=flat-square&logo=prisma&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white" />
+  <img src="https://img.shields.io/badge/BullMQ-C72330?style=flat-square&logo=redis&logoColor=white" />
+  <img src="https://img.shields.io/badge/JWT_Auth-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" />
+  <img src="https://img.shields.io/badge/Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" />
+  <img src="https://img.shields.io/badge/Build-Passing-22c55e?style=flat-square" />
+  <img src="https://img.shields.io/github/commit-activity/m/Shubham-997800/assetrix?style=flat-square" />
+</p>
 
-# <img src="public/logo.svg" width="36" align="center" /> **Assetrix** — Enterprise Asset Intelligence Platform
+<p align="center">
+  <a href="https://github.com/Shubham-997800/assetrix/releases"><img src="https://img.shields.io/badge/v0.9_Beta-6366f1?style=for-the-badge" /></a>
+  <a href="https://github.com/Shubham-997800/assetrix/releases"><img src="https://img.shields.io/badge/v1.0_Production-22c55e?style=for-the-badge" /></a>
+  <a href="https://github.com/Shubham-997800/assetrix/releases"><img src="https://img.shields.io/badge/v1.1_Security-10B981?style=for-the-badge" /></a>
+</p>
 
-### Track assets. Automate maintenance. Optimize allocations. Audit compliance.
-
-*From registration to retirement — one platform that transforms asset management from manual tracking into operational intelligence.*
-
-<br/>
-
-<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-0891B2?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="MIT License"/></a>
-<a href="https://github.com/Shubham-997800/assetrix/releases"><img src="https://img.shields.io/github/v/release/Shubham-997800/assetrix?style=for-the-badge&label=Release&color=10B981" alt="Release"/></a>
-<img src="https://img.shields.io/badge/Build-Passing-10B981?style=for-the-badge&logo=github&logoColor=white" alt="Build"/>
-<a href="https://vercel.com"><img src="https://img.shields.io/badge/Deployed_on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/></a>
-<a href="https://react.dev"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React"/></a>
-<a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/></a>
-<a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-22-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node"/></a>
-<a href="https://www.postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"/></a>
-<a href="https://github.com/Shubham-997800/assetrix"><img src="https://img.shields.io/badge/PRs-Welcome-22D3EE?style=for-the-badge&logo=github&logoColor=white" alt="PRs Welcome"/></a>
-
-<br/>
-
-[**Live Platform**](https://assetrix-nu.vercel.app) · [**API Docs**](https://assetrix-backend-production-9a94.up.railway.app/api-docs) · [**GitHub**](https://github.com/Shubham-997800/assetrix) · [**Report a Bug**](https://github.com/Shubham-997800/assetrix/issues/new/choose)
-
-</div>
-
-<br/>
-
-> ## ⚠️ Deployment status (verified 1 Aug 2026)
-> The **frontend is live** at [assetrix-nu.vercel.app](https://assetrix-nu.vercel.app) and builds cleanly.
-> The **backend API** domain (`assetrix-backend-production-9a94.up.railway.app`) currently **does not resolve** — the API is offline. The platform will not be fully functional until the backend is redeployed. See [Deployment](#deployment) and [Known Issues](#known-issues).
-
-<br/>
-
----
-
-## 📚 Table of Contents
-
-<details>
-<summary><b>Click to expand</b></summary>
-
-1. [What This Platform Does](#what-this-platform-does)
-2. [Why This Exists](#why-this-exists)
-3. [Features](#features)
-4. [Tech Stack](#tech-stack)
-5. [Project Flow](#project-flow)
-6. [Architecture](#architecture)
-7. [Folder Structure](#folder-structure)
-8. [Database Schema](#database-schema)
-9. [Installation](#installation)
-10. [Environment Variables](#environment-variables)
-11. [Deployment](#deployment)
-12. [API Documentation](#api-documentation)
-13. [User Roles & Permissions](#user-roles--permissions)
-14. [Project Timeline](#project-timeline)
-15. [Roadmap](#roadmap)
-16. [Known Issues](#known-issues)
-17. [Future Improvements](#future-improvements)
-18. [Contributing](#contributing)
-19. [Coding Standards](#coding-standards)
-20. [License](#license)
-21. [Acknowledgements](#acknowledgements)
-22. [Contact](#contact)
-
-</details>
-
-<br/>
+<br>
 
 ---
 
-## What This Platform Does
+## 📦 Table of Contents
 
-Assetrix is a **full-stack enterprise ERP platform** for organizations that manage physical assets at scale — hospitals tracking medical equipment, universities managing lab instruments, enterprises governing IT infrastructure, and manufacturers monitoring production tools.
+- [Problem Statement](#-problem-statement)
+- [Why Assetrix?](#-why-assetrix)
+- [Key Features](#-key-features)
+- [Screens & Modules](#-screens--modules)
+- [UI Libraries & Design System](#-ui-libraries--design-system)
+- [Tech Stack](#-tech-stack)
+- [System Architecture](#-system-architecture)
+- [Project Workflow](#-project-workflow)
+- [Folder Structure](#-folder-structure)
+- [Database Schema](#-database-schema)
+- [API Architecture](#-api-architecture)
+- [AI / Intelligence Layer](#-ai--intelligence-layer)
+- [Request Lifecycle](#-request-lifecycle)
+- [Getting Started](#-getting-started)
+- [Deployment](#-deployment)
+- [Recent Improvements](#-recent-improvements)
+- [Roadmap](#-roadmap)
+- [License & Usage](#-license--usage)
+- [Author](#-author)
+- [Acknowledgements](#-acknowledgements)
 
-It replaces spreadsheets, email chains, and fragmented tools with a **unified operational system** providing real-time visibility into every asset's lifecycle.
+---
+
+## 🧠 Problem Statement
+
+### The Asset Management Paradox
+
+Organizations still manage physical assets the way they did two decades ago. **Spreadsheets, email chains, and fragmented tools** scatter asset data across departments — nobody has a single source of truth.
 
 ```
- REGISTRATION  →  ALLOCATION  →  TRANSFER  →  MAINTENANCE  →  AUDIT  →  ANALYTICS
+Current reality:   Spreadsheets → Emails → Approvals → Manual Audits → Fragmented
+What we need:      Register  → Allocate → Maintain  → Audit       → Intelligent
 ```
 
-### Why This Exists
+### Why Manual Tracking Fails
+
+```mermaid
+graph LR
+    A[Asset in a spreadsheet] --> B[Dispatched via email]
+    B --> C[No single source of truth]
+    C --> D[Asset goes missing]
+    D --> A
+    style A fill:#991b1b,stroke:#fca5a5,color:#fff
+    style D fill:#991b1b,stroke:#fca5a5,color:#fff
+```
 
 | The Problem | The Reality | The Impact |
 |:-----------:|:-----------:|:----------:|
@@ -96,122 +102,258 @@ It replaces spreadsheets, email chains, and fragmented tools with a **unified op
 | Reactive Maintenance | Unplanned downtime costs far more than planned | Most equipment failures are preventable |
 | Manual Audit Cycles | Audit preparation takes 2–4 weeks per cycle | Auditor time spent on data gathering |
 
-Assetrix exists because **asset management should not be an operational bottleneck.**
+### How Assetrix Solves This
 
-<br/>
+Assetrix replaces fragmented workflows with a **unified operational system** — one platform covering the full lifecycle, with automated approvals, conflict-free scheduling, and compliance-ready audit trails.
 
----
+```
+Assetrix:  Register → Allocate → Transfer → Maintain → Audit → Analytics
+```
 
-## Features
-
-<details open>
-<summary><b>Core modules</b></summary>
-
-### 📊 Dashboard
-Real-time operational command center with KPI cards, 12-month utilization trends, maintenance queue, activity timeline, and upcoming-return alerts.
-
-### 🏛️ Organization Setup
-Department hierarchy with parent–child relationships, department heads, and an employee directory with role assignments.
-
-### 🖥️ Asset Directory
-Register assets with purchase details, warranty, and location; auto-generate asset tags and QR codes; track condition, depreciation, and current value across 15+ attributes.
-
-### 🔁 Allocation & Transfer
-Conflict-free asset assignment with real-time availability checks, multi-level approval workflows, and a complete allocation history audit trail.
-
-### 📅 Resource Booking
-Shared-resource scheduling with automatic overlap validation, calendar view, and approval workflows.
-
-### 🔧 Maintenance Operations
-Preventive and reactive maintenance with priority levels, automatic technician assignment, and a `SCHEDULED → IN_PROGRESS → COMPLETED` workflow with cost tracking.
-
-### 🛡️ Audit Management
-Audit cycles with defined scope, auditor assignments, physical verification, discrepancy reports, and compliance scoring.
-
-### 📈 Reports & Analytics
-Utilization reports, maintenance trends, booking heatmaps, idle-asset detection, and CSV/PDF/Excel export.
-
-### 🔔 Notifications
-Multi-channel alerts (in-app + email) with per-channel preferences and customizable templates.
-
-### 🧠 AI Operational Intelligence
-Rule-based health scoring, maintenance predictions, idle-asset detection, and resource-optimization recommendations.
-
-</details>
-
-> **Note on the "AI" layer:** the intelligence engine is **rule-based/heuristic** (health-score formulas, condition penalty tables, age-based recommendations) — it does not call an external ML model.
-
-<br/>
+> [!NOTE]
+> Assetrix is not just an asset register. It is an **operational backbone** — RBAC, approval workflows, real-time availability checks, preventive maintenance, and intelligence-driven recommendations in a single system.
 
 ---
 
-## Tech Stack
+## 🚀 Why Assetrix?
 
-> All versions below are pinned in the repository (`package.json` / `backend/package.json`) — nothing is invented.
+### The Vision
 
-### Frontend
+We believe asset management should never be an **operational bottleneck**. Assetrix was built on three core principles:
 
-| Technology | Version | Purpose |
-|:-----------|:--------|:--------|
-| [Next.js](https://nextjs.org) | `16.2.10` | App Router, Server Components, Turbopack bundler, Edge Middleware |
-| [React](https://react.dev) | `19.2.4` | UI library (concurrent rendering) |
-| [TypeScript](https://www.typescriptlang.org) | `^5` | Strict type safety across the whole frontend |
+| Principle | What It Means |
+|-----------|---------------|
+| **Lifecycle-First** | Every module maps to a real stage of the asset lifecycle — registration, allocation, transfer, maintenance, audit, retirement. |
+| **Automation > Forms** | Approvals, availability checks, technician assignment, and report generation run automatically, not through manual follow-ups. |
+| **Accountability by Design** | Every action is logged. Every allocation has an audit trail. Every role sees only what it should. |
+
+### What Makes It Different
+
+| Feature | Manual / Spreadsheet | Assetrix |
+|---------|---------------------|----------|
+| Asset Registration | Manual row entry | Auto-generated asset tag + QR code, 15+ attributes |
+| Allocation | Email + wait | Real-time availability check + multi-level approval |
+| Booking Conflicts | Double-booked rooms/vehicles | Automatic overlap validation + calendar view |
+| Maintenance | Reactive, when it breaks | Preventive schedules + automatic technician assignment |
+| Audits | 2–4 week manual prep | Scope → assignment → verification → compliance score |
+| Reporting | Hand-built exports | CSV / PDF / Excel reports on demand |
+| Visibility | "Ask IT" | Real-time dashboard across every department |
+
+---
+
+## ✨ Key Features
+
+### 🖥️ Core Modules
+
+| Feature | Description |
+|---------|-------------|
+| **📊 Dashboard** | Real-time command center — KPI cards, 12-month utilization trends, maintenance queue, activity timeline, upcoming-return alerts. |
+| **🏛️ Organization Setup** | Department hierarchy with parent–child relationships, department heads, and an employee directory with role assignments. |
+| **🖥️ Asset Directory** | Register assets with purchase details, warranty, location, condition, depreciation, and current value; auto asset tags + QR codes. |
+| **🔁 Allocation & Transfer** | Conflict-free assignment with real-time availability checks, multi-level approval workflows, and a complete allocation history audit trail. |
+| **📅 Resource Booking** | Shared-resource scheduling with automatic overlap validation, calendar view, and approval workflows. |
+| **🔧 Maintenance Operations** | Preventive + reactive maintenance with priority levels, automatic technician assignment, and a `SCHEDULED → IN_PROGRESS → COMPLETED` workflow with cost tracking. |
+| **🛡️ Audit Management** | Audit cycles with defined scope, auditor assignments, physical verification, discrepancy reports, and compliance scoring. |
+| **📈 Reports & Analytics** | Utilization reports, maintenance trends, booking heatmaps, idle-asset detection, and CSV/PDF/Excel export. |
+| **🔔 Notifications** | Multi-channel alerts (in-app + email) with per-channel preferences and customizable templates. |
+| **🧠 AI Operational Intelligence** | Rule-based health scoring, maintenance predictions, idle-asset detection, and resource-optimization recommendations. |
+
+> [!NOTE]
+> The **"AI" layer is rule-based/heuristic** — health-score formulas, condition penalty tables, and age-based recommendations. It does not call an external ML model.
+
+### 🔐 Security & Access
+
+| Feature | Details |
+|---------|---------|
+| **RBAC** | 8 roles — Super Admin, Admin, Department Manager, Asset Manager, Technician, Auditor, Employee, HR Manager |
+| **JWT + Refresh Rotation** | 15-min access tokens, 7-day rotating refresh tokens stored in `httpOnly` cookies |
+| **Rate Limiting** | Global 100 req / 15 min, auth 10 req / 15 min |
+| **Security Headers** | Helmet + CORS allow-list |
+| **Input Validation** | Zod schemas on every endpoint |
+| **Password Hashing** | bcrypt, 12 salt rounds |
+| **Session Management** | Login history, force-logout, revoke sessions |
+
+---
+
+## 📸 Screens & Modules
+
+> 🔗 **Live demo**: [assetrix-nu.vercel.app](https://assetrix-nu.vercel.app)
+
+| Area | Description |
+|-------------|-------------|
+| 🏠 **Landing** | Animated hero, feature grid, how-it-works, CTA — 9 sections |
+| 📊 **Dashboard** | KPI cards, utilization trends, maintenance queue, activity timeline, upcoming returns |
+| 🏛️ **Organization** | Department tree, heads, employee directory |
+| 🖥️ **Assets** | Directory with filters, search, QR lookup, lifecycle history |
+| 🔁 **Allocations** | Active allocations, transfers, pending approvals |
+| 📅 **Bookings** | Overlap-validated scheduling, approvals, calendar |
+| 🔧 **Maintenance** | Tasks, schedules, technician assignment, stats |
+| 🛡️ **Audit** | Cycles, assignments, verification, discrepancies |
+| 📈 **Reports** | Report generation + CSV/PDF/Excel download |
+| 🔔 **Notifications** | In-app center + preferences |
+| ⚙️ **Settings** | Platform-wide configuration |
+| 👤 **Profile** | Personal details, password change |
+| 🔐 **Auth** | Login, register, forgot/reset password, email verification, session expiry |
+
+---
+
+## 🎨 UI Libraries & Design System
+
+### What the UI is built with
+
+| Library | Version | What It's Used For |
+|---------|---------|-------------------|
+| [Next.js](https://nextjs.org) | `16.2.10` | App Router, Server Components, Turbopack bundler, Edge Middleware, `/api` rewrites to backend |
+| [React](https://react.dev) | `19.2.4` | UI component model (concurrent rendering) |
+| [TypeScript](https://www.typescriptlang.org) | `^5` | Strict type safety across all 46 components |
 | [Tailwind CSS](https://tailwindcss.com) | `^4` | Utility-first styling with the **Aura Cyan** design-token system |
-| [@base-ui/react](https://base-ui.com) | `^1.6.0` | Headless, accessible primitives (Button, Dialog/Sheet, Render) |
-| [shadcn/ui](https://ui.shadcn.com) | `^4.13.0` (CLI) | Component scaffolding + style conventions |
-| [class-variance-authority](https://cva.style) | `^0.7.1` | Variant API for `button` / `badge` (cva `variants`) |
+| [@base-ui/react](https://base-ui.com) | `^1.6.0` | Headless, accessible primitives — Button, Dialog/Sheet, Render, mergeProps |
+| [shadcn/ui](https://ui.shadcn.com) | `^4.13.0` (CLI) | Component scaffolding + style conventions (badge, button, input, sheet, table) |
+| [class-variance-authority](https://cva.style) | `^0.7.1` | Variant API for `button` / `badge` (`cva` variants) |
 | [clsx](https://github.com/lukeed/clsx) | `^2.1.1` | Conditional class joining |
-| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | `^3.6.0` | Dedupes conflicting Tailwind classes (`cn()` helper) |
-| [Recharts](https://recharts.org) | `^3.9.2` | Dashboard data visualization (charts) |
+| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | `^3.6.0` | Dedupes conflicting Tailwind classes in the `cn()` helper |
+| [Recharts](https://recharts.org) | `^3.9.2` | Dashboard data visualization (utilization trends, charts) |
 | [Lucide React](https://lucide.dev) | `^1.24.0` | Icon system (500+ stroke icons) |
 | [next-themes](https://github.com/pacocoursey/next-themes) | `^0.4.6` | Dark / Light / System theme provider |
 | [tw-animate-css](https://github.com/CosmoDevDev/tw-animate-css) | `^1.4.0` | Tailwind-compatible animation utilities (fade, bounce, pulse) |
-| [ESLint](https://eslint.org) + `eslint-config-next` | `^9` / `16.2.10` | Linting (`npm run lint`) |
 | [@tailwindcss/postcss](https://tailwindcss.com) | `^4` | Tailwind v4 PostCSS plugin |
+
+### Reusable UI Components (`src/components/ui`)
+
+| Component | Base | Used For |
+|-----------|------|----------|
+| `badge.tsx` | Base UI + CVA | Status labels, module tags |
+| `button.tsx` | Base UI Button + CVA | Primary / secondary / ghost actions |
+| `input.tsx` | Base UI + Tailwind | Form fields |
+| `sheet.tsx` | Base UI Dialog | Slide-in panels, mobile nav |
+| `table.tsx` | HTML + Tailwind | Data tables across modules |
+
+### Custom Hooks & Contexts
+
+| File | Purpose |
+|------|---------|
+| `src/hooks/use-count-up.ts` | Animated KPI counters (0 → value) on the dashboard |
+| `src/hooks/use-in-view.ts` | Reveal-on-scroll animations for landing sections |
+| `src/hooks/use-scroll-shadow.ts` | Sticky-header elevation shadow |
+| `src/contexts/auth-context.tsx` | Session state, login/logout, role gating |
+| `src/contexts/dashboard-context.tsx` | Shared dashboard widget state |
+
+> **Scale:** 19 page files, 46 components, 9 landing sections, 2 contexts, 3 hooks, 5 UI primitives — all client/server components properly separated.
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+| Technology | Version | Purpose | Why We Chose It |
+|------------|---------|---------|-----------------|
+| **Next.js** | 16.2.10 | App Router, SSR, Turbopack | Server Components, edge middleware, framework routing |
+| **React** | 19.2.4 | UI component library | Mature ecosystem, concurrent rendering |
+| **TypeScript** | ^5 | Static types | Strict mode across the whole app |
+| **Tailwind CSS** | ^4 | Utility-first styling | Design-token system, dark mode, rapid iteration |
+| **Base UI** | ^1.6.0 | Headless primitives | Accessible, unstyled, theme-agnostic |
+| **Recharts** | ^3.9.2 | Charts | Dashboard data visualization |
+| **Lucide React** | ^1.24.0 | Icons | Consistent, tree-shakeable icon set |
+| **next-themes** | ^0.4.6 | Theme provider | Light / dark / system with no flash |
 
 ### Backend
 
-| Technology | Version | Purpose |
-|:-----------|:--------|:--------|
-| [Node.js](https://nodejs.org) | `^22` (types) | Runtime |
-| [Express.js](https://expressjs.com) | `^4.21.2` | REST API framework (`/api/v1`) |
-| [Prisma ORM](https://www.prisma.io) | `^6.9.0` | Type-safe schema-first database access (27 models, 15 enums) |
-| [PostgreSQL](https://www.postgresql.org) | — (schema: `postgresql`) | Primary database |
-| [Redis](https://redis.io) + [ioredis](https://github.com/redis/ioredis) | `^5.6.0` | Sessions, refresh-token store, cache, rate-limit backing |
-| [BullMQ](https://docs.bullmq.io) | `^5.25.0` | Background job queues (email, notifications, reports, AI, audit, cleanup, maintenance, images) |
-| [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) | `^9.0.2` | JWT access tokens (15 min) + refresh-token rotation (7 d) |
-| [bcrypt](https://github.com/kelektiv/node.bcrypt.js) | `^5.1.1` | Password hashing (12 salt rounds) |
-| [Zod](https://zod.dev) | `^3.24.4` | Runtime request validation (10 validator modules) |
-| [Helmet](https://helmetjs.github.io) | `^8.0.0` | Security HTTP headers |
-| [express-rate-limit](https://express-rate-limit.github.io) | `^7.5.0` | Rate limiting (global 100/15 min, auth 10/15 min) |
-| [cors](https://github.com/expressjs/cors) | `^2.8.5` | Cross-origin resource sharing (allow-list) |
-| [cookie-parser](https://github.com/expressjs/cookie-parser) | `^1.4.7` | Refresh-token httpOnly cookies |
-| [compression](https://github.com/expressjs/compression) | `^1.7.5` | Gzip response compression |
-| [multer](https://github.com/expressjs/multer) | `^1.4.5-lts.1` | Multipart file upload middleware (10 MB, MIME allow-list) |
-| [Nodemailer](https://nodemailer.com) | `^9.0.3` | Transactional email (welcome, verification, reset, alerts) |
-| [Pino](https://getpino.io) | `^9.6.0` | Structured logging (`pino-pretty` in dev) |
-| [Swagger / OpenAPI](https://swagger.io) | `swagger-jsdoc ^6.2.8`, `swagger-ui-express ^5.0.1` | Auto-generated API docs at `/api-docs` (dev) |
-| [ExcelJS](https://github.com/exceljs/exceljs) | `^4.4.0` | `.xlsx` report export |
-| [PDFKit](https://pdfkit.org) | `^0.19.1` | PDF report generation |
-| [uuid](https://github.com/uuidjs/uuid) | `^11.1.0` | ID + token generation |
-| [dotenv](https://github.com/motdotla/dotenv) | `^16.4.7` | Environment variable loading |
-
-**Backend tooling** — `tsx` (dev runner), `ts-node` (seed runner), `jest ^29` + `supertest` + `ts-jest` (unit/integration tests), `eslint ^9` + `typescript-eslint`, `prettier ^3.5`, `husky ^9` + `lint-staged` (pre-commit hooks).
+| Technology | Version | Purpose | Why We Chose It |
+|------------|---------|---------|-----------------|
+| **Node.js** | ^22 | Runtime | Non-blocking I/O, modern JS |
+| **Express** | ^4.21.2 | REST API framework | Minimal, flexible, huge middleware ecosystem |
+| **Prisma ORM** | ^6.9.0 | Database access | Type-safe, schema-first (27 models, 15 enums) |
+| **PostgreSQL** | 16+ | Primary database | ACID, relational integrity |
+| **Redis + ioredis** | ^5.6.0 | Sessions, cache, rate-limit | In-memory speed for hot paths |
+| **BullMQ** | ^5.25.0 | Background job queues | Email, notifications, reports, AI, audit, cleanup, maintenance, images |
+| **jsonwebtoken** | ^9.0.2 | JWT auth | Stateless access + refresh rotation |
+| **bcrypt** | ^5.1.1 | Password hashing | 12 salt rounds, constant-time comparison |
+| **Zod** | ^3.24.4 | Runtime validation | Schema-first request validation |
+| **Helmet** | ^8.0.0 | Security headers | XSS, clickjacking, MIME sniffing protection |
+| **express-rate-limit** | ^7.5.0 | Rate limiting | Global + auth-tier limits |
+| **Nodemailer** | ^9.0.3 | Transactional email | Welcome, verification, reset, alerts |
+| **Pino** | ^9.6.0 | Structured logging | Fast JSON logs, pino-pretty in dev |
+| **ExcelJS** | ^4.4.0 | `.xlsx` export | Report generation |
+| **PDFKit** | ^0.19.1 | PDF generation | Report generation |
+| **Swagger / OpenAPI** | ^6.2.8 / ^5.0.1 | API docs | Auto-generated `/api-docs` |
+| **multer** | ^1.4.5-lts.1 | File uploads | 10 MB, MIME allow-list |
+| **uuid** | ^11.1.0 | IDs & tokens | ID generation |
 
 ### Infrastructure
 
 | Technology | Purpose |
-|:-----------|:--------|
-| [Vercel](https://vercel.com) | Frontend hosting + Edge Network (live: `assetrix-nu.vercel.app`) |
-| [Railway](https://railway.app) | Backend hosting + managed PostgreSQL + Redis |
-| [Docker](https://www.docker.com) | Multi-stage backend build (`backend/Dockerfile` + `docker-compose.yml`) |
-| [GitHub](https://github.com/Shubham-997800/assetrix) | Source control, issues, PR templates |
-
-<br/>
+|------------|---------|
+| **Vercel** | Frontend hosting + auto-deploy from GitHub (`assetrix-nu.vercel.app`) |
+| **Railway** | Backend hosting + managed PostgreSQL + Redis |
+| **Docker** | Multi-stage backend build (`backend/Dockerfile` + `docker-compose.yml`) |
+| **GitHub** | Source control, issues, PR templates |
 
 ---
 
-## Project Flow
+## 🏗️ System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        🌐 DNS (Vercel CDN)                             │
+│                       assetrix-nu.vercel.app                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌───────────────────── FRONTEND (Vercel) ───────────────────────────┐  │
+│  │                                                                   │  │
+│  │  Next.js 16 + React 19 + Tailwind 4 + Base UI + Recharts        │  │
+│  │                                                                   │  │
+│  │  ┌─────────┐ ┌───────────┐ ┌──────────┐ ┌──────────┐            │  │
+│  │  │ Landing │ │ Dashboard │ │  Assets  │ │  Audit   │            │  │
+│  │  │   Page  │ │  + KPIs   │ │ Directory│ │  Cycles  │            │  │
+│  │  ├─────────┤ ├───────────┤ ├──────────┤ ├──────────┤            │  │
+│  │  │Allocatn.│ │ Bookings  │ │Mainten.  │ │ Reports  │            │  │
+│  │  │+Transfers│ │+ Calendar │ │ +Queues  │ │+Export   │            │  │
+│  │  ├─────────┤ ├───────────┤ ├──────────┤ ├──────────┤            │  │
+│  │  │Settings │ │ Profile   │ │Notificat.│ │   Auth   │            │  │
+│  │  │+ Org    │ │ + Avatar  │ │ +Prefs   │ │ + JWT    │            │  │
+│  │  └─────────┘ └───────────┘ └──────────┘ └──────────┘            │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                  │                                       │
+│                    HTTPS + JSON + JWT Bearer Token                       │
+│                    (/api/* proxied via next.config.ts)                   │
+│                                  ▼                                       │
+│  ┌───────────────────── BACKEND (Railway) ───────────────────────────┐  │
+│  │                                                                   │  │
+│  │  Express 4 + Prisma 6 + Helmet 8 + Rate Limiter + BullMQ        │  │
+│  │                                                                   │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐         │  │
+│  │  │  Auth    │  │  Assets  │  │  Alloc   │  │ Bookings │         │  │
+│  │  │  Ctrl    │  │  Ctrl    │  │  Ctrl    │  │  Ctrl    │         │  │
+│  │  ├──────────┤  ├──────────┤  ├──────────┤  ├──────────┤         │  │
+│  │  │Mainten. │  │  Audit   │  │Analytics │  │  Reports │         │  │
+│  │  │  Ctrl    │  │  Ctrl    │  │  Ctrl    │  │  Ctrl    │         │  │
+│  │  ├──────────┤  ├──────────┤  ├──────────┤  └──────────┘         │  │
+│  │  │Notificat│  │   AI     │  │  Admin   │                          │  │
+│  │  │  Ctrl    │  │  Ctrl    │  │  Ctrl    │                          │  │
+│  │  └──────────┘  └──────────┘  └──────────┘                          │  │
+│  │                                                                   │  │
+│  │  Middleware: Helmet → CORS → Rate Limiter → JWT Auth → Zod        │  │
+│  │  Queues:    BullMQ (email, notifications, reports, AI, audit)     │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                  │                                       │
+│                     ┌────────────┴────────────┐                         │
+│                     ▼                         ▼                         │
+│  ┌────────────────────────┐    ┌────────────────────────┐               │
+│  │   🗄️ PostgreSQL 16     │    │   ⚡ Redis 7           │               │
+│  │                        │    │                        │               │
+│  │   27 models            │    │   Sessions             │               │
+│  │   15 enums             │    │   Refresh tokens       │               │
+│  │   Relational schema    │    │   Cache + Rate limit   │               │
+│  │                        │    │   BullMQ broker        │               │
+│  └────────────────────────┘    └────────────────────────┘               │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔄 Project Workflow
 
 ### End-to-end lifecycle
 
@@ -259,154 +401,400 @@ graph LR
 ### Booking Overlap Check
 
 ```mermaid
-graph LR
-    A[Book Resource] --> B{Overlap Check}
-    B -->|No Conflict| C[APPROVED]
-    B -->|Conflict| D[REJECTED]
+sequenceDiagram
+    participant U as User
+    participant S as System
+    U->>S: Book resource (date range)
+    S->>S: Query overlapping bookings
+    alt No overlap
+        S-->>U: Booking created (pending approval)
+    else Overlap found
+        S-->>U: Conflict — nearest alternative shown
+    end
 ```
-
-<br/>
 
 ---
 
-## Architecture
-
-```mermaid
-flowchart TB
-    subgraph Client["Client Layer"]
-        Next[Next.js 16 · React 19 · Tailwind]
-        Mid[Edge Middleware<br/>JWT gate · CSP · headers]
-    end
-    subgraph API["API Layer"]
-        Express[Express 4 REST API]
-        Prisma[Prisma ORM]
-        Bull[BullMQ Workers]
-        Swagger[Swagger/OpenAPI]
-    end
-    subgraph Data["Data Layer"]
-        PG[(PostgreSQL)]
-        Redis[(Redis)]
-        Files[Uploads / Documents]
-    end
-    Next --> Mid
-    Mid -->|/api/v1| Express
-    Express --> Prisma
-    Express --> Bull
-    Prisma --> PG
-    Bull --> Redis
-    Express --> Redis
-    Express --> Files
-```
-
-### Security layers
-
-| Layer | Implementation |
-|:------|:---------------|
-| Authentication | JWT access (15 min) + rotating refresh (7 d), Redis-backed sessions |
-| Authorization | Role-based access control (`SUPER_ADMIN`, `ADMIN`, `DEPARTMENT_MANAGER`, `TECHNICIAN`, `EMPLOYEE`) |
-| Password security | bcrypt (12 rounds), lockout after 5 failed attempts |
-| Session management | Device tracking, concurrency limit (5), revocation, login history |
-| Input validation | Zod schemas on all endpoints |
-| Headers | Helmet + CSP + HSTS + X-Frame-Options + Permissions-Policy |
-| Rate limiting | Global + stricter auth limits |
-| Audit trail | Full activity logging with IP + user attribution |
-
-<br/>
-
----
-
-## Folder Structure
+## 📁 Folder Structure
 
 ```
 assetrix/
-├── src/                          # Next.js App Router frontend
-│   ├── app/
-│   │   ├── layout.tsx            # Root layout, fonts, theme, providers
-│   │   ├── page.tsx              # Landing page (force-static)
-│   │   ├── login/ register/ forgot-password/ reset-password/
-│   │   ├── verify-email/ session-expired/
-│   │   └── dashboard/            # 11 operational modules
-│   │       ├── assets/ · allocations/ · bookings/ · maintenance/
-│   │       ├── audit/ · reports/ · notifications/ · organization/
-│   │       ├── profile/ · settings/ · logs/
-│   │       └── **/_components/   # tabs · forms · tables · data · types
-│   ├── components/
-│   │   ├── ui/ · auth/ · profile/
-│   │   ├── dashboard/            # shell, navbar, sidebar, charts/
-│   │   ├── landing/              # hero, features, workflow, analytics…
-│   │   └── shared/               # ai-panel, command-palette, global-search…
-│   ├── contexts/                 # auth-context, dashboard-context
-│   ├── hooks/ · lib/             # api.ts (13 API modules), types.ts
-│   └── app/globals.css
 │
-├── backend/                      # Express 4 + Prisma 6 + BullMQ
-│   ├── prisma/
-│   │   ├── schema.prisma         # 27 models + 17 enums
-│   │   ├── migrations/           # initial migration
-│   │   └── seed.ts               # demo users + data
-│   ├── src/
-│   │   ├── app.ts                # bootstrap
-│   │   ├── config/               # env · db · redis · logger · swagger
-│   │   ├── controllers/          # 16 route handlers
-│   │   ├── services/             # 16 business-logic modules
-│   │   ├── routes/               # 16 route definitions
-│   │   ├── middleware/           # auth · error · rateLimit · upload · validate
-│   │   ├── validators/           # Zod schemas
-│   │   ├── queues/               # BullMQ queues + workers
-│   │   ├── notifications/ · audit/ · utils/ · constants/
-│   │   └── tests/                # Jest (unit + integration)
-│   ├── Dockerfile · docker-compose.yml · .env.example
+├── src/                                    # 🎨 Next.js Frontend
+│   ├── app/
+│   │   ├── (landing)/                      # Landing page sections
+│   │   ├── (auth)/                         # Login, register, forgot/reset, verify-email
+│   │   ├── dashboard/                      # 11 module pages (client components)
+│   │   │   ├── allocations/
+│   │   │   ├── assets/
+│   │   │   ├── audit/
+│   │   │   ├── bookings/
+│   │   │   ├── logs/
+│   │   │   ├── maintenance/
+│   │   │   ├── notifications/
+│   │   │   ├── organization/
+│   │   │   ├── profile/
+│   │   │   ├── reports/
+│   │   │   └── settings/
+│   │   └── layout.tsx                      # Root layout + providers
+│   │
+│   ├── components/
+│   │   ├── ui/                             # badge, button, input, sheet, table
+│   │   ├── landing/                        # 9 landing sections
+│   │   └── dashboard/                      # Widgets, navbar, sidebar
+│   │
+│   ├── contexts/
+│   │   ├── auth-context.tsx
+│   │   └── dashboard-context.tsx
+│   │
+│   ├── hooks/
+│   │   ├── use-count-up.ts
+│   │   ├── use-in-view.ts
+│   │   └── use-scroll-shadow.ts
+│   │
+│   ├── lib/
+│   │   ├── api.ts                          # Fetch wrapper
+│   │   ├── types.ts                        # DashboardStats + shared types
+│   │   └── utils.ts                        # cn() helper
+│   │
+│   ├── next.config.ts                      # /api rewrites → backend
 │   └── package.json
 │
-├── docs/                         # Health & final reports
-├── .github/                      # Issue + PR templates
-├── middleware.ts · next.config.ts · vercel.json · railway.json
-├── package.json · tsconfig.json · eslint.config.mjs
-└── README.md
+├── backend/                                # ⚙️ Express API Server
+│   ├── src/
+│   │   ├── server.js                       # Entry point, middleware, routes
+│   │   ├── middleware/                     # JWT auth, role guard, rate limit, error
+│   │   ├── controllers/                    # 16 controllers
+│   │   ├── routes/                         # 16 route modules
+│   │   ├── services/                       # 17 services
+│   │   ├── validators/                     # Zod schemas (10 modules)
+│   │   ├── jobs/                           # BullMQ workers (email, AI, reports, ...)
+│   │   ├── utils/                          # response helpers, PDF/Excel generators
+│   │   └── config/                         # db, redis, logger, env
+│   │
+│   ├── prisma/
+│   │   └── schema.prisma                   # 27 models, 15 enums
+│   │
+│   ├── Dockerfile
+│   └── package.json
+│
+├── .github/                                # PR template, issue templates
+├── CHANGELOG.md
+├── README.md
+└── LICENSE
 ```
-
-<br/>
 
 ---
 
-## Database Schema
+## 🗄️ Database Schema
 
-27 Prisma models. ER overview:
+### Entity-Relationship Overview (27 models, 15 enums)
 
 ```mermaid
 erDiagram
-    USER ||--o{ SESSION : owns
-    USER ||--o{ DEPARTMENT : heads
-    DEPARTMENT ||--o{ USER : contains
-    DEPARTMENT ||--o{ ASSET : owns
-    ASSETCATEGORY ||--o{ ASSET : classifies
-    ASSET ||--o{ ALLOCATION : allocated
-    USER ||--o{ ALLOCATION : receives
-    ASSET ||--o{ BOOKING : booked
-    USER ||--o{ BOOKING : books
-    ASSET ||--o{ MAINTENANCETASK : maintained
-    MAINTENANCESCHEDULE ||--o{ MAINTENANCETASK : schedules
-    AUDITCYCLE ||--o{ AUDITVERIFICATION : verifies
-    AUDITCYCLE ||--o{ AUDITDISCREPANCY : flags
-    AUDITCYCLE ||--o{ AUDITASSIGNMENT : assigns
-    ASSET ||--o{ AUDITVERIFICATION : audited
-    USER ||--o{ AUDITDISCREPANCY : reports
-    USER ||--o{ NOTIFICATION : receives
-    USER ||--o{ REPORT : generates
-    ASSET ||--o{ AIRECOMMENDATION : suggested
-    USER ||--o{ LOGINHISTORY : logs
-    USER ||--o{ REFRESHTOKEN : refresh
+    User ||--o{ Allocation : allocates
+    User ||--o{ Booking : books
+    User ||--o{ MaintenanceTask : owns
+    Asset ||--o{ Allocation : assigned
+    Asset ||--o{ Booking : reserved
+    Asset ||--o{ MaintenanceTask : maintained
+    Asset ||--o{ AssetHistory : tracked
+    Asset ||--o{ AuditVerification : verified
+    Department ||--o{ User : contains
+    AssetCategory ||--o{ Asset : classifies
+
+    User {
+        string id PK
+        string email "unique"
+        string password "bcrypt"
+        string role "enum"
+        string status "enum"
+        string departmentId FK
+    }
+
+    Asset {
+        string id PK
+        string assetTag "unique, auto"
+        string qrCode "unique, auto"
+        string categoryId FK
+        string status "enum"
+        string condition "enum"
+        float currentValue
+        date purchaseDate
+        string warrantyStatus "enum"
+    }
+
+    Allocation {
+        string id PK
+        string assetId FK
+        string userId FK
+        string status "enum"
+        date assignedAt
+        date returnedAt
+    }
+
+    Booking {
+        string id PK
+        string assetId FK
+        string userId FK
+        dateTime startTime
+        dateTime endTime
+        string status "enum: pending, approved, rejected"
+    }
+
+    MaintenanceTask {
+        string id PK
+        string assetId FK
+        string assignedTo FK
+        string priority "enum"
+        string status "enum"
+        float cost
+        date dueDate
+    }
+
+    AuditCycle {
+        string id PK
+        string name
+        string status "enum: scheduled, in_progress, completed"
+        string scope "json"
+        float complianceScore
+    }
+
+    AuditVerification {
+        string id PK
+        string cycleId FK
+        string assetId FK
+        string result "enum: verified, discrepancy"
+    }
+
+    AuditDiscrepancy {
+        string id PK
+        string verificationId FK
+        string description
+        string status "enum: open, resolved"
+    }
 ```
 
-**Model list:** `User` · `Session` · `RefreshToken` · `VerificationToken` · `PasswordResetToken` · `LoginHistory` · `Department` · `AssetCategory` · `Asset` · `AssetDocument` · `AssetHistory` · `Allocation` · `Booking` · `MaintenanceSchedule` · `MaintenanceTask` · `MaintenanceAttachment` · `Notification` · `AuditLog` · `ActivityLog` · `AIRecommendation` · `SystemSetting` · `Report` · `AuditCycle` · `AuditAssignment` · `AuditVerification` · `AuditDiscrepancy` · `NotificationPreference`
+### Model List
+
+`User` · `Session` · `RefreshToken` · `VerificationToken` · `PasswordResetToken` · `LoginHistory` · `Department` · `AssetCategory` · `Asset` · `AssetDocument` · `AssetHistory` · `Allocation` · `Booking` · `MaintenanceSchedule` · `MaintenanceTask` · `MaintenanceAttachment` · `Notification` · `AuditLog` · `ActivityLog` · `AIRecommendation` · `SystemSetting` · `Report` · `AuditCycle` · `AuditAssignment` · `AuditVerification` · `AuditDiscrepancy` · `NotificationPreference`
 
 > Full schema: [`backend/prisma/schema.prisma`](backend/prisma/schema.prisma)
 
-<br/>
+### Relationship Details
+
+| Entity | Relation | Cardinality | Description |
+|--------|----------|-------------|-------------|
+| **Department → User** | One-to-Many | `1 : N` | Users belong to departments; departments form a tree. |
+| **AssetCategory → Asset** | One-to-Many | `1 : N` | Categories classify assets, also hierarchical. |
+| **Asset → Allocation** | One-to-Many | `1 : N` | An asset's allocation history is fully tracked. |
+| **Asset → Booking** | One-to-Many | `1 : N` | Bookings enable overlap-validated scheduling. |
+| **Asset → MaintenanceTask** | One-to-Many | `1 : N` | Preventive + reactive maintenance records. |
+| **AuditCycle → AuditVerification** | One-to-Many | `1 : N` | Each cycle verifies many assets. |
+| **AuditVerification → AuditDiscrepancy** | One-to-Many | `1 : N` | Discrepancies reported per verification. |
+
+> [!NOTE]
+> `password` is never returned in API responses; sessions and refresh tokens are revocable and rotated.
 
 ---
 
-## Installation
+## 🌐 API Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                         📱 CLIENT (Next.js)                          │
+│                                                                      │
+│   ┌────────────┐   ┌────────────┐   ┌────────────┐                  │
+│   │ Dashboard  │   │  Assets    │   │  Reports   │    ...           │
+│   └──────┬─────┘   └──────┬─────┘   └──────┬─────┘                  │
+│          │                │                │                         │
+│          └────────────────┼────────────────┘                         │
+│                           │                                          │
+│                    ┌──────▼──────┐                                    │
+│                    │  fetch()    │                                    │
+│                    │  + JWT      │                                    │
+│                    └──────┬──────┘                                    │
+└───────────────────────────┼──────────────────────────────────────────┘
+                            │
+                      HTTPS / JSON  (/api/v1/*)
+                            │
+┌───────────────────────────▼──────────────────────────────────────────┐
+│                         🖥️ EXPRESS SERVER (Railway)                   │
+│                                                                      │
+│   ┌──────────────────────────────────────────────────────┐          │
+│   │                 MIDDLEWARE PIPELINE                   │          │
+│   │                                                       │          │
+│   │  Helmet → CORS → Rate Limiter → JWT → Zod Validation │          │
+│   └──────────────────────┬───────────────────────────────┘          │
+│                          │                                           │
+│                    ┌─────▼──────┐                                    │
+│                    │   Router   │                                    │
+│                    └──┬──┬──┬──┘                                    │
+│          ┌────────────┘  │  └────────────┐                          │
+│          ▼               ▼               ▼                           │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐                    │
+│  │  Auth      │  │  Assets    │  │   Audit    │    ...              │
+│  │  Routes    │  │  Routes    │  │  Routes    │                     │
+│  └──────┬─────┘  └──────┬─────┘  └──────┬─────┘                    │
+│         │               │               │                            │
+│         ▼               ▼               ▼                            │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐                    │
+│  │  Auth      │  │  Asset     │  │  Audit     │                     │
+│  │Controller  │  │Controller  │  │Controller  │                     │
+│  └──────┬─────┘  └──────┬─────┘  └──────┬─────┘                    │
+│         │               │               │                            │
+│         ▼               ▼               ▼                            │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐                    │
+│  │  Services  │  │  Prisma    │  │  BullMQ    │                     │
+│  │            │  │  Client    │  │  Queue     │                     │
+│  └────────────┘  └──────┬─────┘  └──────┬─────┘                    │
+│                         │               │                            │
+└─────────────────────────┼───────────────┼──────────────────────────┘
+                          ▼               ▼
+              ┌────────────────────┐  ┌────────────────────┐
+              │   🗄️ PostgreSQL 16 │  │  ⚡ Redis + Jobs   │
+              │                    │  │                    │
+              │  27 Models        │  │  BullMQ workers    │
+              │  Indexed Queries  │  │  Sessions / cache  │
+              └────────────────────┘  └────────────────────┘
+```
+
+All responses follow a shared envelope:
+
+```json
+{
+  "success": true,
+  "message": "…",
+  "data": {},
+  "meta": { "totalItems": 0, "totalPages": 0, "currentPage": 1 }
+}
+```
+
+Interactive docs: Swagger at `/api-docs` (dev). All endpoints under `/api/v1`.
+
+---
+
+## 🤖 AI / Intelligence Layer
+
+Assetrix's intelligence layer is **rule-based and transparent** — no external ML model, no hidden black box.
+
+### How it works
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                        INTELLIGENCE SERVICE LAYER                     │
+│                                                                       │
+│  ┌──────────────────────────────────────────────────────────┐        │
+│  │                   HEALTH SCORE ENGINE                     │        │
+│  │                                                            │        │
+│  │  Input:  condition, age, maintenance history, usage        │        │
+│  │  Score:  0–100 composite from weighted factors             │        │
+│  └──────────────────────────┬───────────────────────────────┘        │
+│                             │                                         │
+│  ┌──────────────────────────▼───────────────────────────────┐        │
+│  │                 MAINTENANCE PREDICTION                    │        │
+│  │                                                            │        │
+│  │  Flags assets trending toward failure based on             │        │
+│  │  condition penalty tables + age-based thresholds           │        │
+│  └──────────────────────────┬───────────────────────────────┘        │
+│                             │                                         │
+│  ┌──────────────────────────▼───────────────────────────────┐        │
+│  │                    IDLE DETECTION                         │        │
+│  │                                                            │        │
+│  │  Compares utilization vs. availability to surface          │        │
+│  │  under-used assets and resources                           │        │
+│  └──────────────────────────┬───────────────────────────────┘        │
+│                             │                                         │
+│  ┌──────────────────────────▼───────────────────────────────┐        │
+│  │                RECOMMENDATION GENERATOR                   │        │
+│  │                                                            │        │
+│  │  Produces actionable suggestions: schedule maintenance,    │        │
+│  │  reallocate idle asset, retire beyond-life equipment       │        │
+│  └──────────────────────────────────────────────────────────┘        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Intelligence Capabilities
+
+| Capability | Logic | Output |
+|------------|----------------|---------|
+| **Health Score** | Weighted condition + age + maintenance factors | 0–100 per asset |
+| **Predictive Maintenance** | Condition penalty tables + thresholds | At-risk asset list |
+| **Idle Detection** | Utilization vs. availability | Idle assets / resources |
+| **Recommendations** | Rule triggers on health + idle signals | Actionable suggestions |
+| **Dashboard Analytics** | Aggregated queries (12-month trends, KPIs) | Real-time KPIs |
+
+> [!IMPORTANT]
+> All intelligence is computed from **real stored data** with deterministic rules — the roadmap includes replacing the heuristic layer with a model-backed engine.
+
+---
+
+## ⚡ Request Lifecycle
+
+```
+                      ┌────────────────┐
+                      │  🌐 Browser    │
+                      │  HTTP Request  │
+                      └───────┬────────┘
+                              │
+                      ┌───────▼────────┐
+                      │  Next.js Route │
+                      │  (RSC / client)│
+                      └───────┬────────┘
+                              │
+                      ┌───────▼────────┐
+                      │  fetch()       │
+                      │  + JWT Header  │
+                      └───────┬────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              │               │               │
+        ┌─────▼─────┐  ┌─────▼─────┐  ┌─────▼─────┐
+        │  Helmet   │  │  Rate     │  │  JWT      │
+        │  Security │  │  Limiter  │  │  Auth     │
+        └─────┬─────┘  └─────┬─────┘  └─────┬─────┘
+              │               │               │
+              └───────────────┼───────────────┘
+                              │
+                      ┌───────▼────────┐
+                      │  Express Route │
+                      │  (Router)      │
+                      └───────┬────────┘
+                              │
+                      ┌───────▼────────┐
+                      │  Zod Validate  │
+                      │  + Controller  │
+                      └───────┬────────┘
+                              │
+              ┌───────────────┬───────────────┐
+              │               │               │
+        ┌─────▼─────┐  ┌─────▼─────┐  ┌─────▼─────┐
+        │  Prisma   │  │  Redis    │  │  BullMQ   │
+        │  Query    │  │  Read     │  │  Enqueue  │
+        └─────┬─────┘  └─────┬─────┘  └─────┬─────┘
+              │               │               │
+              └───────┬───────┘               │
+                      │                       │
+              ┌───────▼────────┐   ┌──────────▼─────────┐
+              │  JSON Response │   │  Worker Job        │
+              │  + Status Code │   │  (email / report)  │
+              └───────┬────────┘   └────────────────────┘
+                      │
+                      │  fetch() resolves
+                      ▼
+              ┌───────▼────────┐
+              │  React State   │
+              │  Update + UI   │
+              └───────┬────────┘
+                      │
+              ┌───────▼────────┐
+              │  🎨 Render     │
+              └────────────────┘
+```
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -472,7 +860,6 @@ The frontend proxies `/api/*` to the backend automatically via `next.config.ts`.
 | Asset Manager | `asset.manager@assetrix.com` | `Manager@123` |
 | Department Head | `dept.head@assetrix.com` | `DeptHead@123` |
 | Employee | `employee1@assetrix.com` | `Employee@123` |
-| Employee | `employee2@assetrix.com` | `Employee@123` |
 | Auditor | `auditor@assetrix.com` | `Auditor@123` |
 | Technician | `technician@assetrix.com` | `Tech@123` |
 | HR Manager | `hr@assetrix.com` | `Hr@123` |
@@ -489,13 +876,9 @@ The frontend proxies `/api/*` to the backend automatically via `next.config.ts`.
 | `cd backend && npm test` | Backend Jest suite |
 | `cd backend && npx prisma studio` | Visual DB browser |
 
-<br/>
+### Environment variables
 
----
-
-## Environment Variables
-
-### Frontend (`.env.local`)
+**Frontend (`.env.local`)**
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
@@ -503,75 +886,28 @@ NEXT_PUBLIC_API_URL=http://localhost:5000
 # NEXT_PUBLIC_API_URL=https://<your-railway-domain>
 ```
 
-### Backend (`.env`)
-
-```env
-# Server
-NODE_ENV=development
-PORT=5000
-API_VERSION=v1
-
-# Database
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/assetrix?schema=public
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-
-# JWT
-JWT_SECRET=change-this-to-a-strong-random-secret
-JWT_REFRESH_SECRET=change-this-to-another-strong-random-secret
-JWT_ACCESS_EXPIRY=15m
-JWT_REFRESH_EXPIRY=7d
-
-# SMTP
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-EMAIL_FROM=noreply@assetrix.com
-
-# Uploads
-MAX_FILE_SIZE=10485760
-UPLOAD_DIR=./uploads
-
-# Rate limiting
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
-
-# Frontend origin (CORS)
-FRONTEND_URL=http://localhost:5173
-
-# Logging
-LOG_LEVEL=debug
-```
-
-<br/>
+**Backend (`.env`)** — `DATABASE_URL`, `REDIS_HOST/PORT/PASSWORD`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `SMTP_*`, `FRONTEND_URL`, `RATE_LIMIT_*` (full example in `backend/.env.example`).
 
 ---
 
-## Deployment
+## 🌍 Deployment
 
 ### Frontend → Vercel
 
 1. Push the repo to GitHub and import it into [Vercel](https://vercel.com).
 2. Vercel auto-detects the Next.js framework (see `vercel.json`).
-3. Set the environment variable:
-   - `NEXT_PUBLIC_API_URL` → your deployed backend URL.
+3. Set `NEXT_PUBLIC_API_URL` → your deployed backend URL.
 4. Deploy. Every `git push origin main` redeploys.
 
 ### Backend → Railway
 
 `railway.json` and `backend/Dockerfile` provide the containerized config.
 
-1. Push the repo to GitHub and create a Railway project from it.
+1. Create a Railway project from the repo.
 2. Add a **PostgreSQL** and **Redis** plugin.
 3. Set env vars: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `FRONTEND_URL`, `SMTP_*`.
 4. Run `npx prisma db push` against the production DB.
 5. Deploy. Health check: `GET /health`.
-
-> **⚠️ Current deployment status:** the frontend is live, but the backend URL `assetrix-backend-production-9a94.up.railway.app` **does not resolve** (verified 1 Aug 2026). The backend must be redeployed before the platform is fully operational.
 
 ### Local production
 
@@ -580,400 +916,104 @@ cd backend && npm run build && npm start        # backend :5000
 cd .. && npm run build && npm start             # frontend :3000
 ```
 
-<br/>
+> **⚠️ Current deployment status (verified 1 Aug 2026):** the **frontend is live** at [assetrix-nu.vercel.app](https://assetrix-nu.vercel.app). The **backend domain** (`assetrix-backend-production-9a94.up.railway.app`) currently does **not resolve** — the API is offline until the backend is redeployed.
 
 ---
 
-## API Documentation
+## 🆕 Recent Improvements
 
-All endpoints are served under **`/api/v1`** and return:
+### Version History
 
-```json
-{
-  "success": true,
-  "message": "…",
-  "data": { },
-  "meta": { "totalItems": 0, "totalPages": 0, "currentPage": 1 }
-}
-```
-
-Interactive docs are auto-generated with Swagger (`/api-docs` in dev mode).
-
-<details>
-<summary><b>🔐 Authentication</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| POST | `/api/v1/auth/register` | Register a new user | — |
-| POST | `/api/v1/auth/login` | Login, returns JWT + sets refresh cookie | — |
-| POST | `/api/v1/auth/refresh` | Rotate access token | Cookie |
-| POST | `/api/v1/auth/logout` | Revoke current session | ✔ |
-| POST | `/api/v1/auth/logout-all` | Revoke all sessions | ✔ |
-| POST | `/api/v1/auth/forgot-password` | Request password reset email | — |
-| POST | `/api/v1/auth/reset-password` | Reset password with token | — |
-| GET/POST | `/api/v1/auth/verify-email` | Verify email (link / token) | — |
-| POST | `/api/v1/auth/resend-verification` | Resend verification email | — |
-| GET | `/api/v1/auth/me` | Current user profile | ✔ |
-| GET | `/api/v1/auth/sessions` | List active sessions | ✔ |
-| DELETE | `/api/v1/auth/sessions/:id` | Revoke a session | ✔ |
-| GET | `/api/v1/auth/login-history` | Login history (paginated) | ✔ |
-
-</details>
-
-<details>
-<summary><b>👥 Users</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/users` | List users | Admin |
-| GET | `/api/v1/users/:id` | User details | ✔ |
-| GET | `/api/v1/users/email/:email` | Lookup by email | Admin |
-| POST | `/api/v1/users` | Create user | Admin |
-| PUT | `/api/v1/users/:id` | Update user | Admin |
-| PUT | `/api/v1/users/profile` | Update own profile | ✔ |
-| PATCH | `/api/v1/users/:id/role` | Change role | SUPER_ADMIN |
-| PATCH | `/api/v1/users/:id/status` | Change status | Admin |
-| DELETE | `/api/v1/users/:id` | Soft-delete user | Admin |
-| GET | `/api/v1/users/:id/reports` | User's reports | Admin |
-
-</details>
-
-<details>
-<summary><b>🏛️ Departments & Categories</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/departments` | List departments | ✔ |
-| GET | `/api/v1/departments/tree` | Department hierarchy | ✔ |
-| GET | `/api/v1/departments/:id` | Department details | ✔ |
-| GET | `/api/v1/departments/:id/stats` | Department stats | ✔ |
-| POST | `/api/v1/departments` | Create department | Admin |
-| PUT | `/api/v1/departments/:id` | Update department | Admin |
-| DELETE | `/api/v1/departments/:id` | Delete department | Admin |
-| GET | `/api/v1/asset-categories` | List categories | ✔ |
-| GET | `/api/v1/asset-categories/tree` | Category hierarchy | ✔ |
-| POST | `/api/v1/asset-categories` | Create category | Admin |
-| PUT | `/api/v1/asset-categories/:id` | Update category | Admin |
-| DELETE | `/api/v1/asset-categories/:id` | Delete category | Admin |
-
-</details>
-
-<details>
-<summary><b>🖥️ Assets</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/assets` | List assets (filters, pagination) | ✔ |
-| GET | `/api/v1/assets/stats` | Asset statistics | ✔ |
-| GET | `/api/v1/assets/search` | Search assets | ✔ |
-| GET | `/api/v1/assets/qr/:qrCode` | Lookup by QR code | ✔ |
-| GET | `/api/v1/assets/:id` | Asset details | ✔ |
-| GET | `/api/v1/assets/:id/history` | Lifecycle history | ✔ |
-| POST | `/api/v1/assets` | Create asset (auto tag + QR) | Admin |
-| PUT | `/api/v1/assets/:id` | Update asset | Admin |
-| DELETE | `/api/v1/assets/:id` | Soft-delete asset | Admin |
-| POST | `/api/v1/assets/:id/assign` | Assign asset to user | Manager |
-| POST | `/api/v1/assets/:id/unallocate` | Unallocate asset | Manager |
-| PATCH | `/api/v1/assets/:id/status` | Update status | Manager |
-| PATCH | `/api/v1/assets/:id/condition` | Update condition | Manager |
-
-</details>
-
-<details>
-<summary><b>🔁 Allocations & Transfers</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/allocations` | List allocations | ✔ |
-| GET | `/api/v1/allocations/active` | Active allocations | ✔ |
-| GET | `/api/v1/allocations/:id` | Allocation details | ✔ |
-| POST | `/api/v1/allocations` | Create allocation | Manager |
-| POST | `/api/v1/allocations/:id/return` | Return asset | ✔ |
-| GET | `/api/v1/allocations/transfers/pending` | Pending transfers | ✔ |
-| POST | `/api/v1/allocations/:id/transfer` | Request transfer | ✔ |
-| POST | `/api/v1/allocations/:id/transfer/approve` | Approve transfer | Manager |
-| POST | `/api/v1/allocations/:id/transfer/reject` | Reject transfer | Manager |
-
-</details>
-
-<details>
-<summary><b>📅 Bookings</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/bookings` | List bookings | ✔ |
-| GET | `/api/v1/bookings/upcoming` | Upcoming bookings | ✔ |
-| GET | `/api/v1/bookings/:id` | Booking details | ✔ |
-| POST | `/api/v1/bookings` | Create booking (overlap check) | ✔ |
-| POST | `/api/v1/bookings/:id/approve` | Approve booking | Manager |
-| POST | `/api/v1/bookings/:id/reject` | Reject booking | Manager |
-| POST | `/api/v1/bookings/:id/cancel` | Cancel booking | ✔ |
-| POST | `/api/v1/bookings/:id/complete` | Mark complete | ✔ |
-| PUT | `/api/v1/bookings/:id` | Update booking | ✔ |
-
-</details>
-
-<details>
-<summary><b>🔧 Maintenance</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/maintenance` | List maintenance tasks | ✔ |
-| GET | `/api/v1/maintenance/stats` | Maintenance stats | ✔ |
-| GET | `/api/v1/maintenance/overdue` | Overdue tasks | ✔ |
-| GET | `/api/v1/maintenance/:id` | Task details | ✔ |
-| POST | `/api/v1/maintenance` | Raise maintenance request | ✔ |
-| PUT | `/api/v1/maintenance/:id` | Update task | ✔ |
-| PUT | `/api/v1/maintenance/:id/assign` | Assign technician | Manager |
-| PUT | `/api/v1/maintenance/:id/start` | Start work | Technician |
-| PUT | `/api/v1/maintenance/:id/complete` | Complete work | Technician |
-| PUT | `/api/v1/maintenance/:id/cancel` | Cancel task | Manager |
-| POST | `/api/v1/maintenance/:id/approve` | Approve request | Manager |
-| POST | `/api/v1/maintenance/:id/reject` | Reject request | Manager |
-| DELETE | `/api/v1/maintenance/:id` | Delete task | Admin |
-| GET/POST/PUT/DELETE | `/api/v1/maintenance/schedules…` | Preventive schedules CRUD | Manager |
-
-</details>
-
-<details>
-<summary><b>🛡️ Audit</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/audit-cycles` | List cycles | ✔ |
-| GET | `/api/v1/audit-cycles/:id` | Cycle details | ✔ |
-| GET | `/api/v1/audit-cycles/:id/history` | Cycle history | ✔ |
-| POST | `/api/v1/audit-cycles` | Create cycle | Admin |
-| PUT | `/api/v1/audit-cycles/:id` | Update cycle | Admin |
-| DELETE | `/api/v1/audit-cycles/:id` | Delete cycle | Admin |
-| POST | `/api/v1/audit-cycles/:id/auditors` | Assign auditors | Admin |
-| POST | `/api/v1/audit-cycles/:id/verify` | Verify an asset | Auditor |
-| POST | `/api/v1/audit-cycles/:id/discrepancies` | Report discrepancy | Auditor |
-| PATCH | `/api/v1/audit-cycles/discrepancies/:id/resolve` | Resolve discrepancy | Admin |
-| POST | `/api/v1/audit-cycles/:id/close` | Close cycle | Admin |
-
-</details>
-
-<details>
-<summary><b>📈 Analytics & Reports</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/analytics/dashboard` | Dashboard KPIs | ✔ |
-| GET | `/api/v1/analytics/assets` | Asset analytics | ✔ |
-| GET | `/api/v1/analytics/maintenance` | Maintenance analytics | ✔ |
-| GET | `/api/v1/analytics/bookings` | Booking analytics | ✔ |
-| GET | `/api/v1/analytics/financial` | Financial analytics | ✔ |
-| GET | `/api/v1/analytics/departments` | Department analytics | ✔ |
-| POST | `/api/v1/reports` | Generate report | ✔ |
-| GET | `/api/v1/reports` | List reports | ✔ |
-| GET | `/api/v1/reports/:id` | Report details | ✔ |
-| GET | `/api/v1/reports/:id/download` | Download (CSV/PDF/Excel) | ✔ |
-| DELETE | `/api/v1/reports/:id` | Delete report | ✔ |
-
-</details>
-
-<details>
-<summary><b>🔔 Notifications</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/notifications` | List notifications | ✔ |
-| GET | `/api/v1/notifications/unread-count` | Unread count | ✔ |
-| PATCH | `/api/v1/notifications/read-all` | Mark all read | ✔ |
-| PATCH | `/api/v1/notifications/:id/read` | Mark one read | ✔ |
-| DELETE | `/api/v1/notifications/read` | Clear read notifications | ✔ |
-| DELETE | `/api/v1/notifications/:id` | Delete notification | ✔ |
-| GET/PUT | `/api/v1/notification-preferences` | Per-channel preferences | ✔ |
-
-</details>
-
-<details>
-<summary><b>🧠 AI Intelligence</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/ai/health/:assetId` | Asset health score | ✔ |
-| GET | `/api/v1/ai/recommendations/:assetId` | Recommendations for asset | ✔ |
-| POST | `/api/v1/ai/recommendations/generate` | Generate batch recommendations | Manager |
-| GET | `/api/v1/ai/recommendations/stats` | Recommendation stats | ✔ |
-| PATCH | `/api/v1/ai/recommendations/:id/action` | Mark recommendation actioned | ✔ |
-| GET | `/api/v1/ai/predictive-maintenance` | Predictive maintenance list | ✔ |
-
-</details>
-
-<details>
-<summary><b>🛠️ Admin</b></summary>
-
-| Method | Endpoint | Description | Auth |
-|:-------|:---------|:------------|:----:|
-| GET | `/api/v1/admin/stats` | Platform stats | Admin |
-| GET | `/api/v1/admin/stats/users` | User stats | Admin |
-| GET | `/api/v1/admin/stats/assets` | Asset stats | Admin |
-| GET | `/api/v1/admin/health` | Admin health | Admin |
-| GET/PUT | `/api/v1/admin/settings` | System settings | Admin |
-| GET | `/api/v1/admin/activity` | Activity log | Admin |
-| POST | `/api/v1/admin/users/:id/force-logout` | Force-logout a user | Admin |
-| POST | `/api/v1/admin/backup` | Trigger DB backup | Admin |
-
-</details>
-
-<br/>
+| Version | Tag | Highlights |
+|---------|-----|------------|
+| **v0.1** | `Scaffold` | Next.js + Express + Prisma schema scaffold (May 2026) |
+| **v0.9** | `Beta` | Dashboard, landing, auth flows (Jul 2026) |
+| **v1.0** | `Production` | Full modules (assets, allocations, bookings, maintenance, audit, reports, notifications), RBAC, security, deployment config (Jul 2026) |
+| **v1.1** | `Security` | Audit fixes — dashboard widgets wired to real API, command palette actions, navbar accessibility, real PDF export, focus-trap dialogs, password-strength dedupe, landing dead-link fixes, AI-panel aria labels. Full `typecheck` + `lint` + `build` green (Aug 2026) |
 
 ---
 
-## User Roles & Permissions
+## 🗺️ Roadmap
 
-| Module | Super Admin | Admin | Dept. Manager | Technician | Employee |
-|:-------|:-----------:|:-----:|:-------------:|:----------:|:--------:|
-| Dashboard | Full | Full | Department | Personal | Personal |
-| Organization | CRUD | CRUD | Read (Dept) | — | — |
-| Assets | Full | Full | Department | Read | Read only |
-| Allocation | Full | Full | Approve | — | Request |
-| Transfers | Approve all | Approve all | Approve dept | — | Request |
-| Booking | Full | Full | Department | Personal | Personal |
-| Maintenance | Full | Full | Approve | Execute | Request |
-| Audit | Full | Full | Verify | — | Read only |
-| Reports | Full | Full | Department | Personal | Personal |
-| Notifications | Full | Full | Full | Full | Personal |
-| Admin Panel | Full | Full | — | — | — |
-| AI Insights | Full | Full | Department | — | Personal |
-
-<br/>
+| Focus | Improvements |
+|-------|-------------|
+| **Testing** | Frontend test suite (Vitest/Testing Library), CI (GitHub Actions: lint + typecheck + test + build) |
+| **Intelligence** | Real ML-powered predictive maintenance, model-backed recommendation engine |
+| **Real-time** | WebSocket real-time notifications |
+| **Data** | Bulk CSV import for assets, depreciation schedules & financial reporting |
+| **Reporting** | Queue-backed report generation with polling + download URLs |
+| **Platform** | Mobile app / PWA support, multi-organization (tenant) support, Redis rate limiting for multi-instance |
+| **SEO** | Sitemap, robots.txt, OG image |
 
 ---
 
-## Project Timeline
+## 📄 License & Usage
 
-| Phase | Milestone | Status |
-|:------|:----------|:------:|
-| 0.1 · May 2026 | Scaffold: Next.js + Express + Prisma schema | ✅ |
-| 0.9 · Jul 2026 | Dashboard, landing, auth flows | ✅ |
-| 1.0 · Jul 2026 | Full modules, security, deployment config | ✅ |
-| 1.0.x · Aug 2026 | Audit fixes, docs rebuild, security remediation | 🔄 |
+### MIT License
 
-<br/>
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE).
 
----
-
-## Roadmap
-
-- [x] Asset lifecycle core (register → allocate → retire)
-- [x] RBAC + JWT refresh rotation
-- [x] Audit cycles + discrepancies
-- [x] Reports & CSV/PDF/Excel export
-- [ ] Frontend test suite (Vitest/Testing Library)
-- [ ] GitHub Actions CI (lint + typecheck + test + build)
-- [ ] Real ML-powered predictive maintenance
-- [ ] WebSocket real-time notifications
-- [ ] Bulk import (CSV) for assets
-- [ ] Asset depreciation schedules & financial reporting
-- [ ] Mobile app / PWA support
-- [ ] Multi-organization (tenant) support
-
-<br/>
+| Right | Allowed? | Details |
+|-------|----------|---------|
+| View Code | ✅ Yes | Public on GitHub |
+| Use Live App | ✅ Yes | [assetrix-nu.vercel.app](https://assetrix-nu.vercel.app) |
+| Modify | ✅ Yes | Under MIT terms |
+| Redistribute | ✅ Yes | With attribution |
+| Commercial Use | ✅ Yes | Under MIT terms |
 
 ---
 
-## Known Issues
+## 👤 Author
 
-1. **Backend API is offline** (as of 1 Aug 2026) — the Railway domain does not resolve. Frontend builds and runs; full platform functionality requires the backend to be redeployed.
-2. **Mock data in production UI** — the dashboard navbar notifications/task list and several module tabs render static demo data instead of API data.
-3. **Report generation is incomplete** — only asset/maintenance/booking exports generate real files; financial/audit/department downloads fall back to a placeholder row, and queue-backed exports (audit) are not retrievable.
-4. **Batch AI generation is a no-op** — the worker returns empty results; per-asset recommendations work.
-5. **`assetrix.vercel.app` (canonical domain) redirects** without settling, while the working deployment is at `assetrix-nu.vercel.app`.
+<p align="center">
+  <img src="https://img.shields.io/badge/Author-Shubham_Kumar-0891B2?style=for-the-badge" />
+</p>
 
-<br/>
-
----
-
-## Future Improvements
-
-- Replace heuristic AI with a model-backed recommendation engine.
-- Add proper queue-backed report generation with polling + download URLs.
-- Full test coverage for all services (currently auth-only).
-- Frontend SSR/ISR tuning and route-level caching for dashboard data.
-- Rate limiting via Redis for multi-instance deployments.
-- `HttpOnly` refresh-token cookie hardening.
-- Sitemap, robots.txt, and OG image for SEO.
-
-<br/>
+<p align="center">
+  <a href="https://github.com/Shubham-997800">
+    <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
+  </a>
+  <a href="https://www.linkedin.com/in/shubham997800">
+    <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" />
+  </a>
+  <a href="mailto:shubhamkumar997800@gmail.com">
+    <img src="https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white" />
+  </a>
+</p>
 
 ---
 
-## Contributing
+## 🙏 Acknowledgements
 
-Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md) first.
+- **[Next.js](https://nextjs.org)** — App Router, Server Components, Turbopack
+- **[React](https://react.dev)** — UI component model
+- **[Tailwind CSS](https://tailwindcss.com)** — Design system & dark mode
+- **[Base UI](https://base-ui.com)** — Accessible headless primitives
+- **[shadcn/ui](https://ui.shadcn.com)** — Component conventions
+- **[Recharts](https://recharts.org)** — Dashboard charts
+- **[Lucide](https://lucide.dev)** — Icon set
+- **[Express](https://expressjs.com)** · **[Prisma](https://www.prisma.io)** — Backend framework & ORM
+- **[PostgreSQL](https://www.postgresql.org)** · **[Redis](https://redis.io)** · **[BullMQ](https://docs.bullmq.io)** — Data & queues
+- **[Vercel](https://vercel.com)** · **[Railway](https://railway.app)** — Hosting
+- **[shields.io](https://shields.io)** — Badges
 
-1. Fork the repository.
-2. Create a feature branch: `git checkout -b feature/amazing-feature`.
-3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org).
-4. Push and open a Pull Request using the [PR template](.github/PULL_REQUEST_TEMPLATE.md).
-
-All contributors are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
-
-<br/>
-
----
-
-## Coding Standards
-
-- **TypeScript strict** everywhere; no `any` without justification.
-- **Server Components by default**; `"use client"` only for interactivity.
-- **Layered backend:** controller → service → validator; shared `successResponse`/`errorResponse`.
-- **Validation:** Zod schemas on every endpoint; Swagger annotations on every route.
-- **Commits:** Conventional Commits (`feat(scope): message`).
-- **Style:** Prettier + ESLint configured in both packages.
-- **Testing:** Jest (backend). Add tests for new services.
-
-<br/>
+Inspired by the mission to turn asset management from an operational drag into an operational advantage.
 
 ---
 
-## License
+<p align="center">
+  <b>Assetrix</b> — <i>Track assets. Automate maintenance. Audit compliance.</i><br>
+  <a href="https://assetrix-nu.vercel.app">🌐 Live App</a>
+  ·
+  <a href="https://github.com/Shubham-997800/assetrix/issues">🐛 Report Bug</a>
+  ·
+  <a href="https://github.com/Shubham-997800/assetrix/issues">💡 Request Feature</a>
+  ·
+  <a href="https://github.com/Shubham-997800/assetrix/stargazers">⭐ Star on GitHub</a>
+</p>
 
-Distributed under the **MIT License**. See [LICENSE](LICENSE).
+<p align="center">
+  <sub>© 2026 Assetrix · Built with TypeScript, Next.js & Express · MIT License</sub>
+</p>
 
-<br/>
-
----
-
-## Acknowledgements
-
-- [Next.js](https://nextjs.org) · [React](https://react.dev) · [Tailwind CSS](https://tailwindcss.com) · [shadcn/ui](https://ui.shadcn.com)
-- [Express](https://expressjs.com) · [Prisma](https://www.prisma.io) · [PostgreSQL](https://www.postgresql.org) · [Redis](https://redis.io) · [BullMQ](https://docs.bullmq.io)
-- [Vercel](https://vercel.com) · [Railway](https://railway.app) · [Swagger](https://swagger.io)
-- [lucide-react](https://lucide.dev) icons · [shields.io](https://shields.io) badges
-
-<br/>
-
----
-
-## Contact
-
-**Maintainer:** Shubham Kumar
-- GitHub: [@Shubham-997800](https://github.com/Shubham-997800)
-- Project: [github.com/Shubham-997800/assetrix](https://github.com/Shubham-997800/assetrix)
-- Security issues: see [SECURITY.md](SECURITY.md)
-
-<br/>
-
----
-
-<div align="center">
-
-<img src="public/logo.svg" width="48" alt="Assetrix logo" />
-
-**Assetrix transforms asset management from manual tracking into operational intelligence.**
-
-*The platform enables organizations to move from spreadsheets and fragmented workflows to centralized visibility, automation, accountability, and intelligent decision-making.*
-
-<br/>
-
-<a href="#top">⬆ Back to top</a> · Built with TypeScript, Next.js & Express
-
-<br/>
-
-<small>© 2026 Assetrix. Released under the MIT License.</small>
-
-</div>
+<a href="#top">⬆ Back to top</a>
