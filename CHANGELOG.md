@@ -1,0 +1,56 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Security
+- Removed committed Vercel environment files (`.env.vercel-prod`, `.env.vercel-prod2`) that contained OIDC tokens and added them to `.gitignore`. Rotate any credentials previously exposed in repository history.
+- Added `SECURITY.md` with a vulnerability disclosure process.
+
+### Docs
+- Rebuilt the root README with architecture diagrams, accurate API reference, deployment verification, and project health report.
+- Added `docs/HEALTH_REPORT.md` and `docs/FINAL_REPORT.md`.
+- Added `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`, issue templates, and PR template.
+
+## [1.0.0] - 2026-07-30
+
+### Added
+- Enterprise asset lifecycle management (register → allocate → maintain → audit → retire).
+- Role-based access control: `SUPER_ADMIN`, `ADMIN`, `DEPARTMENT_MANAGER`, `TECHNICIAN`, `EMPLOYEE`.
+- Department hierarchy, asset categories, and employee directory.
+- Allocation engine with conflict detection and transfer approval workflow.
+- Resource booking with overlap validation and approval flow.
+- Maintenance operations: preventive schedules, task lifecycle, cost tracking.
+- Audit cycles with physical verification and discrepancy management.
+- Reports & analytics with CSV / PDF / Excel export.
+- Notification center with per-channel preferences.
+- AI-style operational intelligence (health scores, recommendations, predictive maintenance).
+- JWT auth with refresh-token rotation, Redis-backed sessions, login history.
+- Swagger/OpenAPI documentation (dev mode).
+- Next.js 16 frontend with dark/light theme, command palette, keyboard shortcuts.
+- Docker + Railway deployment configuration for the backend.
+
+### Fixed
+- Cross-origin login flow (`sameSite=none`, Vercel API URL, remember-me wiring).
+- Helmet CORP blocking browser fetch.
+- Email verification dev bypass and pending-requests queue.
+- CSP `connect-src` covering the deployed API origin.
+- DB indexes on high-traffic tables.
+
+## [0.9.0] - 2026-07-01
+
+### Added
+- Initial dashboard with KPI cards and charts.
+- Landing page (16 sections).
+- Basic auth flows (register, login, logout).
+
+## [0.1.0] - 2026-05-20
+
+### Added
+- Project scaffold: Next.js frontend + Express/Prisma backend.
+- Initial Prisma schema (auth, departments, assets).
+- Railway + Vercel deployment configuration.
