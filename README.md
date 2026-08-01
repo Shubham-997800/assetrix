@@ -201,44 +201,59 @@ We believe asset management should never be an **operational bottleneck**. Asset
 
 ### What the UI is built with
 
-| Library | Version | What It's Used For |
-|---------|---------|-------------------|
-| [Next.js](https://nextjs.org) | `16.2.10` | App Router, Server Components, Turbopack bundler, Edge Middleware, `/api` rewrites to backend |
-| [React](https://react.dev) | `19.2.4` | UI component model (concurrent rendering) |
-| [TypeScript](https://www.typescriptlang.org) | `^5` | Strict type safety across all 46 components |
-| [Tailwind CSS](https://tailwindcss.com) | `^4` | Utility-first styling with the **Aura Cyan** design-token system |
-| [@base-ui/react](https://base-ui.com) | `^1.6.0` | Headless, accessible primitives — Button, Dialog/Sheet, Render, mergeProps |
-| [shadcn/ui](https://ui.shadcn.com) | `^4.13.0` (CLI) | Component scaffolding + style conventions (badge, button, input, sheet, table) |
-| [class-variance-authority](https://cva.style) | `^0.7.1` | Variant API for `button` / `badge` (`cva` variants) |
-| [clsx](https://github.com/lukeed/clsx) | `^2.1.1` | Conditional class joining |
-| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | `^3.6.0` | Dedupes conflicting Tailwind classes in the `cn()` helper |
-| [Recharts](https://recharts.org) | `^3.9.2` | Dashboard data visualization (utilization trends, charts) |
-| [Lucide React](https://lucide.dev) | `^1.24.0` | Icon system (500+ stroke icons) |
-| [next-themes](https://github.com/pacocoursey/next-themes) | `^0.4.6` | Dark / Light / System theme provider |
-| [tw-animate-css](https://github.com/CosmoDevDev/tw-animate-css) | `^1.4.0` | Tailwind-compatible animation utilities (fade, bounce, pulse) |
-| [@tailwindcss/postcss](https://tailwindcss.com) | `^4` | Tailwind v4 PostCSS plugin |
+| Library | Version | Used Where | What It's Used For |
+|---------|---------|------------|-------------------|
+| [Next.js](https://nextjs.org) | `16.2.10` | Framework-wide | App Router, Server Components, Turbopack bundler, Edge Middleware, `/api` rewrites to backend, `next/font/google` (Inter) |
+| [React](https://react.dev) | `19.2.4` | Every component | UI component model — hooks, `memo`, client components |
+| [TypeScript](https://www.typescriptlang.org) | `^5` | Every file | Strict type safety across all 46 components + shared `lib/types.ts` |
+| [Tailwind CSS](https://tailwindcss.com) | `^4` | Every component | Utility-first styling with the **Aura Cyan** design-token system |
+| [@base-ui/react](https://base-ui.com) | `^1.6.0` | `ui/button.tsx`, `ui/badge.tsx`, `ui/sheet.tsx` | Headless, accessible primitives — `Button`, `Dialog` (sheet), `mergeProps`, `useRender` |
+| [shadcn/ui](https://ui.shadcn.com) | `^4.13.0` (CLI) | `components.json` + `globals.css` | Style conventions (`base-nova`), `@import "shadcn/tailwind.css"` design tokens, Lucide icon library |
+| [class-variance-authority](https://cva.style) | `^0.7.1` | `ui/button.tsx`, `ui/badge.tsx` | Variant API — `cva` variant sets for size / intent / state |
+| [clsx](https://github.com/lukeed/clsx) | `^2.1.1` | `lib/utils.ts` | Conditional class joining inside `cn()` |
+| [tailwind-merge](https://github.com/dcastil/tailwind-merge) | `^3.6.0` | `lib/utils.ts` | Dedupes conflicting Tailwind classes in `cn()` |
+| [Lucide React](https://lucide.dev) | `^1.24.0` | 70 files (all modules) | Icon system — 500+ stroke icons for nav, forms, charts, actions |
+| [next-themes](https://github.com/pacocoursey/next-themes) | `^0.4.6` | `theme-provider.tsx`, `theme-toggle.tsx`, `dashboard-context.tsx` | Dark / Light / System theme provider (class strategy) |
+| [tw-animate-css](https://github.com/CosmoDevDev/tw-animate-css) | `^1.4.0` | `globals.css` | Tailwind-compatible animation utilities (fade, bounce, pulse) |
+| [@tailwindcss/postcss](https://tailwindcss.com) | `^4` | Build | Tailwind v4 PostCSS plugin |
+| [shadcn](https://ui.shadcn.com) | `^4.13.0` (dev) | CLI only | Scaffolding + registry (badge, button, input, sheet, table) |
+
+> [!IMPORTANT]
+> **No chart library is actually imported.** `recharts` is declared in `package.json` but is **not used anywhere in `src/`** — all charts (utilization trend line, department bars, maintenance donut) are hand-built with inline SVG / `<div>` progress bars in `src/app/dashboard/reports/_components/report-tabs.tsx`. Zero chart-library bundle cost.
 
 ### Reusable UI Components (`src/components/ui`)
 
 | Component | Base | Used For |
 |-----------|------|----------|
-| `badge.tsx` | Base UI + CVA | Status labels, module tags |
-| `button.tsx` | Base UI Button + CVA | Primary / secondary / ghost actions |
-| `input.tsx` | Base UI + Tailwind | Form fields |
-| `sheet.tsx` | Base UI Dialog | Slide-in panels, mobile nav |
-| `table.tsx` | HTML + Tailwind | Data tables across modules |
+| `button.tsx` | Base UI `Button` + CVA | Primary / secondary / outline / ghost actions, `btn-enterprise` style |
+| `badge.tsx` | Base UI `mergeProps` + `useRender` + CVA | Status labels, module tags |
+| `input.tsx` | Base UI + Tailwind | Form fields across auth + dashboard forms |
+| `sheet.tsx` | Base UI `Dialog` | Slide-in panels, mobile navigation |
+| `table.tsx` | HTML + Tailwind | Data tables across assets / allocations / bookings |
+
+### Shared Components (`src/components/shared`)
+
+`ai-panel.tsx` · `auth-layout.tsx` · `breadcrumb-nav.tsx` · `command-palette.tsx` (⌘K) · `global-search.tsx` · `keyboard-shortcuts-help.tsx` · `mobile-nav.tsx` · `privacy-dialog.tsx`
+
+### Profile Components (`src/components/profile`)
+
+`account-info.tsx` · `active-sessions.tsx` · `activity-log.tsx` · `change-password.tsx` · `contact-info.tsx` · `devices.tsx` · `notification-settings.tsx` · `personal-info.tsx` · `profile-header.tsx`
+
+### Auth Components (`src/components/auth`)
+
+`auth-input.tsx` · `password-strength.tsx` (5-level strength meter)
 
 ### Custom Hooks & Contexts
 
-| File | Purpose |
-|------|---------|
-| `src/hooks/use-count-up.ts` | Animated KPI counters (0 → value) on the dashboard |
-| `src/hooks/use-in-view.ts` | Reveal-on-scroll animations for landing sections |
-| `src/hooks/use-scroll-shadow.ts` | Sticky-header elevation shadow |
-| `src/contexts/auth-context.tsx` | Session state, login/logout, role gating |
-| `src/contexts/dashboard-context.tsx` | Shared dashboard widget state |
+| File | Used In | Purpose |
+|------|---------|---------|
+| `src/hooks/use-count-up.ts` | `charts/kpi-card.tsx` | Animated KPI counters (0 → value) |
+| `src/hooks/use-in-view.ts` | `landing/features.tsx`, `landing/workflow.tsx` | Reveal-on-scroll animations |
+| `src/hooks/use-scroll-shadow.ts` | `landing/navbar.tsx` | Sticky-header elevation shadow |
+| `src/contexts/auth-context.tsx` | Root layout | Session state, login/logout, role gating |
+| `src/contexts/dashboard-context.tsx` | Dashboard | Theme + shared dashboard widget state |
 
-> **Scale:** 19 page files, 46 components, 9 landing sections, 2 contexts, 3 hooks, 5 UI primitives — all client/server components properly separated.
+> **Scale:** 19 page files, 46 components, 9 landing sections, 2 contexts, 3 hooks, 5 UI primitives — client/server components properly separated. Fonts: `Inter` via `next/font/google`.
 
 ---
 
@@ -253,7 +268,7 @@ We believe asset management should never be an **operational bottleneck**. Asset
 | **TypeScript** | ^5 | Static types | Strict mode across the whole app |
 | **Tailwind CSS** | ^4 | Utility-first styling | Design-token system, dark mode, rapid iteration |
 | **Base UI** | ^1.6.0 | Headless primitives | Accessible, unstyled, theme-agnostic |
-| **Recharts** | ^3.9.2 | Charts | Dashboard data visualization |
+| **Inline SVG charts** | — | Charts | Hand-built SVG/donut/bar charts — zero chart-library bundle cost |
 | **Lucide React** | ^1.24.0 | Icons | Consistent, tree-shakeable icon set |
 | **next-themes** | ^0.4.6 | Theme provider | Light / dark / system with no flash |
 

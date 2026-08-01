@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Docs
 - Rebuilt the root README with architecture diagrams, accurate API reference, deployment verification, and project health report.
+- Rebuilt README again in a modern FlowSync-style layout: typing header, badge rows, problem statement, feature tables, screens & modules, detailed **UI Libraries & Design System** section (per-library usage), system/API architecture ASCII diagrams, database ER schema, request lifecycle, getting started, deployment, roadmap, and author section.
+- Corrected README accuracy: `recharts` is declared in `package.json` but never imported — all charts are hand-built inline SVG/donut/bar components (`report-tabs.tsx`); README now documents that instead of claiming a chart library.
 - Added `docs/HEALTH_REPORT.md` and `docs/FINAL_REPORT.md`.
 - Added `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`, issue templates, and PR template.
 
