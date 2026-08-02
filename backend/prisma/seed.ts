@@ -1,80 +1,89 @@
-import { PrismaClient, UserRole, UserStatus, AssetStatus, AssetCondition } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import { PrismaClient, UserRole, UserStatus, AssetStatus, AssetCondition } from "@prisma/client";
+import { hash } from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 const SALT_ROUNDS = 10;
 
 const USERS = [
-  { email: 'admin@assetrix.com', password: 'Admin@123', firstName: 'Rahul', lastName: 'Mehta', role: UserRole.ADMIN, employeeId: 'EMP-001', designation: 'System Administrator' },
-  { email: 'asset.manager@assetrix.com', password: 'Manager@123', firstName: 'Priya', lastName: 'Sharma', role: UserRole.DEPARTMENT_MANAGER, employeeId: 'EMP-002', designation: 'Asset Manager' },
-  { email: 'dept.head@assetrix.com', password: 'DeptHead@123', firstName: 'Amit', lastName: 'Verma', role: UserRole.DEPARTMENT_MANAGER, employeeId: 'EMP-003', designation: 'Department Head - Engineering' },
-  { email: 'employee1@assetrix.com', password: 'Employee@123', firstName: 'Neha', lastName: 'Gupta', role: UserRole.EMPLOYEE, employeeId: 'EMP-004', designation: 'Software Engineer' },
-  { email: 'employee2@assetrix.com', password: 'Employee@123', firstName: 'Arjun', lastName: 'Singh', role: UserRole.EMPLOYEE, employeeId: 'EMP-005', designation: 'Software Engineer' },
-  { email: 'auditor@assetrix.com', password: 'Auditor@123', firstName: 'Kavya', lastName: 'Patel', role: UserRole.EMPLOYEE, employeeId: 'EMP-006', designation: 'Internal Auditor' },
-  { email: 'technician@assetrix.com', password: 'Tech@123', firstName: 'Vikram', lastName: 'Reddy', role: UserRole.TECHNICIAN, employeeId: 'EMP-007', designation: 'IT Support Technician' },
-  { email: 'hr@assetrix.com', password: 'Hr@123', firstName: 'Sneha', lastName: 'Joshi', role: UserRole.DEPARTMENT_MANAGER, employeeId: 'EMP-008', designation: 'HR Manager' },
+  { email: "admin@assetrix.com", password: "Admin@123", firstName: "Rahul", lastName: "Mehta", role: UserRole.ADMIN, employeeId: "EMP-001", designation: "System Administrator" },
+  { email: "asset.manager@assetrix.com", password: "Manager@123", firstName: "Priya", lastName: "Sharma", role: UserRole.DEPARTMENT_MANAGER, employeeId: "EMP-002", designation: "Asset Manager" },
+  { email: "dept.head@assetrix.com", password: "DeptHead@123", firstName: "Amit", lastName: "Verma", role: UserRole.DEPARTMENT_MANAGER, employeeId: "EMP-003", designation: "Department Head - Engineering" },
+  { email: "employee1@assetrix.com", password: "Employee@123", firstName: "Neha", lastName: "Gupta", role: UserRole.EMPLOYEE, employeeId: "EMP-004", designation: "Software Engineer" },
+  { email: "employee2@assetrix.com", password: "Employee@123", firstName: "Arjun", lastName: "Singh", role: UserRole.EMPLOYEE, employeeId: "EMP-005", designation: "Software Engineer" },
+  { email: "auditor@assetrix.com", password: "Auditor@123", firstName: "Kavya", lastName: "Patel", role: UserRole.EMPLOYEE, employeeId: "EMP-006", designation: "Internal Auditor" },
+  { email: "technician@assetrix.com", password: "Tech@123", firstName: "Vikram", lastName: "Reddy", role: UserRole.TECHNICIAN, employeeId: "EMP-007", designation: "IT Support Technician" },
+  { email: "hr@assetrix.com", password: "Hr@123", firstName: "Sneha", lastName: "Joshi", role: UserRole.DEPARTMENT_MANAGER, employeeId: "EMP-008", designation: "HR Manager" },
 ];
 
 const DEPARTMENTS = [
-  { name: 'Engineering', code: 'ENG', description: 'Software development and technical operations' },
-  { name: 'Marketing', code: 'MKT', description: 'Brand management, campaigns, and communications' },
-  { name: 'Human Resources', code: 'HR', description: 'People operations and talent management' },
-  { name: 'Finance', code: 'FIN', description: 'Financial planning, accounting, and compliance' },
-  { name: 'Operations', code: 'OPS', description: 'Business operations and process management' },
-  { name: 'IT Infrastructure', code: 'IT', description: 'Internal IT support and infrastructure management' },
+  { name: "Engineering", code: "ENG", description: "Software development and technical operations" },
+  { name: "Marketing", code: "MKT", description: "Brand management, campaigns, and communications" },
+  { name: "Human Resources", code: "HR", description: "People operations and talent management" },
+  { name: "Finance", code: "FIN", description: "Financial planning, accounting, and compliance" },
+  { name: "Operations", code: "OPS", description: "Business operations and process management" },
+  { name: "IT Infrastructure", code: "IT", description: "Internal IT support and infrastructure management" },
 ];
 
 const CATEGORIES = [
-  { name: 'Laptops', code: 'LAP', description: 'Portable computing devices', defaultUsefulLife: 25 },
-  { name: 'Monitors', code: 'MON', description: 'Display screens and monitors', defaultUsefulLife: 20 },
-  { name: 'Projectors', code: 'PRJ', description: 'Presentation and projection equipment', defaultUsefulLife: 15 },
-  { name: 'Meeting Rooms', code: 'ROOM', description: 'Conference and meeting room resources', defaultUsefulLife: 5 },
-  { name: 'Vehicles', code: 'VEH', description: 'Company vehicles and transport', defaultUsefulLife: 15 },
-  { name: 'Servers', code: 'SRV', description: 'Server hardware and networking equipment', defaultUsefulLife: 20 },
-  { name: 'Peripherals', code: 'PER', description: 'Keyboards, mice, headsets, accessories', defaultUsefulLife: 30 },
-  { name: 'Cameras', code: 'CAM', description: 'Photography and videography equipment', defaultUsefulLife: 20 },
+  { name: "Laptops", code: "LAP", description: "Portable computing devices", defaultUsefulLife: 25 },
+  { name: "Monitors", code: "MON", description: "Display screens and monitors", defaultUsefulLife: 20 },
+  { name: "Projectors", code: "PRJ", description: "Presentation and projection equipment", defaultUsefulLife: 15 },
+  { name: "Meeting Rooms", code: "ROOM", description: "Conference and meeting room resources", defaultUsefulLife: 5 },
+  { name: "Vehicles", code: "VEH", description: "Company vehicles and transport", defaultUsefulLife: 15 },
+  { name: "Servers", code: "SRV", description: "Server hardware and networking equipment", defaultUsefulLife: 20 },
+  { name: "Peripherals", code: "PER", description: "Keyboards, mice, headsets, accessories", defaultUsefulLife: 30 },
+  { name: "Cameras", code: "CAM", description: "Photography and videography equipment", defaultUsefulLife: 20 },
 ];
 
-const ASSET_TEMPLATES = {
+const ASSET_TEMPLATES: Record<string, { name: string; brand: string; model: string; purchasePrice: number; currentValue: number }[]> = {
   LAPTOP: [
-    { name: 'MacBook Pro 16" M3 Max', brand: 'Apple', model: 'MacBook Pro 16', purchasePrice: 249900, currentValue: 212415 },
-    { name: 'Dell XPS 15', brand: 'Dell', model: 'XPS 15 9530', purchasePrice: 134999, currentValue: 114749 },
-    { name: 'ThinkPad X1 Carbon', brand: 'Lenovo', model: 'X1 Carbon Gen 11', purchasePrice: 129999, currentValue: 110499 },
-    { name: 'HP Spectre x360', brand: 'HP', model: 'Spectre x360 16', purchasePrice: 119999, currentValue: 101999 },
-    { name: 'ASUS ROG Zephyrus', brand: 'ASUS', model: 'G14 2024', purchasePrice: 164999, currentValue: 140249 },
+    { name: "MacBook Pro 16\" M3 Max", brand: "Apple", model: "MacBook Pro 16", purchasePrice: 249900, currentValue: 212415 },
+    { name: "Dell XPS 15", brand: "Dell", model: "XPS 15 9530", purchasePrice: 134999, currentValue: 114749 },
+    { name: "ThinkPad X1 Carbon", brand: "Lenovo", model: "X1 Carbon Gen 11", purchasePrice: 129999, currentValue: 110499 },
+    { name: "HP Spectre x360", brand: "HP", model: "Spectre x360 16", purchasePrice: 119999, currentValue: 101999 },
+    { name: "ASUS ROG Zephyrus", brand: "ASUS", model: "G14 2024", purchasePrice: 164999, currentValue: 140249 },
   ],
   MONITOR: [
-    { name: 'LG UltraWide 34"', brand: 'LG', model: '34WN80C-B', purchasePrice: 49999, currentValue: 37499 },
-    { name: 'Dell UltraSharp 27"', brand: 'Dell', model: 'U2723QE', purchasePrice: 44999, currentValue: 33749 },
-    { name: 'Samsung ViewFinity 5K', brand: 'Samsung', model: 'S9 27"', purchasePrice: 89999, currentValue: 67499 },
+    { name: "LG UltraWide 34\"", brand: "LG", model: "34WN80C-B", purchasePrice: 49999, currentValue: 37499 },
+    { name: "Dell UltraSharp 27\"", brand: "Dell", model: "U2723QE", purchasePrice: 44999, currentValue: 33749 },
+    { name: "Samsung ViewFinity 5K", brand: "Samsung", model: "S9 27\"", purchasePrice: 89999, currentValue: 67499 },
   ],
   PROJECTOR: [
-    { name: 'Epson EB-L210W', brand: 'Epson', model: 'EB-L210W', purchasePrice: 89999, currentValue: 71999 },
-    { name: 'BenQ LH930', brand: 'BenQ', model: 'LH930', purchasePrice: 119999, currentValue: 95999 },
+    { name: "Epson EB-L210W", brand: "Epson", model: "EB-L210W", purchasePrice: 89999, currentValue: 71999 },
+    { name: "BenQ LH930", brand: "BenQ", model: "LH930", purchasePrice: 119999, currentValue: 95999 },
   ],
   ROOM: [
-    { name: 'Board Room Alpha', brand: '-', model: 'Capacity: 20', purchasePrice: 0, currentValue: 0 },
-    { name: 'Huddle Room B2', brand: '-', model: 'Capacity: 6', purchasePrice: 0, currentValue: 0 },
-    { name: 'Training Hall C1', brand: '-', model: 'Capacity: 50', purchasePrice: 0, currentValue: 0 },
+    { name: "Board Room Alpha", brand: "-", model: "Capacity: 20", purchasePrice: 0, currentValue: 0 },
+    { name: "Huddle Room B2", brand: "-", model: "Capacity: 6", purchasePrice: 0, currentValue: 0 },
+    { name: "Training Hall C1", brand: "-", model: "Capacity: 50", purchasePrice: 0, currentValue: 0 },
   ],
   VEHICLE: [
-    { name: 'Toyota Innova Crysta', brand: 'Toyota', model: 'Innova Crysta 2.4', purchasePrice: 1899000, currentValue: 1519200 },
-    { name: 'Honda City', brand: 'Honda', model: 'City ZX CVT', purchasePrice: 1349000, currentValue: 1079200 },
+    { name: "Toyota Innova Crysta", brand: "Toyota", model: "Innova Crysta 2.4", purchasePrice: 1899000, currentValue: 1519200 },
+    { name: "Honda City", brand: "Honda", model: "City ZX CVT", purchasePrice: 1349000, currentValue: 1079200 },
   ],
   SERVER: [
-    { name: 'Dell PowerEdge R750', brand: 'Dell', model: 'R750 Tower', purchasePrice: 349999, currentValue: 279999 },
-    { name: 'HP ProLiant DL380', brand: 'HP', model: 'DL380 Gen11', purchasePrice: 299999, currentValue: 239999 },
+    { name: "Dell PowerEdge R750", brand: "Dell", model: "R750 Tower", purchasePrice: 349999, currentValue: 279999 },
+    { name: "HP ProLiant DL380", brand: "HP", model: "DL380 Gen11", purchasePrice: 299999, currentValue: 239999 },
   ],
 };
 
+const CATEGORY_CODE_MAP: Record<string, string> = {
+  LAPTOP: "LAP",
+  MONITOR: "MON",
+  PROJECTOR: "PRJ",
+  ROOM: "ROOM",
+  VEHICLE: "VEH",
+  SERVER: "SRV",
+};
+
 function generateAssetTag(categoryCode: string, index: number): string {
-  return `AF-${categoryCode}-${String(index + 1).padStart(4, '0')}`;
+  return `AF-${categoryCode}-${String(index + 1).padStart(4, "0")}`;
 }
 
 function generateSerialNumber(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = 'SN-';
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "SN-";
   for (let i = 0; i < 12; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -82,17 +91,17 @@ function generateSerialNumber(): string {
 }
 
 async function main() {
-  console.log('🌱 Starting Assetrix seed...\n');
+  console.log("Starting Assetrix seed...\n");
 
   const adminUser = USERS[0];
-  const hashedPassword = await bcrypt.hash(adminUser.password, SALT_ROUNDS);
+  const hashedPassword = await hash(adminUser.password, SALT_ROUNDS);
 
   // 1. Create Users
-  console.log('👤 Creating users...');
+  console.log("Creating users...");
   const createdUsers: Record<string, string> = {};
 
   for (const user of USERS) {
-    const password = user === adminUser ? hashedPassword : await bcrypt.hash(user.password, SALT_ROUNDS);
+    const password = user === adminUser ? hashedPassword : await hash(user.password, SALT_ROUNDS);
     const created = await prisma.user.upsert({
       where: { email: user.email },
       update: {},
@@ -109,14 +118,15 @@ async function main() {
       },
     });
     createdUsers[user.email] = created.id;
-    console.log(`   ✓ ${user.firstName} ${user.lastName} (${user.role})`);
+    console.log(`   ok ${user.firstName} ${user.lastName} (${user.role})`);
   }
 
   // 2. Create Departments
-  console.log('\n🏢 Creating departments...');
+  console.log("\nCreating departments...");
   const createdDepts: Record<string, string> = {};
 
   for (const dept of DEPARTMENTS) {
+    const headEmail = DEPARTMENTS.indexOf(dept) % 2 === 0 ? "asset.manager@assetrix.com" : "dept.head@assetrix.com";
     const created = await prisma.department.upsert({
       where: { code: dept.code },
       update: {},
@@ -124,15 +134,15 @@ async function main() {
         name: dept.name,
         code: dept.code,
         description: dept.description,
-        headId: createdUsers[DEPARTMENTS.indexOf(dept) % 2 === 0 ? 'asset.manager@assetrix.com' : 'dept.head@assetrix.com'],
+        headId: createdUsers[headEmail],
       },
     });
     createdDepts[dept.code] = created.id;
-    console.log(`   ✓ ${dept.name} (${dept.code})`);
+    console.log(`   ok ${dept.name} (${dept.code})`);
   }
 
   // 3. Create Asset Categories
-  console.log('\n📁 Creating asset categories...');
+  console.log("\nCreating asset categories...");
   const createdCats: Record<string, string> = {};
 
   for (const cat of CATEGORIES) {
@@ -147,11 +157,11 @@ async function main() {
       },
     });
     createdCats[cat.code] = created.id;
-    console.log(`   ✓ ${cat.name} (${cat.code})`);
+    console.log(`   ok ${cat.name} (${cat.code})`);
   }
 
   // 4. Create Assets
-  console.log('\n📦 Creating assets...');
+  console.log("\nCreating assets...");
   let assetCount = 0;
 
   const deptCodes = Object.keys(createdDepts);
@@ -159,7 +169,7 @@ async function main() {
   const conditions: AssetCondition[] = [AssetCondition.EXCELLENT, AssetCondition.GOOD, AssetCondition.FAIR];
 
   for (const [categoryCode, templates] of Object.entries(ASSET_TEMPLATES)) {
-    const catId = createdCats[categoryCode] || createdCats[Object.keys(createdCats).find(k => k === categoryCode) || 'LAP'];
+    const catId = createdCats[CATEGORY_CODE_MAP[categoryCode]];
 
     for (let i = 0; i < templates.length; i++) {
       const template = templates[i];
@@ -171,13 +181,15 @@ async function main() {
         ? createdUsers[USERS[3 + (i % 3)].email]
         : undefined;
 
-      const asset = await prisma.asset.create({
+      await prisma.asset.create({
         data: {
           name: template.name,
           assetTag: generateAssetTag(categoryCode, i),
-          qrCode: `QR-${categoryCode}-${String(i + 1).padStart(4, '0')}`,
+          qrCode: `QR-${categoryCode}-${String(i + 1).padStart(4, "0")}`,
           serialNumber: generateSerialNumber(),
           description: `${template.brand} ${template.model}`,
+          manufacturer: template.brand,
+          model: template.model,
           status,
           condition,
           purchasePrice: template.purchasePrice,
@@ -187,28 +199,25 @@ async function main() {
           departmentId: createdDepts[deptCode],
           categoryId: catId,
           allocatedToId,
-          location: `Building ${String.fromCharCode(65 + i % 4)}, Floor ${(i % 5) + 1}`,
+          location: `Building ${String.fromCharCode(65 + (i % 4))}, Floor ${(i % 5) + 1}`,
         },
       });
       assetCount++;
     }
   }
 
-  console.log(`   ✓ ${assetCount} assets created across ${Object.keys(ASSET_TEMPLATES).length} categories`);
+  console.log(`   ok ${assetCount} assets created across ${Object.keys(ASSET_TEMPLATES).length} categories`);
 
-  console.log('\n✅ Seed completed successfully!\n');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('  LOGIN CREDENTIALS:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log("\nSeed completed successfully!\n");
+  console.log("LOGIN CREDENTIALS:");
   for (const user of USERS) {
-    console.log(`  ${user.role.padEnd(22)} ${user.email} / ${user.password}`);
+    console.log(`   ${user.role.padEnd(22)} ${user.email} / ${user.password}`);
   }
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seed failed:', e);
+    console.error("Seed failed:", e);
     process.exit(1);
   })
   .finally(async () => {
