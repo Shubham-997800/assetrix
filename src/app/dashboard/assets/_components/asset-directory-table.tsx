@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { categoryApi, departmentApi } from "@/lib/api";
 import {
   Search,
   Plus,
@@ -28,7 +29,6 @@ import type {
   SortDirection,
 } from "./types";
 import { STATUS_BADGE_CLASSES, DEFAULT_COLUMNS } from "./types";
-import { CATEGORIES, DEPARTMENTS, LOCATIONS } from "./data";
 import { MultiDropdown, TableDropdown } from "./table-dropdown";
 import { AssetQRModal } from "./asset-qr-modal";
 
@@ -172,6 +172,57 @@ export function AssetDirectoryTable({
   const [savedViews, setSavedViews] = useState<SavedView[]>(DEFAULT_SAVED_VIEWS);
   const [viewName, setViewName] = useState("");
   const [qrModal, setQrModal] = useState<{ tag: string; name: string } | null>(null);
+
+  const [categories, setCategories] = useState<string[]>([]);
+  const [departments, setDepartments] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [catRes, deptRes] = await Promise.all([
+          categoryApi.list(),
+          departmentApi.list(),
+        ]);
+        if (cancelled) return;
+        setCategories(
+          Array.from(
+            new Set(
+              ((catRes.data ?? []) as { name: string }[])
+                .map((c) => c.name)
+                .filter((n) => Boolean(n && n.trim()))
+            )
+          ).sort()
+        );
+        setDepartments(
+          Array.from(
+            new Set(
+              ((deptRes.data ?? []) as { name: string }[])
+                .map((d) => d.name)
+                .filter((n) => Boolean(n && n.trim()))
+            )
+          ).sort()
+        );
+      } catch {
+        // leave filter options empty on failure
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const locations = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          assets
+            .map((a) => a.location)
+            .filter((l) => Boolean(l && l.trim()))
+        )
+      ).sort(),
+    [assets]
+  );
 
   const activeFilterCount =
     filters.category.length +
@@ -461,7 +512,7 @@ export function AssetDirectoryTable({
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <MultiDropdown
                 label="Category"
-                options={CATEGORIES.map((c) => ({ label: c, value: c }))}
+                options={categories.map((c) => ({ label: c, value: c }))}
                 value={filters.category}
                 onChange={(v) => { setFilters((f) => ({ ...f, category: v })); setPage(1); }}
               />
@@ -473,13 +524,13 @@ export function AssetDirectoryTable({
               />
               <MultiDropdown
                 label="Department"
-                options={DEPARTMENTS.map((d) => ({ label: d, value: d }))}
+                options={departments.map((d) => ({ label: d, value: d }))}
                 value={filters.department}
                 onChange={(v) => { setFilters((f) => ({ ...f, department: v })); setPage(1); }}
               />
               <MultiDropdown
                 label="Location"
-                options={LOCATIONS.map((l) => ({ label: l, value: l }))}
+                options={locations.map((l) => ({ label: l, value: l }))}
                 value={filters.location}
                 onChange={(v) => { setFilters((f) => ({ ...f, location: v })); setPage(1); }}
               />

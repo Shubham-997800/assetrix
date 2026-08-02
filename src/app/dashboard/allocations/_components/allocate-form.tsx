@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeftRight,
@@ -8,14 +8,13 @@ import {
   XCircle,
   Building2,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
-import {
-  AVAILABLE_ASSETS,
-  ALLOCATED_ASSETS,
-  EMPLOYEES,
-} from "./data";
-import type { Allocation } from "./types";
+import { assetApi, allocationApi, userApi } from "@/lib/api";
+import type { ApiError } from "@/lib/api";
+import type { Asset, User } from "@/lib/types";
+import type { Allocation, AvailableAsset, Employee } from "./types";
 
 interface AllocateAssetFormProps {
   existingAllocations: Allocation[];
@@ -46,21 +45,68 @@ export function AllocateAssetForm({
     dept: string;
   } | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [availableAssets, setAvailableAssets] = useState<AvailableAsset[]>([]);
+  const [allocatedAssets, setAllocatedAssets] = useState<AvailableAsset[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
 
-  const allAssets = [...AVAILABLE_ASSETS, ...ALLOCATED_ASSETS];
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [assetRes, userRes] = await Promise.all([
+          assetApi.list({ limit: 1000 }),
+          userApi.list({ limit: 1000 }),
+        ]);
+        if (cancelled) return;
+        const assets = (assetRes.data ?? []) as Asset[];
+        const toAvailableAsset = (a: Asset): AvailableAsset => ({
+          id: a.id,
+          tag: a.assetTag,
+          name: a.name,
+          department: a.department?.name ?? "",
+          location: a.location ?? "",
+        });
+        setAvailableAssets(
+          assets.filter((a) => a.status === "AVAILABLE").map(toAvailableAsset)
+        );
+        setAllocatedAssets(
+          assets.filter((a) => a.status !== "AVAILABLE").map(toAvailableAsset)
+        );
+        setEmployees(
+          ((userRes.data ?? []) as User[])
+            .filter((u) => u.status === "ACTIVE")
+            .map((u) => ({
+              id: u.id,
+              name: `${u.firstName} ${u.lastName}`,
+              department: u.department?.name ?? "",
+              email: u.email,
+            }))
+        );
+      } catch (err) {
+        console.error("Failed to load allocation options:", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const allAssets = [...availableAssets, ...allocatedAssets];
 
   const selectedAsset = allAssets.find((a) => a.id === assetId);
-  const selectedEmployee = EMPLOYEES.find((e) => e.id === employeeId);
+  const selectedEmployee = employees.find((e) => e.id === employeeId);
 
-  const isAllocated = ALLOCATED_ASSETS.some((a) => a.id === assetId);
+  const isAllocated = allocatedAssets.some((a) => a.id === assetId);
 
   const handleAssetChange = (id: string) => {
     setAssetId(id);
     setConflict(null);
 
-    if (ALLOCATED_ASSETS.some((a) => a.id === id)) {
-      const asset = ALLOCATED_ASSETS.find((a) => a.id === id);
+    if (allocatedAssets.some((a) => a.id === id)) {
+      const asset = allocatedAssets.find((a) => a.id === id);
       const alloc = existingAllocations.find(
         (a) => a.assetTag === asset?.tag && a.status !== "Returned"
       );
@@ -74,7 +120,7 @@ export function AllocateAssetForm({
 
   const handleEmployeeChange = (id: string) => {
     setEmployeeId(id);
-    const emp = EMPLOYEES.find((e) => e.id === id);
+    const emp = employees.find((e) => e.id === id);
     if (emp) setDepartment(emp.department);
   };
 
@@ -89,10 +135,26 @@ export function AllocateAssetForm({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validate()) {
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    try {
+      setSubmitting(true);
+      setSubmitError(null);
+      await allocationApi.create({
+        assetId,
+        userId: employeeId,
+        expectedReturn: returnDate
+          ? new Date(returnDate).toISOString()
+          : undefined,
+        notes: notes || undefined,
+      });
       setSubmitted(true);
-      setTimeout(() => onSubmit(), 1500);
+      onSubmit();
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setSubmitError(apiErr.message || "Failed to create allocation");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -226,7 +288,7 @@ export function AllocateAssetForm({
           <div>
             <TableDropdown
               label="Select Employee *"
-              options={EMPLOYEES.map((e) => ({
+              options={employees.map((e) => ({
                 label: `${e.name} — ${e.department}`,
                 value: e.id,
               }))}
@@ -301,9 +363,14 @@ export function AllocateAssetForm({
           size="default"
           className="btn-enterprise"
           onClick={handleSubmit}
-          disabled={!!conflict}
+          disabled={!!conflict || submitting}
         >
-          <ArrowLeftRight className="h-3.5 w-3.5" /> Confirm Allocation
+          {submitting ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <ArrowLeftRight className="h-3.5 w-3.5" />
+          )}
+          {submitting ? "Allocating..." : "Confirm Allocation"}
         </Button>
         <Button
           variant="outline"
@@ -313,6 +380,9 @@ export function AllocateAssetForm({
         >
           Cancel
         </Button>
+        {submitError && (
+          <p className="text-xs text-destructive">{submitError}</p>
+        )}
       </div>
     </div>
   );

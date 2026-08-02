@@ -334,6 +334,10 @@ export const auditApi = {
     api.get(`/audit-cycles/${cycleId}/verifications`),
   verifyAsset: (cycleId: string, assetId: string, data: Record<string, unknown>) =>
     api.post(`/audit-cycles/${cycleId}/verify`, { assetId, ...data }),
+  closeCycle: (cycleId: string) =>
+    api.post(`/audit-cycles/${cycleId}/close`),
+  resolveDiscrepancy: (discrepancyId: string, data: Record<string, unknown>) =>
+    api.patch(`/audit-cycles/discrepancies/${discrepancyId}/resolve`, data),
 };
 
 export const reportApi = {
@@ -346,8 +350,10 @@ export const reportApi = {
 export const notificationApi = {
   list: (params?: Record<string, string | number | boolean | undefined | null>) =>
     api.get("/notifications", { params }),
+  activity: (params?: Record<string, string | number | boolean | undefined | null>) =>
+    api.get("/notifications/activity", { params }),
   markRead: (id: string) => api.patch(`/notifications/${id}/read`),
-  markAllRead: () => api.post("/notifications/read-all"),
+  markAllRead: () => api.patch("/notifications/read-all"),
 };
 
 export const userApi = {

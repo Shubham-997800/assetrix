@@ -21,13 +21,113 @@ import {
   ChevronRight,
   User,
 } from "lucide-react";
-import { RESOURCES, TIME_SLOTS, DEPARTMENTS } from "./data";
 import type { Resource, Booking, BookingConflict } from "./types";
 import { STATUS_CLASSES, TYPE_ACCENT, TYPE_BADGE } from "./types";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
-import { bookingApi, ApiError } from "@/lib/api";
-import type { Booking as ApiBooking } from "@/lib/types";
+import { assetApi, departmentApi, bookingApi, ApiError } from "@/lib/api";
+import type { Booking as ApiBooking, Asset as ApiAsset } from "@/lib/types";
 import { Loader2 } from "lucide-react";
+
+const TIME_SLOTS = [
+  "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
+  "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
+  "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
+  "17:00", "17:30", "18:00",
+];
+
+function deriveResourceType(asset: ApiAsset): Resource["type"] {
+  const category = `${asset.category?.name ?? ""} ${asset.name ?? ""}`.toLowerCase();
+  if (category.includes("vehicle") || category.includes("car")) return "Vehicle";
+  if (
+    category.includes("room") ||
+    category.includes("meeting") ||
+    category.includes("conference")
+  )
+    return "Meeting Room";
+  if (category.includes("training") || category.includes("lab"))
+    return "Training Room";
+  return "Equipment";
+}
+
+const RESOURCE_ICON_BY_TYPE: Record<Resource["type"], string> = {
+  "Meeting Room": "Building",
+  Equipment: "Monitor",
+  Vehicle: "Car",
+  "Training Room": "GraduationCap",
+};
+
+function toResource(a: ApiAsset): Resource {
+  const type = deriveResourceType(a);
+  return {
+    id: a.id,
+    name: a.name,
+    tag: a.assetTag,
+    type,
+    capacity: "N/A",
+    location: a.location ?? "",
+    available: a.status === "AVAILABLE",
+    icon: RESOURCE_ICON_BY_TYPE[type],
+  };
+}
+
+function useBookableResources(): { resources: Resource[]; loading: boolean } {
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    assetApi
+      .list({ limit: 1000 })
+      .then((res) => {
+        if (cancelled) return;
+        const all = (res.data ?? []) as (ApiAsset & { bookableResource?: boolean })[];
+        const bookable = all.filter((a) => a.bookableResource === true);
+        const source = bookable.length > 0 ? bookable : all;
+        setResources(source.map(toResource));
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { resources, loading };
+}
+
+function useDepartments(): { departments: string[]; loading: boolean } {
+  const [departments, setDepartments] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    departmentApi
+      .list()
+      .then((res) => {
+        if (cancelled) return;
+        setDepartments(
+          Array.from(
+            new Set(
+              ((res.data ?? []) as { name: string }[])
+                .map((d) => d.name)
+                .filter((n) => Boolean(n && n.trim()))
+            )
+          ).sort()
+        );
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { departments, loading };
+}
 
 function mapApiBooking(b: ApiBooking): Booking {
   const startDate = new Date(b.startDate);
@@ -106,8 +206,9 @@ const RESOURCE_ICONS: Record<string, React.ElementType> = {
 export function ResourceDirectoryTab() {
   const [filterType, setFilterType] = useState("");
   const [search, setSearch] = useState("");
+  const { resources, loading } = useBookableResources();
 
-  const filtered = RESOURCES.filter((r) => {
+  const filtered = resources.filter((r) => {
     if (filterType && r.type !== filterType) return false;
     if (search && !r.name.toLowerCase().includes(search.toLowerCase()) && !r.location.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -121,6 +222,8 @@ export function ResourceDirectoryTab() {
     });
     return Object.entries(map);
   }, [filtered]);
+
+  if (loading) return <BookingLoadingState />;
 
   return (
     <div className="space-y-4">
@@ -330,7 +433,10 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  const resource = RESOURCES.find((r) => r.id === resourceId);
+  const { resources } = useBookableResources();
+  const { departments } = useDepartments();
+
+  const resource = resources.find((r) => r.id === resourceId);
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
@@ -436,7 +542,7 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
           <div className="sm:col-span-2">
             <TableDropdown
               label="Resource *"
-              options={RESOURCES.filter((r) => r.available).map((r) => ({
+              options={resources.filter((r) => r.available).map((r) => ({
                 label: `${r.name} — ${r.type} (${r.location})`,
                 value: r.id,
               }))}
@@ -480,7 +586,7 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
           <div>
             <TableDropdown
               label="Department *"
-              options={DEPARTMENTS.map((d) => ({ label: d, value: d }))}
+              options={departments.map((d) => ({ label: d, value: d }))}
               value={department}
               onChange={setDepartment}
               placeholder="Select department"

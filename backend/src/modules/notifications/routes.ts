@@ -10,6 +10,7 @@ router.use(authenticate);
 
 router.get("/", validate(notificationQuerySchema, "query"), notificationController.getAll);
 router.get("/unread-count", notificationController.getUnreadCount);
+router.get("/activity", notificationController.getActivity);
 router.patch("/read-all", notificationController.markAllAsRead);
 router.patch("/:id/read", validate(notificationIdParamSchema, "params"), notificationController.markAsRead);
 router.delete("/read", notificationController.deleteAllRead);

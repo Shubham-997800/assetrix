@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { assetApi } from "@/lib/api";
+import { assetApi, categoryApi, departmentApi } from "@/lib/api";
 import {
   Package,
   Upload,
@@ -17,7 +17,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { TableDropdown } from "./table-dropdown";
-import { CATEGORIES, DEPARTMENTS, LOCATIONS } from "./data";
 import type { AssetCondition } from "./types";
 
 interface RegisterAssetFormProps {
@@ -85,6 +84,56 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [categories, setCategories] = useState<string[]>([]);
+  const [departments, setDepartments] = useState<string[]>([]);
+  const [locations, setLocations] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [catRes, deptRes, assetRes] = await Promise.all([
+          categoryApi.list(),
+          departmentApi.list(),
+          assetApi.list({ limit: 1000 }),
+        ]);
+        if (cancelled) return;
+        setCategories(
+          Array.from(
+            new Set(
+              ((catRes.data ?? []) as { name: string }[])
+                .map((c) => c.name)
+                .filter((n) => Boolean(n && n.trim()))
+            )
+          ).sort()
+        );
+        setDepartments(
+          Array.from(
+            new Set(
+              ((deptRes.data ?? []) as { name: string }[])
+                .map((d) => d.name)
+                .filter((n) => Boolean(n && n.trim()))
+            )
+          ).sort()
+        );
+        setLocations(
+          Array.from(
+            new Set(
+              ((assetRes.data ?? []) as { location?: string | null }[])
+                .map((a) => a.location ?? "")
+                .filter((l) => Boolean(l && l.trim()))
+            )
+          ).sort()
+        );
+      } catch (err) {
+        console.error("Failed to load form options:", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const validate = (): boolean => {
     const errs: FormErrors = {};
@@ -238,7 +287,7 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
           <div>
             <TableDropdown
               label="Asset Category *"
-              options={CATEGORIES.map((c) => ({ label: c, value: c }))}
+              options={categories.map((c) => ({ label: c, value: c }))}
               value={basicDetails.category}
               onChange={(v) =>
                 setBasicDetails((p) => ({ ...p, category: v }))
@@ -270,7 +319,7 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
           <div>
             <TableDropdown
               label="Department *"
-              options={DEPARTMENTS.map((d) => ({ label: d, value: d }))}
+              options={departments.map((d) => ({ label: d, value: d }))}
               value={basicDetails.department}
               onChange={(v) =>
                 setBasicDetails((p) => ({ ...p, department: v }))
@@ -286,7 +335,7 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
           <div>
             <TableDropdown
               label="Location *"
-              options={LOCATIONS.map((l) => ({ label: l, value: l }))}
+              options={locations.map((l) => ({ label: l, value: l }))}
               value={basicDetails.location}
               onChange={(v) =>
                 setBasicDetails((p) => ({ ...p, location: v }))

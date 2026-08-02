@@ -24,7 +24,7 @@ export interface Notification {
 }
 
 export interface ActivityLog {
-  id: number;
+  id: string;
   userName: string;
   userRole: string;
   action: string;

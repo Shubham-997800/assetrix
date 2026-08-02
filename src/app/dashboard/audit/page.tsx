@@ -13,6 +13,7 @@ import {
 import { AuditTabs } from "./_components/audit-tabs";
 import { auditApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
+import { mapAuditCycle } from "./_components/types";
 import type { AuditCycle } from "./_components/types";
 
 const AUDIT_CARD_CONFIG = [
@@ -33,7 +34,7 @@ function AuditPage() {
       setLoading(true);
       setError(null);
       const res = await auditApi.listCycles();
-      setCycles((res.data || []) as AuditCycle[]);
+      setCycles(((res.data || []) as AuditCycle[]).map(mapAuditCycle));
     } catch (err) {
       const apiErr = err as ApiError;
       setError(apiErr.message || "Failed to load audit cycles");

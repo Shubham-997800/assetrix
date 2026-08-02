@@ -1,6 +1,7 @@
 export interface Resource {
   id: string;
   name: string;
+  tag: string;
   type: "Meeting Room" | "Equipment" | "Vehicle" | "Training Room";
   capacity: string;
   location: string;

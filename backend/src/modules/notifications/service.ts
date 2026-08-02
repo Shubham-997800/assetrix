@@ -34,8 +34,37 @@ export const getAll = async (userId: string, query: NotificationQueryInput) => {
   };
 };
 
-export const getUnreadCount = async (userId: string): Promise<number> => {
-  return prisma.notification.count({
+export const getActivity = async (userId: string, limit = 50) => {
+  const safeLimit = Math.min(limit, 100);
+
+  const actor = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { ownerId: true },
+  });
+
+  const ownerId = actor?.ownerId ?? userId;
+
+  const items = await prisma.activityLog.findMany({
+    where: { user: { ownerId } },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: safeLimit,
+  });
+
+  return items;
+};
+
+export const getUnreadCount = async (userId: string): Promise<number> => {  return prisma.notification.count({
     where: { userId, isRead: false },
   });
 };

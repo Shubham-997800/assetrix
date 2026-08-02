@@ -24,6 +24,16 @@ export const getUnreadCount = asyncHandler(async (req: AuthenticatedRequest, res
   );
 });
 
+export const getActivity = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user!.userId;
+  const limit = Number(req.query.limit) || 50;
+  const activity = await notificationService.getActivity(userId, limit);
+
+  res.status(HTTP_STATUS.OK).json(
+    successResponse("Activity logs retrieved successfully", activity)
+  );
+});
+
 export const markAsRead = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.userId;
   const { id } = req.params;

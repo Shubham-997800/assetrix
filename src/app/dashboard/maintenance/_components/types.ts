@@ -68,23 +68,3 @@ export const ISSUE_CATEGORIES: IssueCategory[] = [
   "Electrical Issue",
   "Other",
 ];
-
-export const ASSET_OPTIONS = [
-  { tag: "AR-000003", name: "CNC Machine Model X", department: "Operations" },
-  { tag: "AR-000001", name: 'MacBook Pro 16"', department: "Engineering" },
-  { tag: "AR-000011", name: "Cisco Webex Board Pro 75", department: "Operations" },
-  { tag: "AR-000018", name: "AC Unit Daikin 3HP", department: "Operations" },
-  { tag: "AR-000013", name: "Forklift Toyota 8FGU25", department: "Operations" },
-  { tag: "AR-000012", name: "Server Dell PowerEdge R750", department: "Engineering" },
-  { tag: "AR-000009", name: 'iPad Pro 12.9"', department: "Marketing" },
-  { tag: "AR-000008", name: "HP LaserJet Enterprise M611", department: "Finance" },
-];
-
-export const TECHNICIANS = [
-  { name: "Raj Deshmukh", specialty: "IT Equipment" },
-  { name: "External - Haas Service", specialty: "CNC Machinery" },
-  { name: "External - Daikin Service", specialty: "HVAC" },
-  { name: "Internal - Facilities", specialty: "General" },
-  { name: "External - Toyota MH", specialty: "Material Handling" },
-  { name: "Internal - IT Support", specialty: "IT Equipment" },
-];

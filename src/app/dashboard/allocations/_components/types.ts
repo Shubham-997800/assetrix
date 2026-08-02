@@ -12,57 +12,6 @@ export interface Allocation {
   returnNotes: string | null;
 }
 
-export interface TransferRequest {
-  id: string;
-  assetTag: string;
-  assetName: string;
-  fromEmployee: string;
-  fromDepartment: string;
-  toEmployee: string;
-  toDepartment: string;
-  reason: string;
-  requestDate: string;
-  status: "Pending" | "Approved" | "Rejected" | "Completed";
-  departmentHeadApproval: boolean;
-  assetManagerApproval: boolean;
-}
-
-export interface ApprovalRequest {
-  id: string;
-  type: "transfer" | "return" | "extension";
-  assetTag: string;
-  assetName: string;
-  requestedBy: string;
-  department: string;
-  requestDate: string;
-  details: string;
-  status: "Pending" | "Approved" | "Rejected";
-}
-
-export interface OverdueItem {
-  id: string;
-  assetTag: string;
-  assetName: string;
-  employee: string;
-  department: string;
-  expectedReturn: string;
-  daysOverdue: number;
-  priority: "warning" | "high" | "critical";
-}
-
-export interface HistoryEvent {
-  id: string;
-  type: "allocated" | "transferred" | "returned" | "extended";
-  assetTag: string;
-  assetName: string;
-  from?: string;
-  to?: string;
-  department: string;
-  date: string;
-  user: string;
-  notes?: string;
-}
-
 export interface AvailableAsset {
   id: string;
   tag: string;
@@ -77,17 +26,6 @@ export interface Employee {
   department: string;
   email: string;
 }
-
-export const DEPARTMENTS = [
-  "Engineering",
-  "Finance",
-  "HR",
-  "Marketing",
-  "Operations",
-  "Procurement",
-  "Sales",
-  "IT",
-];
 
 export const PRIORITY_CLASSES: Record<string, string> = {
   warning: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",

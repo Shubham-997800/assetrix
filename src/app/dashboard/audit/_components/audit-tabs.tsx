@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -23,27 +23,91 @@ import {
   CheckCircle,
   Calendar,
   FileText,
+  Loader2,
 } from "lucide-react";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
 import {
   AUDIT_STATUS_CLASSES,
   DISCREPANCY_STATUS_CLASSES,
+  mapAuditCycle,
   type AuditCycle,
   type AuditAsset,
   type Discrepancy,
   type DiscrepancyStatus,
+  type DiscrepancyType,
+  type VerificationResult,
   type AuditStatus,
 } from "./types";
-import {
-  MOCK_AUDIT_ASSETS,
-  MOCK_DISCREPANCIES,
-} from "./data";
-import { auditApi } from "@/lib/api";
+import { auditApi, departmentApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
 const inputCls =
   "h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
+
+const VERIFICATION_RESULT_MAP: Record<string, VerificationResult> = {
+  VERIFIED: "Verified",
+  MISSING: "Missing",
+  DAMAGED: "Damaged",
+  DISCREPANCY: "Incorrect Location",
+  PENDING: null,
+};
+
+const DISCREPANCY_STATUS_MAP: Record<string, DiscrepancyStatus> = {
+  OPEN: "Open",
+  INVESTIGATING: "Acknowledged",
+  RESOLVED: "Resolved",
+  DISMISSED: "Closed",
+};
+
+const DISCREPANCY_TYPE_MAP: Record<string, DiscrepancyType> = {
+  MISSING: "Missing",
+  DAMAGED: "Damaged",
+  DISCREPANCY: "Incorrect Location",
+  INCORRECT_LOCATION: "Incorrect Location",
+  INCORRECT_HOLDER: "Incorrect Holder",
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- backend verification shape is loosely typed
+function mapVerification(v: Record<string, any>): AuditAsset {
+  const asset = v.asset || {};
+  const auditor = v.auditor || {};
+  return {
+    id: v.id,
+    cycleId: v.cycleId,
+    assetTag: asset.assetTag ?? "",
+    assetName: asset.name ?? "",
+    currentLocation: v.currentLocation ?? "",
+    recordedHolder: v.recordedHolder ?? "",
+    department: asset.department?.name ?? "",
+    assignedAuditor: [auditor.firstName, auditor.lastName].filter(Boolean).join(" ") || "Unassigned",
+    result: VERIFICATION_RESULT_MAP[v.result] ?? null,
+    verifiedAt: v.verifiedAt ?? null,
+    notes: v.notes ?? "",
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- backend discrepancy shape is loosely typed
+function mapDiscrepancy(d: Record<string, any>, cycleName: string): Discrepancy {
+  const asset = d.asset || {};
+  const reporter = d.reportedBy || {};
+  return {
+    id: d.id,
+    cycleId: d.cycleId,
+    cycleName,
+    assetTag: asset.assetTag ?? "",
+    assetName: asset.name ?? "",
+    type: DISCREPANCY_TYPE_MAP[d.type] ?? (d.type as DiscrepancyType),
+    currentLocation: "",
+    recordedHolder: "",
+    department: "",
+    reportedBy: [reporter.firstName, reporter.lastName].filter(Boolean).join(" ") || "Unknown",
+    reportedAt: d.createdAt ?? "",
+    recommendedAction: d.description ?? "",
+    status: DISCREPANCY_STATUS_MAP[d.status] ?? "Open",
+    resolvedAt: null,
+  };
+}
 
 type AuditTab = "cycles" | "create-cycle" | "assign-auditors" | "verification" | "discrepancies" | "close-cycle" | "history";
 
@@ -59,12 +123,61 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
   const [page, setPage] = useState(1);
   const [selectedAsset, setSelectedAsset] = useState<AuditAsset | null>(null);
   const [cycles, setCycles] = useState<AuditCycle[]>(initialCycles);
-  const [assets] = useState<AuditAsset[]>(MOCK_AUDIT_ASSETS);
-  const [discrepancies, setDiscrepancies] = useState<Discrepancy[]>(MOCK_DISCREPANCIES);
+  const [selectedCycleId, setSelectedCycleId] = useState("");
+  const [assets, setAssets] = useState<AuditAsset[]>([]);
+  const [discrepancies, setDiscrepancies] = useState<Discrepancy[]>([]);
+  const [cycleDataLoading, setCycleDataLoading] = useState(false);
+  const [cycleDataError, setCycleDataError] = useState<string | null>(null);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [resolveError, setResolveError] = useState<string | null>(null);
 
   useEffect(() => {
-    setCycles(initialCycles);
-  }, [initialCycles]);
+    const mapped = initialCycles.map(mapAuditCycle);
+    setCycles(mapped);
+    if (initialCycles.length > 0) {
+      if (!selectedCycleId || !initialCycles.some((c) => c.id === selectedCycleId)) {
+        setSelectedCycleId(initialCycles[0].id);
+      }
+    } else {
+      setSelectedCycleId("");
+    }
+  }, [initialCycles, selectedCycleId]);
+
+  const fetchCycleData = useCallback(async (cycleId: string) => {
+    if (!cycleId) {
+      setAssets([]);
+      setDiscrepancies([]);
+      return;
+    }
+    setCycleDataLoading(true);
+    setCycleDataError(null);
+    try {
+      const res = await auditApi.getCycle(cycleId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- backend cycle detail shape is loosely typed
+      const data = res.data as Record<string, any>;
+      setAssets((data.verifications || []).map(mapVerification));
+      setDiscrepancies(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- backend discrepancy entries are loosely typed
+        (data.discrepancies || []).map((d: Record<string, any>) => mapDiscrepancy(d, data.name ?? ""))
+      );
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setCycleDataError(apiErr.message || "Failed to load cycle data");
+      setAssets([]);
+      setDiscrepancies([]);
+    } finally {
+      setCycleDataLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedCycleId) {
+      fetchCycleData(selectedCycleId);
+    } else {
+      setAssets([]);
+      setDiscrepancies([]);
+    }
+  }, [selectedCycleId, fetchCycleData]);
 
   const tabs: { key: AuditTab; label: string; icon: React.ReactNode }[] = [
     { key: "cycles", label: "Audit Cycles", icon: <ClipboardCheck className="h-3.5 w-3.5" /> },
@@ -128,24 +241,25 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
     return `${classes} border inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium whitespace-nowrap`;
   };
 
-  const handleResolveDiscrepancy = (discId: string) => {
-    setDiscrepancies((prev) =>
-      prev.map((d) =>
-        d.id === discId
-          ? { ...d, status: "Resolved" as DiscrepancyStatus, resolvedAt: new Date().toISOString() }
-          : d
-      )
-    );
+  const handleResolveDiscrepancy = async (discId: string) => {
+    setResolvingId(discId);
+    setResolveError(null);
+    try {
+      await auditApi.resolveDiscrepancy(discId, { resolutionNotes: "" });
+      onRefresh();
+      if (selectedCycleId) await fetchCycleData(selectedCycleId);
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setResolveError(apiErr.message || "Failed to resolve discrepancy");
+    } finally {
+      setResolvingId(null);
+    }
   };
 
-  const handleCloseCycle = (cycleId: string) => {
-    setCycles((prev) =>
-      prev.map((c) =>
-        c.id === cycleId
-          ? { ...c, status: "Closed" as AuditStatus }
-          : c
-      )
-    );
+  const handleCloseCycle = async (cycleId: string) => {
+    await auditApi.closeCycle(cycleId);
+    onRefresh();
+    if (selectedCycleId) await fetchCycleData(selectedCycleId);
   };
 
   return (
@@ -176,7 +290,7 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
             <Filter className="h-3.5 w-3.5 text-muted-foreground" />
             <TableDropdown
               label=""
-              options={["Draft", "Active", "Completed", "Closed", "Open", "Acknowledged", "Resolved"].map((s) => ({ label: s, value: s }))}
+              options={["Draft", "Active", "Review", "Completed", "Closed", "Cancelled", "Open", "Acknowledged", "Resolved"].map((s) => ({ label: s, value: s }))}
               value={statusFilter}
               onChange={(v) => { setStatusFilter(v); setPage(1); }}
               placeholder="All Statuses"
@@ -194,7 +308,6 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
           setPage={setPage}
           badgeStyle={badgeStyle}
           onSelectCycle={() => {}}
-          startCycle={(id) => setCycles((prev) => prev.map((c) => c.id === id ? { ...c, status: "Active" as AuditStatus } : c))}
         />
       )}
 
@@ -210,44 +323,88 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
       )}
 
       {activeTab === "verification" && (
-        <VerificationTab
-          assets={paged(filteredAssets)}
-          total={filteredAssets.length}
-          page={page}
-          totalPages={totalPages(filteredAssets)}
-          setPage={setPage}
-          selectedAsset={selectedAsset ? filteredAssets.find((a) => a.id === selectedAsset.id) || null : null}
-          onSelectAsset={setSelectedAsset}
-        />
+        <div className="space-y-4">
+          <div className="w-full max-w-xs">
+            <TableDropdown
+              label="Cycle"
+              options={cycles.map((c) => ({ label: c.name, value: c.id }))}
+              value={selectedCycleId}
+              onChange={(v) => { setSelectedCycleId(v); setPage(1); }}
+              placeholder="Select cycle"
+            />
+          </div>
+          {cycleDataLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : cycleDataError ? (
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+              <p className="text-sm text-destructive">{cycleDataError}</p>
+            </div>
+          ) : (
+            <VerificationTab
+              assets={paged(filteredAssets)}
+              total={filteredAssets.length}
+              page={page}
+              totalPages={totalPages(filteredAssets)}
+              setPage={setPage}
+              selectedAsset={selectedAsset ? filteredAssets.find((a) => a.id === selectedAsset.id) || null : null}
+              onSelectAsset={setSelectedAsset}
+            />
+          )}
+        </div>
       )}
 
       {activeTab === "discrepancies" && (
-        <DiscrepanciesTab
-          discrepancies={paged(filteredDiscrepancies)}
-          total={filteredDiscrepancies.length}
-          page={page}
-          totalPages={totalPages(filteredDiscrepancies)}
-          setPage={setPage}
-          badgeStyle={badgeStyle}
-          onResolve={handleResolveDiscrepancy}
-        />
+        <div className="space-y-4">
+          <div className="w-full max-w-xs">
+            <TableDropdown
+              label="Cycle"
+              options={cycles.map((c) => ({ label: c.name, value: c.id }))}
+              value={selectedCycleId}
+              onChange={(v) => { setSelectedCycleId(v); setPage(1); }}
+              placeholder="Select cycle"
+            />
+          </div>
+          {cycleDataLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : cycleDataError ? (
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+              <p className="text-sm text-destructive">{cycleDataError}</p>
+            </div>
+          ) : (
+            <DiscrepanciesTab
+              discrepancies={paged(filteredDiscrepancies)}
+              total={filteredDiscrepancies.length}
+              page={page}
+              totalPages={totalPages(filteredDiscrepancies)}
+              setPage={setPage}
+              badgeStyle={badgeStyle}
+              onResolve={handleResolveDiscrepancy}
+              resolvingId={resolvingId}
+              error={resolveError}
+            />
+          )}
+        </div>
       )}
 
       {activeTab === "close-cycle" && (
         <CloseCycleTab
-          cycles={cycles.filter((c) => c.status === "Active" || c.status === "Completed")}
+          cycles={cycles.filter((c) => c.status === "Active" || c.status === "Review")}
           onClose={handleCloseCycle}
         />
       )}
 
       {activeTab === "history" && (
-        <HistoryTab cycles={cycles.filter((c) => c.status === "Closed" || c.status === "Completed")} />
+        <HistoryTab cycles={cycles.filter((c) => c.status === "Closed" || c.status === "Completed" || c.status === "Cancelled")} />
       )}
     </div>
   );
 }
 
-function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSelectCycle, startCycle }: {
+function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSelectCycle }: {
   cycles: AuditCycle[];
   total: number;
   page: number;
@@ -255,7 +412,6 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
   setPage: (p: number) => void;
   badgeStyle: (s: string) => string;
   onSelectCycle: (c: AuditCycle) => void;
-  startCycle: (id: string) => void;
 }) {
   return (
     <>
@@ -310,11 +466,6 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
                       <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary/80" onClick={() => onSelectCycle(cycle)}>
                         <Eye className="h-3 w-3" /> View
                       </Button>
-                      {cycle.status === "Draft" && (
-                        <Button variant="ghost" size="sm" className="h-7 text-xs text-emerald-500 hover:text-emerald-600" onClick={() => startCycle(cycle.id)}>
-                          Start
-                        </Button>
-                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -333,8 +484,24 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
   const [department, setDepartment] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
+  const [departments, setDepartments] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    departmentApi
+      .list()
+      .then((res) => {
+        if (!cancelled) {
+          setDepartments(((res.data || []) as { name: string }[]).map((d) => d.name));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleCreate = async () => {
     if (!name.trim() || !department || !location) return;
@@ -370,11 +537,11 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-xs font-medium text-foreground">Department Scope *</label>
-            <TableDropdown label="" options={["Engineering", "Finance", "HR", "Marketing", "Operations", "Procurement", "Sales", "IT"].map((d) => ({ label: d, value: d }))} value={department} onChange={setDepartment} placeholder="Select department" />
+            <TableDropdown label="" options={departments.map((d) => ({ label: d, value: d }))} value={department} onChange={setDepartment} placeholder="Select department" />
           </div>
           <div>
             <label className="text-xs font-medium text-foreground">Location Scope *</label>
-            <TableDropdown label="" options={["Floor 1, Board Room", "Floor 2, Wing A", "Floor 2, Wing B", "Floor 3, Wing A", "Floor 3, Wing B", "Production Floor, Bay 7", "Warehouse A", "Server Room, Rack 4"].map((l) => ({ label: l, value: l }))} value={location} onChange={setLocation} placeholder="Select location" />
+            <input className={`${inputCls} mt-1.5 w-full`} placeholder="e.g. Floor 3, Wing A" value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
         </div>
         <div>
@@ -452,7 +619,7 @@ function VerificationTab({ assets, total, page, totalPages, setPage, selectedAss
           <TableBody>
             {assets.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">No assets assigned</TableCell>
+                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">No assets assigned to this cycle</TableCell>
               </TableRow>
             ) : (
               assets.map((asset) => (
@@ -486,17 +653,20 @@ function VerificationTab({ assets, total, page, totalPages, setPage, selectedAss
   );
 }
 
-function DiscrepanciesTab({ discrepancies, total, page, totalPages, setPage, badgeStyle, onResolve }: {
+function DiscrepanciesTab({ discrepancies, total, page, totalPages, setPage, badgeStyle, onResolve, resolvingId, error }: {
   discrepancies: Discrepancy[];
   total: number;
   page: number;
   totalPages: number;
   setPage: (p: number) => void;
   badgeStyle: (s: string) => string;
-  onResolve: (id: string) => void;
+  onResolve: (id: string) => Promise<void>;
+  resolvingId: string | null;
+  error: string | null;
 }) {
   return (
     <>
+      {error && <p className="text-xs text-destructive">{error}</p>}
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <Table>
           <TableHeader>
@@ -529,7 +699,14 @@ function DiscrepanciesTab({ discrepancies, total, page, totalPages, setPage, bad
                   <TableCell><span className={badgeStyle(d.status)}>{d.status}</span></TableCell>
                   <TableCell>
                     {d.status !== "Resolved" && d.status !== "Closed" && (
-                      <Button variant="ghost" size="sm" className="h-7 text-xs text-emerald-500 hover:text-emerald-600" onClick={() => onResolve(d.id)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs text-emerald-500 hover:text-emerald-600"
+                        onClick={() => onResolve(d.id)}
+                        disabled={resolvingId !== null}
+                      >
+                        {resolvingId === d.id && <Loader2 className="h-3 w-3 animate-spin" />}
                         Resolve
                       </Button>
                     )}
@@ -545,7 +722,23 @@ function DiscrepanciesTab({ discrepancies, total, page, totalPages, setPage, bad
   );
 }
 
-function CloseCycleTab({ cycles, onClose }: { cycles: AuditCycle[]; onClose: (id: string) => void }) {
+function CloseCycleTab({ cycles, onClose }: { cycles: AuditCycle[]; onClose: (id: string) => Promise<void> }) {
+  const [closingId, setClosingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleClose = async (id: string) => {
+    setClosingId(id);
+    setError(null);
+    try {
+      await onClose(id);
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setError(apiErr.message || "Failed to close cycle");
+    } finally {
+      setClosingId(null);
+    }
+  };
+
   if (cycles.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-12 text-center">
@@ -557,6 +750,7 @@ function CloseCycleTab({ cycles, onClose }: { cycles: AuditCycle[]; onClose: (id
 
   return (
     <div className="space-y-3">
+      {error && <p className="text-xs text-destructive">{error}</p>}
       {cycles.map((cycle) => (
         <div key={cycle.id} className="rounded-xl border border-border bg-card p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -569,8 +763,13 @@ function CloseCycleTab({ cycles, onClose }: { cycles: AuditCycle[]; onClose: (id
                 <p className="text-xs text-muted-foreground">Progress</p>
                 <p className="text-sm font-medium text-foreground">{cycle.verifiedCount}/{cycle.totalAssets} verified</p>
               </div>
-              <Button size="sm" className="btn-enterprise min-h-[44px]" onClick={() => onClose(cycle.id)}>
-                <CheckCircle className="h-3.5 w-3.5" /> Close Cycle
+              <Button size="sm" className="btn-enterprise min-h-[44px]" onClick={() => handleClose(cycle.id)} disabled={closingId !== null}>
+                {closingId === cycle.id ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CheckCircle className="h-3.5 w-3.5" />
+                )}
+                {closingId === cycle.id ? "Closing..." : "Close Cycle"}
               </Button>
             </div>
           </div>

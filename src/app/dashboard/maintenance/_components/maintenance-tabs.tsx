@@ -34,14 +34,82 @@ import {
   PRIORITY_CLASSES,
   ISSUE_CATEGORIES,
   type MaintenanceRequest,
+  type MaintenanceTimelineEvent,
   type RequestStatus,
   type Priority,
 } from "./types";
-import { MOCK_TIMELINE } from "./data";
 import { maintenanceApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
+
+function buildMaintenanceTimeline(
+  request: MaintenanceRequest
+): MaintenanceTimelineEvent[] {
+  const events: MaintenanceTimelineEvent[] = [
+    {
+      id: "reported",
+      type: "reported",
+      title: "Request raised",
+      description: request.issueDescription,
+      date: request.createdAt,
+      user: request.reportedBy,
+    },
+  ];
+  if (request.approvedAt) {
+    events.push({
+      id: "approved",
+      type: "approved",
+      title: "Request approved",
+      description: "Approved for repair",
+      date: request.approvedAt,
+      user: request.approvedBy ?? "System",
+    });
+  }
+  if (request.status === "Rejected" && !request.approvedAt) {
+    events.push({
+      id: "rejected",
+      type: "rejected",
+      title: "Request rejected",
+      description: request.rejectionReason ?? "",
+      date: request.createdAt,
+      user: request.approvedBy ?? "System",
+    });
+  }
+  if (request.technicianAssignedAt) {
+    events.push({
+      id: "technician_assigned",
+      type: "technician_assigned",
+      title: "Technician assigned",
+      description: request.technician ?? "",
+      date: request.technicianAssignedAt,
+      user: request.technician ?? "System",
+    });
+  }
+  if (request.workStartedAt) {
+    events.push({
+      id: "progress_update",
+      type: "progress_update",
+      title: "Work started",
+      description: "Repair work in progress",
+      date: request.workStartedAt,
+      user: request.technician ?? "System",
+    });
+  }
+  if (request.resolvedAt) {
+    events.push({
+      id: "resolved",
+      type: "resolved",
+      title: "Request resolved",
+      description: request.resolutionSummary ?? "",
+      date: request.resolvedAt,
+      user: request.technician ?? "System",
+    });
+  }
+  return events.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+}
 
 const ALL_STATUSES: RequestStatus[] = [
   "Pending",
@@ -347,7 +415,7 @@ function SelectedRequestView({
   onBack,
 }: SelectedRequestViewProps) {
   const [subTab, setSubTab] = useState<"overview" | "history">("overview");
-  const timeline = MOCK_TIMELINE[request.id] || [];
+  const timeline = buildMaintenanceTimeline(request);
 
   const badgeStyle = (status: RequestStatus) => `${STATUS_CLASSES[status]} border inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium whitespace-nowrap`;
 

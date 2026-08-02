@@ -34,8 +34,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
-import { PRIORITY_CLASSES, STATUS_CLASSES, type NotificationTab, type ActivityStatus, type NotificationCategory } from "./types";
-import { MOCK_ACTIVITY_LOGS } from "./data";
+import { PRIORITY_CLASSES, STATUS_CLASSES, type NotificationTab, type ActivityStatus, type NotificationCategory, type ActivityLog, type ActivityCategory } from "./types";
 import { notificationApi, ApiError } from "@/lib/api";
 import type { Notification as ApiNotification } from "@/lib/types";
 
@@ -98,12 +97,54 @@ function mapApiNotification(n: ApiNotification) {
   };
 }
 
+function mapActivityCategory(a: { action: string; entity: string; userId: string | null }): ActivityCategory {
+  if (!a.userId) return "system";
+  const t = `${a.action} ${a.entity}`.toLowerCase();
+  if (t.includes("approve") || t.includes("approval") || t.includes("transfer")) return "approval";
+  if (
+    t.includes("asset") ||
+    t.includes("allocation") ||
+    t.includes("booking") ||
+    t.includes("maintenance") ||
+    t.includes("department") ||
+    t.includes("audit")
+  ) {
+    return "asset";
+  }
+  return "user";
+}
+
+function mapApiActivity(a: {
+  id: string;
+  userId: string | null;
+  action: string;
+  entity: string;
+  entityId?: string | null;
+  ipAddress?: string | null;
+  createdAt: string;
+  user?: { firstName: string; lastName: string; role: string } | null;
+}): ActivityLog {
+  return {
+    id: a.id,
+    userName: a.user ? `${a.user.firstName} ${a.user.lastName}` : "System",
+    userRole: a.user?.role ?? "System",
+    action: a.action,
+    targetEntity: a.entity,
+    targetId: a.entityId ?? "-",
+    timestamp: a.createdAt,
+    ipAddress: a.ipAddress ?? "-",
+    status: "Success" as ActivityStatus,
+    category: mapActivityCategory(a),
+  };
+}
+
 export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
   const [activeTab, setActiveTab] = useState<NotificationTab>("all");
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [page, setPage] = useState(1);
   const [notifications, setNotifications] = useState<ReturnType<typeof mapApiNotification>[]>([]);
+  const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activitySearch, setActivitySearch] = useState("");
@@ -115,9 +156,14 @@ export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
     try {
       setLoading(true);
       setError(null);
-      const res = await notificationApi.list();
-      const items = (res.data ?? []) as ApiNotification[];
+      const [notifRes, activityRes] = await Promise.all([
+        notificationApi.list(),
+        notificationApi.activity({ limit: 100 }),
+      ]);
+      const items = (notifRes.data ?? []) as ApiNotification[];
       setNotifications(items.map(mapApiNotification));
+      const activityItems = (activityRes.data ?? []) as Array<Parameters<typeof mapApiActivity>[0]>;
+      setActivities(activityItems.map(mapApiActivity));
     } catch (err) {
       if (err instanceof ApiError && err.status !== 401) {
         setError(err.message);
@@ -180,12 +226,12 @@ export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
   }, [notifications, activeTab, priorityFilter, search]);
 
   const filteredActivities = useMemo(() => {
-    let items = [...MOCK_ACTIVITY_LOGS];
+    let items = [...activities];
     if (activityUserFilter !== "All") items = items.filter((l) => l.userRole === activityUserFilter);
     if (activityCategoryFilter !== "All") items = items.filter((l) => l.category === activityCategoryFilter);
     if (activitySearch.trim()) { const s = activitySearch.toLowerCase(); items = items.filter((l) => l.userName.toLowerCase().includes(s) || l.action.toLowerCase().includes(s) || l.targetEntity.toLowerCase().includes(s) || l.targetId.toLowerCase().includes(s)); }
     return items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [activitySearch, activityUserFilter, activityCategoryFilter]);
+  }, [activities, activitySearch, activityUserFilter, activityCategoryFilter]);
 
   const notifTotal = filteredNotifications.length;
   const notifTotalPages = Math.max(1, Math.ceil(notifTotal / ITEMS_PER_PAGE));
@@ -195,7 +241,7 @@ export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
   const actTotalPages = Math.max(1, Math.ceil(actTotal / ITEMS_PER_PAGE));
   const actPaged = filteredActivities.slice((activityPage - 1) * ITEMS_PER_PAGE, activityPage * ITEMS_PER_PAGE);
 
-  const uniqueRoles = [...new Set(MOCK_ACTIVITY_LOGS.map((l) => l.userRole))];
+  const uniqueRoles = [...new Set(activities.map((l) => l.userRole))];
 
   if (activeTab === "activity") {
     return (

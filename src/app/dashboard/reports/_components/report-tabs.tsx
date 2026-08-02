@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -32,30 +32,460 @@ import {
 } from "lucide-react";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
 import {
-  DEPARTMENTS,
-  CATEGORIES,
   STATUS_COLORS,
   SEVERITY_COLORS,
   type ReportTab,
   type RetirementStatus,
+  type IdleSeverity,
+  type AssetUtilization,
+  type IdleAsset,
+  type MaintenanceTrend,
+  type RetirementForecast,
+  type DepartmentAllocation,
+  type BookingHeatmapSlot,
+  type MonthlyData,
 } from "./types";
-import {
-  MOCK_UTILIZATION,
-  MOCK_IDLE,
-  MOCK_MAINTENANCE_TRENDS,
-  MOCK_RETIREMENT,
-  MOCK_DEPARTMENT,
-  MOCK_HEATMAP,
-  MONTHLY_UTILIZATION,
-  MONTHLY_MAINTENANCE,
-  MAINTENANCE_TYPES,
-  CATEGORY_FAILURE_RATES,
-} from "./data";
-import { reportApi } from "@/lib/api";
+import { assetApi, allocationApi, maintenanceApi, bookingApi, departmentApi, categoryApi, reportApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const MONTH_MS = 30 * DAY_MS;
 const inputCls = "h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
+
+interface ApiAsset {
+  id: string;
+  assetTag: string;
+  name: string;
+  category: { id: string; name: string } | null;
+  department: { id: string; name: string } | null;
+  status: "AVAILABLE" | "ALLOCATED" | "MAINTENANCE" | "RESERVED" | "RETIRED" | "LOST" | "DISPOSED";
+  condition: "EXCELLENT" | "GOOD" | "FAIR" | "POOR" | "DAMAGED";
+  purchaseDate: string | null;
+  purchasePrice: number | null;
+  warrantyExpiry: string | null;
+  sharedResource: boolean | null;
+  bookableResource: boolean | null;
+  updatedAt: string;
+}
+
+interface ApiAllocation {
+  id: string;
+  assetId: string;
+  status: "ACTIVE" | "RETURNED" | "TRANSFERRED" | "OVERDUE";
+  allocatedAt: string;
+  returnedAt: string | null;
+}
+
+interface ApiMaintenanceTask {
+  id: string;
+  assetId: string;
+  type: "PREVENTIVE" | "CORRECTIVE" | "PREDICTIVE" | "EMERGENCY";
+  scheduledDate: string;
+  completedAt: string | null;
+  estimatedCost: number | null;
+  actualCost: number | null;
+  createdAt: string;
+}
+
+interface ApiBooking {
+  id: string;
+  assetId: string;
+  startDate: string;
+  endDate: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | "COMPLETED";
+}
+
+interface ApiDepartment {
+  id: string;
+  name: string;
+  code: string;
+}
+
+interface ApiCategory {
+  id: string;
+  name: string;
+}
+
+interface MaintenanceSlice {
+  label: string;
+  value: number;
+  color: string;
+}
+
+function asArray<T>(data: unknown): T[] {
+  if (Array.isArray(data)) return data as T[];
+  if (data && typeof data === "object" && Array.isArray((data as { data?: unknown }).data)) {
+    return (data as { data: T[] }).data;
+  }
+  return [];
+}
+
+function parseDate(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const t = Date.parse(value);
+  return Number.isNaN(t) ? null : t;
+}
+
+function diffDays(start: string, end: string): number {
+  const s = parseDate(start);
+  const e = parseDate(end);
+  if (s === null || e === null) return 0;
+  return Math.max(0, (e - s) / DAY_MS);
+}
+
+function last12Months(): { label: string; year: number; monthIndex: number }[] {
+  const now = new Date();
+  const result: { label: string; year: number; monthIndex: number }[] = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    result.push({ label: d.toLocaleString("en-US", { month: "short" }), year: d.getFullYear(), monthIndex: d.getMonth() });
+  }
+  return result;
+}
+
+function bookingHoursFor(assetId: string, bookings: ApiBooking[]): number {
+  let hours = 0;
+  for (const b of bookings) {
+    if (b.assetId !== assetId || (b.status !== "APPROVED" && b.status !== "COMPLETED")) continue;
+    const s = parseDate(b.startDate);
+    const e = parseDate(b.endDate);
+    if (s !== null && e !== null) hours += Math.max(0, (e - s) / HOUR_MS);
+  }
+  return Math.round(hours);
+}
+
+function computeUtilizationRows(assets: ApiAsset[], allocations: ApiAllocation[], tasks: ApiMaintenanceTask[], bookings: ApiBooking[]): AssetUtilization[] {
+  const nowMs = Date.now();
+  const windowStart = nowMs - 90 * DAY_MS;
+  return assets.map((asset) => {
+    const assetAllocs = allocations.filter((al) => al.assetId === asset.id);
+    let daysAllocated = 0;
+    for (const al of assetAllocs) {
+      const start = parseDate(al.allocatedAt);
+      if (start === null) continue;
+      const end = parseDate(al.returnedAt) ?? nowMs;
+      const overlapStart = Math.max(start, windowStart);
+      const overlapEnd = Math.min(end, nowMs);
+      if (overlapEnd > overlapStart) daysAllocated += (overlapEnd - overlapStart) / DAY_MS;
+    }
+    let utilizationPercent = Math.min(100, Math.round((daysAllocated / 90) * 100));
+    const bookingHours = bookingHoursFor(asset.id, bookings);
+    if (utilizationPercent === 0 && asset.bookableResource && bookingHours > 0) {
+      utilizationPercent = Math.min(100, Math.round((bookingHours / 720) * 100));
+    }
+    let totalAllocationDays = 0;
+    for (const al of assetAllocs) {
+      const start = parseDate(al.allocatedAt);
+      if (start === null) continue;
+      const end = parseDate(al.returnedAt) ?? nowMs;
+      totalAllocationDays += Math.max(0, (end - start) / DAY_MS);
+    }
+    const completed = tasks.filter((t) => t.assetId === asset.id && t.completedAt && t.scheduledDate);
+    const averageDowntimeDays = completed.length
+      ? Math.round((completed.reduce((sum, t) => sum + diffDays(t.scheduledDate, t.completedAt ?? ""), 0) / completed.length) * 10) / 10
+      : 0;
+    return {
+      assetTag: asset.assetTag,
+      assetName: asset.name,
+      category: asset.category?.name ?? "—",
+      department: asset.department?.name ?? "—",
+      utilizationPercent,
+      totalAllocationDays: Math.round(totalAllocationDays),
+      averageDowntimeDays,
+      bookingHours,
+    };
+  });
+}
+
+function computeIdleRows(assets: ApiAsset[], allocations: ApiAllocation[]): IdleAsset[] {
+  const nowMs = Date.now();
+  const rows: IdleAsset[] = [];
+  for (const asset of assets) {
+    if (asset.status !== "AVAILABLE") continue;
+    const assetAllocs = allocations.filter((al) => al.assetId === asset.id);
+    const usageDates: number[] = [];
+    for (const al of assetAllocs) {
+      const a = parseDate(al.allocatedAt);
+      const r = parseDate(al.returnedAt);
+      if (a !== null) usageDates.push(a);
+      if (r !== null) usageDates.push(r);
+    }
+    const updated = parseDate(asset.updatedAt);
+    if (updated !== null) usageDates.push(updated);
+    const lastUsage = usageDates.length > 0 ? Math.max(...usageDates) : nowMs;
+    const idleDays = Math.max(0, Math.floor((nowMs - lastUsage) / DAY_MS));
+    const isIdle = assetAllocs.length === 0 || idleDays > 20;
+    if (!isIdle) continue;
+    const severity: IdleSeverity = idleDays >= 120 ? "critical" : idleDays >= 60 ? "severe" : idleDays >= 30 ? "warning" : "normal";
+    rows.push({
+      assetTag: asset.assetTag,
+      assetName: asset.name,
+      category: asset.category?.name ?? "—",
+      department: asset.department?.name ?? "—",
+      lastUsageDate: new Date(lastUsage).toISOString().slice(0, 10),
+      idleDays,
+      estimatedValue: asset.purchasePrice ?? 0,
+      severity,
+    });
+  }
+  return rows.sort((a, b) => b.idleDays - a.idleDays);
+}
+
+function computeMaintenanceTrends(assets: ApiAsset[], tasks: ApiMaintenanceTask[]): MaintenanceTrend[] {
+  const assetById = new Map(assets.map((a) => [a.id, a]));
+  const byAsset = new Map<string, ApiMaintenanceTask[]>();
+  for (const t of tasks) {
+    const list = byAsset.get(t.assetId) ?? [];
+    list.push(t);
+    byAsset.set(t.assetId, list);
+  }
+  const rows: MaintenanceTrend[] = [];
+  for (const [assetId, list] of byAsset) {
+    const asset = assetById.get(assetId);
+    if (!asset) continue;
+    const completed = list.filter((t) => t.completedAt && t.scheduledDate);
+    const averageRepairDays = completed.length
+      ? Math.round((completed.reduce((sum, t) => sum + diffDays(t.scheduledDate, t.completedAt ?? ""), 0) / completed.length) * 10) / 10
+      : 0;
+    const totalCost = list.reduce((sum, t) => sum + Number(t.actualCost ?? t.estimatedCost ?? 0), 0);
+    rows.push({
+      assetTag: asset.assetTag,
+      assetName: asset.name,
+      category: asset.category?.name ?? "—",
+      department: asset.department?.name ?? "—",
+      totalRequests: list.length,
+      averageRepairDays,
+      totalCost,
+    });
+  }
+  return rows.sort((a, b) => b.totalRequests - a.totalRequests);
+}
+
+function computeMonthlyMaintenance(tasks: ApiMaintenanceTask[]): MonthlyData[] {
+  return last12Months().map((m) => ({
+    month: m.label,
+    value: tasks.filter((t) => {
+      const created = parseDate(t.createdAt);
+      if (created === null) return false;
+      const d = new Date(created);
+      return d.getFullYear() === m.year && d.getMonth() === m.monthIndex;
+    }).length,
+  }));
+}
+
+function computeMonthlyUtilization(assets: ApiAsset[], allocations: ApiAllocation[]): MonthlyData[] {
+  const months = last12Months();
+  if (assets.length === 0) return months.map((m) => ({ month: m.label, value: 0 }));
+  return months.map((m) => {
+    const monthStart = new Date(m.year, m.monthIndex, 1).getTime();
+    const monthEnd = new Date(m.year, m.monthIndex + 1, 1).getTime();
+    const daysInMonth = (monthEnd - monthStart) / DAY_MS;
+    let allocDays = 0;
+    for (const al of allocations) {
+      const start = parseDate(al.allocatedAt);
+      if (start === null) continue;
+      const end = parseDate(al.returnedAt) ?? Date.now();
+      const overlapStart = Math.max(start, monthStart);
+      const overlapEnd = Math.min(end, monthEnd);
+      if (overlapEnd > overlapStart) allocDays += (overlapEnd - overlapStart) / DAY_MS;
+    }
+    return {
+      month: m.label,
+      value: Math.round(Math.min(100, (allocDays / (assets.length * daysInMonth)) * 100)),
+    };
+  });
+}
+
+function computeMaintenanceTypes(tasks: ApiMaintenanceTask[]): MaintenanceSlice[] {
+  const definitions: { type: ApiMaintenanceTask["type"]; label: string; color: string }[] = [
+    { type: "PREVENTIVE", label: "Preventive", color: "bg-emerald-500 stroke-emerald-500" },
+    { type: "CORRECTIVE", label: "Corrective", color: "bg-amber-500 stroke-amber-500" },
+    { type: "PREDICTIVE", label: "Predictive", color: "bg-blue-500 stroke-blue-500" },
+    { type: "EMERGENCY", label: "Emergency", color: "bg-red-500 stroke-red-500" },
+  ];
+  const counts = new Map<string, number>();
+  for (const t of tasks) counts.set(t.type, (counts.get(t.type) ?? 0) + 1);
+  const total = tasks.length;
+  return definitions.map((d) => ({
+    label: d.label,
+    value: total > 0 ? Math.round(((counts.get(d.type) ?? 0) / total) * 100) : 0,
+    color: d.color,
+  }));
+}
+
+function computeCategoryFailureRates(assets: ApiAsset[], tasks: ApiMaintenanceTask[], categories: ApiCategory[]): { category: string; rate: number }[] {
+  const assetById = new Map(assets.map((a) => [a.id, a]));
+  const counts = new Map<string, number>();
+  for (const t of tasks) {
+    const cat = assetById.get(t.assetId)?.category?.name;
+    if (!cat) continue;
+    counts.set(cat, (counts.get(cat) ?? 0) + 1);
+  }
+  const total = tasks.length;
+  return categories.map((c) => ({
+    category: c.name,
+    rate: total > 0 ? Math.round(((counts.get(c.name) ?? 0) / total) * 100) : 0,
+  }));
+}
+
+function computeRetirementRows(assets: ApiAsset[], tasks: ApiMaintenanceTask[]): RetirementForecast[] {
+  const nowMs = Date.now();
+  const taskCountByAsset = new Map<string, number>();
+  for (const t of tasks) taskCountByAsset.set(t.assetId, (taskCountByAsset.get(t.assetId) ?? 0) + 1);
+  const scores: Record<string, number> = { EXCELLENT: 90, GOOD: 75, FAIR: 55, POOR: 35, DAMAGED: 15 };
+  const rows: RetirementForecast[] = [];
+  for (const asset of assets) {
+    if (!asset.purchaseDate) continue;
+    const purchased = parseDate(asset.purchaseDate);
+    if (purchased === null) continue;
+    const assetAge = Math.max(0, Math.floor((nowMs - purchased) / MONTH_MS));
+    const conditionScore = scores[asset.condition] ?? 50;
+    const warrantyMs = parseDate(asset.warrantyExpiry);
+    const warrantyExpiry = warrantyMs !== null ? new Date(warrantyMs).toISOString().slice(0, 10) : "—";
+    const remaining = warrantyMs !== null ? Math.max(0, Math.floor((warrantyMs - nowMs) / MONTH_MS)) : null;
+    let status: RetirementStatus;
+    let recommendedAction: string;
+    if ((remaining !== null && remaining <= 0) || conditionScore < 40) {
+      status = "Critical";
+      recommendedAction = "Replace";
+    } else if ((remaining !== null && remaining <= 6) || conditionScore < 60) {
+      status = "Replace Soon";
+      recommendedAction = "Schedule replacement";
+    } else if (remaining !== null && remaining <= 12) {
+      status = "Monitor";
+      recommendedAction = "Monitor";
+    } else {
+      status = "Healthy";
+      recommendedAction = "No action";
+    }
+    rows.push({
+      assetTag: asset.assetTag,
+      assetName: asset.name,
+      assetAge,
+      maintenanceFrequency: taskCountByAsset.get(asset.id) ?? 0,
+      conditionScore,
+      warrantyExpiry,
+      remainingUsefulLifeMonths: remaining ?? "—",
+      status,
+      recommendedAction,
+    });
+  }
+  return rows.sort((a, b) => a.conditionScore - b.conditionScore);
+}
+
+function computeDepartmentRows(departments: ApiDepartment[], assets: ApiAsset[], allocations: ApiAllocation[]): DepartmentAllocation[] {
+  const assetById = new Map(assets.map((a) => [a.id, a]));
+  return departments.map((dept) => {
+    const deptAssets = assets.filter((a) => a.department?.id === dept.id);
+    const allocatedCount = deptAssets.filter((a) => a.status === "ALLOCATED").length;
+    const totalAssetValue = deptAssets.reduce((sum, a) => sum + Number(a.purchasePrice ?? 0), 0);
+    const sharedResourceUsage = deptAssets.filter((a) => a.sharedResource).length;
+    const overdueReturns = allocations.filter((al) => al.status === "OVERDUE" && assetById.get(al.assetId)?.department?.id === dept.id).length;
+    const utilizationRate = deptAssets.length ? Math.round((allocatedCount / deptAssets.length) * 100) : 0;
+    return {
+      department: dept.name,
+      assetsAllocated: allocatedCount,
+      totalAssetValue,
+      sharedResourceUsage,
+      overdueReturns,
+      utilizationRate,
+    };
+  });
+}
+
+function computeKpis(assets: ApiAsset[], allocations: ApiAllocation[], tasks: ApiMaintenanceTask[], bookings: ApiBooking[]): { label: string; value: string; change: string; up: boolean; icon: React.ElementType }[] {
+  const nowMs = Date.now();
+  const totalAssets = assets.length;
+  const allocatedCount = assets.filter((a) => a.status === "ALLOCATED").length;
+  const utilizationRate = totalAssets > 0 ? Math.round((allocatedCount / totalAssets) * 100) : 0;
+
+  const idleCutoff = nowMs - 30 * DAY_MS;
+  const idleAssets = assets.filter((a) => {
+    if (a.status !== "AVAILABLE") return false;
+    const assetAllocs = allocations.filter((al) => al.assetId === a.id);
+    if (assetAllocs.length === 0) return true;
+    let latest = 0;
+    for (const al of assetAllocs) {
+      const t = parseDate(al.returnedAt ?? al.allocatedAt);
+      if (t !== null && t > latest) latest = t;
+    }
+    return latest < idleCutoff;
+  }).length;
+
+  const maintenanceCost = tasks.reduce((sum, t) => sum + Number(t.actualCost ?? t.estimatedCost ?? 0), 0);
+  const approvedCompleted = bookings.filter((b) => b.status === "APPROVED" || b.status === "COMPLETED").length;
+  const bookingRate = bookings.length > 0 ? Math.round((approvedCompleted / bookings.length) * 100) : 0;
+
+  const retirementDue = assets.filter((a) => {
+    const t = parseDate(a.warrantyExpiry);
+    return t !== null && t <= nowMs + 12 * MONTH_MS;
+  }).length;
+
+  const costInLakh = maintenanceCost / 100000;
+  const costDisplay = costInLakh >= 1 ? `\u20B9${costInLakh.toFixed(1)}L` : `\u20B9${maintenanceCost.toLocaleString("en-IN")}`;
+
+  const make = (label: string, value: number, display: string) => ({ label, value: display, change: "calculated live", up: value > 0 });
+
+  return [
+    { ...make("Total Assets", totalAssets, totalAssets.toLocaleString()), icon: Package },
+    { ...make("Utilization Rate", utilizationRate, `${utilizationRate}%`), icon: BarChart3 },
+    { ...make("Idle Assets", idleAssets, idleAssets.toLocaleString()), icon: Clock },
+    { ...make("Maintenance Cost", maintenanceCost, costDisplay), icon: TrendingUp },
+    { ...make("Booking Rate", bookingRate, `${bookingRate}%`), icon: CalendarCheck },
+    { ...make("Retirement Due", retirementDue, retirementDue.toLocaleString()), icon: AlertTriangle },
+  ];
+}
+
+function computeHeatmap(bookings: ApiBooking[]): { slots: BookingHeatmapSlot[]; peakText: string } {
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const hours = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+  const occupancy = new Map<string, number>();
+  for (const b of bookings) {
+    if (b.status !== "APPROVED" && b.status !== "COMPLETED") continue;
+    const start = parseDate(b.startDate);
+    const end = parseDate(b.endDate);
+    if (start === null || end === null) continue;
+    const hourKey = `${String(new Date(start).getHours()).padStart(2, "0")}:00`;
+    if (!hours.includes(hourKey)) continue;
+    const startDay = new Date(start);
+    startDay.setHours(0, 0, 0, 0);
+    const endDay = new Date(end);
+    endDay.setHours(0, 0, 0, 0);
+    let count = 0;
+    for (let cur = startDay.getTime(); cur <= endDay.getTime() && count < 60; cur += DAY_MS, count++) {
+      const dayIndex = (new Date(cur).getDay() + 6) % 7;
+      if (dayIndex >= 5) continue;
+      const key = `${days[dayIndex]}|${hourKey}`;
+      occupancy.set(key, (occupancy.get(key) ?? 0) + 1);
+    }
+  }
+  const maxOccupancy = occupancy.size > 0 ? Math.max(...occupancy.values()) : 0;
+  const slots: BookingHeatmapSlot[] = [];
+  days.forEach((day) => {
+    hours.forEach((hour) => {
+      const occ = occupancy.get(`${day}|${hour}`) ?? 0;
+      slots.push({ day, hour, utilization: maxOccupancy > 0 ? Math.round((occ / maxOccupancy) * 100) : 0 });
+    });
+  });
+  let peakText = "No booking data available";
+  if (maxOccupancy > 0) {
+    let peakDay = "";
+    let peakHour = "";
+    let peakOcc = 0;
+    occupancy.forEach((occ, key) => {
+      if (occ > peakOcc) {
+        peakOcc = occ;
+        const [day, hour] = key.split("|");
+        peakDay = day;
+        peakHour = hour;
+      }
+    });
+    peakText = `Peak: ${peakHour} on ${peakDay} (${Math.round((peakOcc / maxOccupancy) * 100)}%)`;
+  }
+  return { slots, peakText };
+}
 
 export function ReportTabs() {
   const [activeTab, setActiveTab] = useState<ReportTab>("overview");
@@ -64,6 +494,60 @@ export function ReportTabs() {
   const [catFilter, setCatFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [page, setPage] = useState(1);
+  const [assets, setAssets] = useState<ApiAsset[]>([]);
+  const [allocations, setAllocations] = useState<ApiAllocation[]>([]);
+  const [tasks, setTasks] = useState<ApiMaintenanceTask[]>([]);
+  const [bookings, setBookings] = useState<ApiBooking[]>([]);
+  const [departments, setDepartments] = useState<ApiDepartment[]>([]);
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [assetRes, allocationRes, maintenanceRes, bookingRes, departmentRes, categoryRes] = await Promise.all([
+        assetApi.list({ limit: 1000 }),
+        allocationApi.list({ limit: 1000 }),
+        maintenanceApi.list({ limit: 1000 }),
+        bookingApi.list({ limit: 1000 }),
+        departmentApi.list(),
+        categoryApi.list(),
+      ]);
+      setAssets(asArray<ApiAsset>(assetRes.data));
+      setAllocations(asArray<ApiAllocation>(allocationRes.data));
+      setTasks(asArray<ApiMaintenanceTask>(maintenanceRes.data));
+      setBookings(asArray<ApiBooking>(bookingRes.data));
+      setDepartments(asArray<ApiDepartment>(departmentRes.data));
+      setCategories(asArray<ApiCategory>(categoryRes.data));
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setError(apiErr.message || "Failed to load report data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const departmentsList = useMemo(() => departments.map((d) => d.name), [departments]);
+  const categoriesList = useMemo(() => categories.map((c) => c.name), [categories]);
+
+  const utilizationRows = useMemo(() => computeUtilizationRows(assets, allocations, tasks, bookings), [assets, allocations, tasks, bookings]);
+  const idleRows = useMemo(() => computeIdleRows(assets, allocations), [assets, allocations]);
+  const maintenanceTrends = useMemo(() => computeMaintenanceTrends(assets, tasks), [assets, tasks]);
+  const monthlyMaintenance = useMemo(() => computeMonthlyMaintenance(tasks), [tasks]);
+  const monthlyUtilization = useMemo(() => computeMonthlyUtilization(assets, allocations), [assets, allocations]);
+  const maintenanceTypes = useMemo(() => computeMaintenanceTypes(tasks), [tasks]);
+  const categoryFailureRates = useMemo(() => computeCategoryFailureRates(assets, tasks, categories), [assets, tasks, categories]);
+  const retirementRows = useMemo(() => computeRetirementRows(assets, tasks), [assets, tasks]);
+  const departmentRows = useMemo(() => computeDepartmentRows(departments, assets, allocations), [departments, assets, allocations]);
+  const heatmap = useMemo(() => computeHeatmap(bookings), [bookings]);
+
+  const kpis = useMemo(() => computeKpis(assets, allocations, tasks, bookings), [assets, allocations, tasks, bookings]);
 
   const tabs: { key: ReportTab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "Overview", icon: <BarChart3 className="h-3.5 w-3.5" /> },
@@ -74,15 +558,6 @@ export function ReportTabs() {
     { key: "department", label: "Department Allocation", icon: <Package className="h-3.5 w-3.5" /> },
     { key: "heatmap", label: "Booking Heatmap", icon: <CalendarCheck className="h-3.5 w-3.5" /> },
     { key: "export", label: "Export", icon: <Download className="h-3.5 w-3.5" /> },
-  ];
-
-  const kpis = [
-    { label: "Total Assets", value: "1,247", change: "+3.2%", up: true, icon: Package },
-    { label: "Utilization Rate", value: "87%", change: "+2.1%", up: true, icon: BarChart3 },
-    { label: "Idle Assets", value: "42", change: "-5 from last month", up: false, icon: Clock },
-    { label: "Maintenance Cost", value: "\u20B98.4L", change: "+12%", up: false, icon: TrendingUp },
-    { label: "Booking Rate", value: "94%", change: "+1.8%", up: true, icon: CalendarCheck },
-    { label: "Retirement Due", value: "15", change: "+3 this quarter", up: false, icon: AlertTriangle },
   ];
 
   return (
@@ -96,33 +571,54 @@ export function ReportTabs() {
         ))}
       </div>
 
-      {activeTab !== "export" && (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50" />
-            <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className={`${inputCls} pl-9`} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-            <TableDropdown label="" options={["All", ...DEPARTMENTS].map((d) => ({ label: d, value: d }))} value={deptFilter} onChange={(v) => { setDeptFilter(v); setPage(1); }} placeholder="All Depts" />
-            <TableDropdown label="" options={["All", ...CATEGORIES].map((c) => ({ label: c, value: c }))} value={catFilter} onChange={(v) => { setCatFilter(v); setPage(1); }} placeholder="All Categories" />
-          </div>
+      {loading ? (
+        <div className="flex items-center justify-center rounded-xl border border-border bg-card py-20">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
-      )}
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card py-20">
+          <AlertTriangle className="h-6 w-6 text-amber-500" />
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <Button size="sm" variant="outline" className="btn-enterprise" onClick={fetchData}>
+            <RefreshCw className="h-3.5 w-3.5" /> Retry
+          </Button>
+        </div>
+      ) : (
+        <>
+          {activeTab !== "export" && (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50" />
+                <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className={`${inputCls} pl-9`} />
+              </div>
+              <div className="flex items-center gap-2">
+                <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                <TableDropdown label="" options={["All", ...departmentsList].map((d) => ({ label: d, value: d }))} value={deptFilter} onChange={(v) => { setDeptFilter(v); setPage(1); }} placeholder="All Depts" />
+                <TableDropdown label="" options={["All", ...categoriesList].map((c) => ({ label: c, value: c }))} value={catFilter} onChange={(v) => { setCatFilter(v); setPage(1); }} placeholder="All Categories" />
+              </div>
+            </div>
+          )}
 
-      {activeTab === "overview" && <OverviewTab kpis={kpis} />}
-      {activeTab === "utilization" && <UtilizationTab search={search} deptFilter={deptFilter} catFilter={catFilter} page={page} setPage={setPage} />}
-      {activeTab === "idle" && <IdleTab search={search} deptFilter={deptFilter} page={page} setPage={setPage} />}
-      {activeTab === "maintenance" && <MaintenanceTab search={search} catFilter={catFilter} page={page} setPage={setPage} />}
-      {activeTab === "retirement" && <RetirementTab search={search} statusFilter={statusFilter} setStatusFilter={setStatusFilter} page={page} setPage={setPage} />}
-      {activeTab === "department" && <DepartmentTab search={search} page={page} setPage={setPage} />}
-      {activeTab === "heatmap" && <HeatmapTab />}
-      {activeTab === "export" && <ExportTab />}
+          {activeTab === "overview" && <OverviewTab kpis={kpis} deptData={departmentRows} maintenanceTypes={maintenanceTypes} monthlyUtilization={monthlyUtilization} />}
+          {activeTab === "utilization" && <UtilizationTab search={search} deptFilter={deptFilter} catFilter={catFilter} page={page} setPage={setPage} data={utilizationRows} deptData={departmentRows} monthlyUtilization={monthlyUtilization} />}
+          {activeTab === "idle" && <IdleTab search={search} deptFilter={deptFilter} page={page} setPage={setPage} data={idleRows} />}
+          {activeTab === "maintenance" && <MaintenanceTab search={search} catFilter={catFilter} page={page} setPage={setPage} data={maintenanceTrends} monthlyMaintenance={monthlyMaintenance} maintenanceTypes={maintenanceTypes} categoryFailureRates={categoryFailureRates} />}
+          {activeTab === "retirement" && <RetirementTab search={search} statusFilter={statusFilter} setStatusFilter={setStatusFilter} page={page} setPage={setPage} data={retirementRows} />}
+          {activeTab === "department" && <DepartmentTab search={search} page={page} setPage={setPage} data={departmentRows} />}
+          {activeTab === "heatmap" && <HeatmapTab data={heatmap.slots} peakText={heatmap.peakText} />}
+          {activeTab === "export" && <ExportTab departmentsList={departmentsList} categoriesList={categoriesList} />}
+        </>
+      )}
     </div>
   );
 }
 
-function OverviewTab({ kpis }: { kpis: { label: string; value: string; change: string; up: boolean; icon: React.ElementType }[] }) {
+function OverviewTab({ kpis, deptData, maintenanceTypes, monthlyUtilization }: {
+  kpis: { label: string; value: string; change: string; up: boolean; icon: React.ElementType }[];
+  deptData: DepartmentAllocation[];
+  maintenanceTypes: MaintenanceSlice[];
+  monthlyUtilization: MonthlyData[];
+}) {
   return (
     <>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
@@ -143,22 +639,31 @@ function OverviewTab({ kpis }: { kpis: { label: string; value: string; change: s
         ))}
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
-        <DeptBarChart />
-        <MaintenanceDonut />
+        <DeptBarChart data={deptData} />
+        <MaintenanceDonut data={maintenanceTypes} />
       </div>
-      <MonthlyLineChart data={MONTHLY_UTILIZATION} title="Utilization Trend" subtitle="Monthly utilization percentage" />
+      <MonthlyLineChart data={monthlyUtilization} title="Utilization Trend" subtitle="Monthly utilization percentage" />
     </>
   );
 }
 
-function UtilizationTab({ search, deptFilter, catFilter, page, setPage }: { search: string; deptFilter: string; catFilter: string; page: number; setPage: (p: number) => void }) {
+function UtilizationTab({ search, deptFilter, catFilter, page, setPage, data, deptData, monthlyUtilization }: {
+  search: string;
+  deptFilter: string;
+  catFilter: string;
+  page: number;
+  setPage: (p: number) => void;
+  data: AssetUtilization[];
+  deptData: DepartmentAllocation[];
+  monthlyUtilization: MonthlyData[];
+}) {
   const filtered = useMemo(() => {
-    let items = [...MOCK_UTILIZATION];
+    let items = [...data];
     if (deptFilter !== "All") items = items.filter((a) => a.department === deptFilter);
     if (catFilter !== "All") items = items.filter((a) => a.category === catFilter);
     if (search.trim()) { const s = search.toLowerCase(); items = items.filter((a) => a.assetName.toLowerCase().includes(s) || a.assetTag.toLowerCase().includes(s)); }
     return items.sort((a, b) => b.utilizationPercent - a.utilizationPercent);
-  }, [search, deptFilter, catFilter]);
+  }, [search, deptFilter, catFilter, data]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
@@ -167,8 +672,8 @@ function UtilizationTab({ search, deptFilter, catFilter, page, setPage }: { sear
   return (
     <>
       <div className="grid gap-4 lg:grid-cols-2">
-        <DeptBarChart />
-        <MonthlyLineChart data={MONTHLY_UTILIZATION} title="Utilization Trend" subtitle="Year-over-year" />
+        <DeptBarChart data={deptData} />
+        <MonthlyLineChart data={monthlyUtilization} title="Utilization Trend" subtitle="Year-over-year" />
       </div>
       <div className="rounded-xl border border-border bg-card">
         <div className="border-b border-border px-6 py-4">
@@ -211,6 +716,11 @@ function UtilizationTab({ search, deptFilter, catFilter, page, setPage }: { sear
                 <TableCell><span className="text-xs text-muted-foreground">{a.averageDowntimeDays}d</span></TableCell>
               </TableRow>
             ))}
+            {paged.length === 0 && (
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">No records found</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
         {totalPages > 1 && <Pagination page={page} totalPages={totalPages} total={total} setPage={setPage} />}
@@ -219,13 +729,13 @@ function UtilizationTab({ search, deptFilter, catFilter, page, setPage }: { sear
   );
 }
 
-function IdleTab({ search, deptFilter, page, setPage }: { search: string; deptFilter: string; page: number; setPage: (p: number) => void }) {
+function IdleTab({ search, deptFilter, page, setPage, data }: { search: string; deptFilter: string; page: number; setPage: (p: number) => void; data: IdleAsset[] }) {
   const filtered = useMemo(() => {
-    let items = [...MOCK_IDLE];
+    let items = [...data];
     if (deptFilter !== "All") items = items.filter((a) => a.department === deptFilter);
     if (search.trim()) { const s = search.toLowerCase(); items = items.filter((a) => a.assetName.toLowerCase().includes(s) || a.assetTag.toLowerCase().includes(s)); }
     return items.sort((a, b) => b.idleDays - a.idleDays);
-  }, [search, deptFilter]);
+  }, [search, deptFilter, data]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
@@ -274,6 +784,11 @@ function IdleTab({ search, deptFilter, page, setPage }: { search: string; deptFi
               </TableCell>
             </TableRow>
           ))}
+          {paged.length === 0 && (
+            <TableRow className="border-border hover:bg-transparent">
+              <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">No records found</TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
       {totalPages > 1 && <Pagination page={page} totalPages={totalPages} total={total} setPage={setPage} />}
@@ -281,36 +796,47 @@ function IdleTab({ search, deptFilter, page, setPage }: { search: string; deptFi
   );
 }
 
-function MaintenanceTab({ search, catFilter, page, setPage }: { search: string; catFilter: string; page: number; setPage: (p: number) => void }) {
+function MaintenanceTab({ search, catFilter, page, setPage, data, monthlyMaintenance, maintenanceTypes, categoryFailureRates }: {
+  search: string;
+  catFilter: string;
+  page: number;
+  setPage: (p: number) => void;
+  data: MaintenanceTrend[];
+  monthlyMaintenance: MonthlyData[];
+  maintenanceTypes: MaintenanceSlice[];
+  categoryFailureRates: { category: string; rate: number }[];
+}) {
   const filtered = useMemo(() => {
-    let items = [...MOCK_MAINTENANCE_TRENDS];
+    let items = [...data];
     if (catFilter !== "All") items = items.filter((a) => a.category === catFilter);
     if (search.trim()) { const s = search.toLowerCase(); items = items.filter((a) => a.assetName.toLowerCase().includes(s) || a.assetTag.toLowerCase().includes(s)); }
     return items.sort((a, b) => b.totalRequests - a.totalRequests);
-  }, [search, catFilter]);
+  }, [search, catFilter, data]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const maxRate = Math.max(1, ...categoryFailureRates.map((c) => c.rate));
 
   return (
     <>
       <div className="grid gap-4 lg:grid-cols-2">
-        <BarChart data={MONTHLY_MAINTENANCE} title="Monthly Maintenance Requests" subtitle="Total requests per month" />
-        <MaintenanceDonut />
+        <BarChart data={monthlyMaintenance} title="Monthly Maintenance Requests" subtitle="Total requests per month" />
+        <MaintenanceDonut data={maintenanceTypes} />
       </div>
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">Category Failure Rates</h3>
         <div className="space-y-3">
-          {CATEGORY_FAILURE_RATES.sort((a, b) => b.rate - a.rate).map((c) => (
+          {[...categoryFailureRates].sort((a, b) => b.rate - a.rate).map((c) => (
             <div key={c.category} className="flex items-center gap-3">
               <span className="w-32 text-xs text-muted-foreground">{c.category}</span>
               <div className="flex-1 h-4 rounded-sm bg-muted/50 overflow-hidden">
-                <div className="h-full rounded-sm bg-primary/70" style={{ width: `${(c.rate / 15) * 100}%` }} />
+                <div className="h-full rounded-sm bg-primary/70" style={{ width: `${(c.rate / maxRate) * 100}%` }} />
               </div>
               <span className="w-10 text-right text-xs font-medium text-foreground">{c.rate}%</span>
             </div>
           ))}
+          {categoryFailureRates.length === 0 && <p className="text-sm text-muted-foreground">No data available</p>}
         </div>
       </div>
       <div className="rounded-xl border border-border bg-card">
@@ -348,6 +874,11 @@ function MaintenanceTab({ search, catFilter, page, setPage }: { search: string; 
                 <TableCell><span className="text-xs text-muted-foreground">{a.department}</span></TableCell>
               </TableRow>
             ))}
+            {paged.length === 0 && (
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">No records found</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
         {totalPages > 1 && <Pagination page={page} totalPages={totalPages} total={total} setPage={setPage} />}
@@ -356,13 +887,13 @@ function MaintenanceTab({ search, catFilter, page, setPage }: { search: string; 
   );
 }
 
-function RetirementTab({ search, statusFilter, setStatusFilter, page, setPage }: { search: string; statusFilter: string; setStatusFilter: (v: string) => void; page: number; setPage: (p: number) => void }) {
+function RetirementTab({ search, statusFilter, setStatusFilter, page, setPage, data }: { search: string; statusFilter: string; setStatusFilter: (v: string) => void; page: number; setPage: (p: number) => void; data: RetirementForecast[] }) {
   const filtered = useMemo(() => {
-    let items = [...MOCK_RETIREMENT];
+    let items = [...data];
     if (statusFilter !== "All") items = items.filter((a) => a.status === statusFilter);
     if (search.trim()) { const s = search.toLowerCase(); items = items.filter((a) => a.assetName.toLowerCase().includes(s) || a.assetTag.toLowerCase().includes(s)); }
     return items;
-  }, [search, statusFilter]);
+  }, [search, statusFilter, data]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
@@ -411,7 +942,7 @@ function RetirementTab({ search, statusFilter, setStatusFilter, page, setPage }:
                   </div>
                 </TableCell>
                 <TableCell><span className="text-xs text-muted-foreground">{a.warrantyExpiry}</span></TableCell>
-                <TableCell><span className="text-xs text-foreground">{a.remainingUsefulLifeMonths} months</span></TableCell>
+                <TableCell><span className="text-xs text-foreground">{a.remainingUsefulLifeMonths === "—" ? "—" : `${a.remainingUsefulLifeMonths} months`}</span></TableCell>
                 <TableCell>
                   <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${STATUS_COLORS[a.status as RetirementStatus]}`}>
                     {a.status}
@@ -420,6 +951,11 @@ function RetirementTab({ search, statusFilter, setStatusFilter, page, setPage }:
                 <TableCell><span className="text-xs text-muted-foreground">{a.recommendedAction}</span></TableCell>
               </TableRow>
             ))}
+            {paged.length === 0 && (
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">No records found</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
         {totalPages > 1 && <Pagination page={page} totalPages={totalPages} total={total} setPage={setPage} />}
@@ -428,12 +964,12 @@ function RetirementTab({ search, statusFilter, setStatusFilter, page, setPage }:
   );
 }
 
-function DepartmentTab({ search, page, setPage }: { search: string; page: number; setPage: (p: number) => void }) {
+function DepartmentTab({ search, page, setPage, data }: { search: string; page: number; setPage: (p: number) => void; data: DepartmentAllocation[] }) {
   const filtered = useMemo(() => {
-    let items = [...MOCK_DEPARTMENT];
+    let items = [...data];
     if (search.trim()) { const s = search.toLowerCase(); items = items.filter((d) => d.department.toLowerCase().includes(s)); }
     return items.sort((a, b) => b.assetsAllocated - a.assetsAllocated);
-  }, [search]);
+  }, [search, data]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
@@ -441,7 +977,7 @@ function DepartmentTab({ search, page, setPage }: { search: string; page: number
 
   return (
     <>
-      <DeptBarChart />
+      <DeptBarChart data={data} />
       <div className="rounded-xl border border-border bg-card">
         <div className="border-b border-border px-6 py-4">
           <h3 className="text-sm font-semibold text-foreground">Department Allocation Summary</h3>
@@ -480,6 +1016,11 @@ function DepartmentTab({ search, page, setPage }: { search: string; page: number
                 </TableCell>
               </TableRow>
             ))}
+            {paged.length === 0 && (
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">No records found</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
         {totalPages > 1 && <Pagination page={page} totalPages={totalPages} total={total} setPage={setPage} />}
@@ -488,7 +1029,7 @@ function DepartmentTab({ search, page, setPage }: { search: string; page: number
   );
 }
 
-function HeatmapTab() {
+function HeatmapTab({ data, peakText }: { data: BookingHeatmapSlot[]; peakText: string }) {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const hours = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
 
@@ -517,7 +1058,7 @@ function HeatmapTab() {
               <React.Fragment key={day}>
                 <div className="text-[11px] text-muted-foreground flex items-center pr-2">{day}</div>
                 {hours.map((hour) => {
-                  const slot = MOCK_HEATMAP.find((s) => s.day === day && s.hour === hour);
+                  const slot = data.find((s) => s.day === day && s.hour === hour);
                   const val = slot?.utilization || 0;
                   return (
                     <div key={`${day}-${hour}`} className={`rounded-sm p-2 text-center text-[10px] font-medium ${getHeatColor(val)} transition-colors`}>
@@ -538,7 +1079,7 @@ function HeatmapTab() {
               <div className="h-3 w-6 rounded-sm bg-primary" />
             </div>
             <span>High</span>
-            <span className="ml-4 text-primary font-medium">Peak: 09:00-11:00 on Wednesday (95%)</span>
+            <span className="ml-4 text-primary font-medium">{peakText}</span>
           </div>
         </div>
       </div>
@@ -546,11 +1087,11 @@ function HeatmapTab() {
   );
 }
 
-function ExportTab() {
+function ExportTab({ departmentsList, categoriesList }: { departmentsList: string[]; categoriesList: string[] }) {
   const [selectedFormat, setSelectedFormat] = useState("CSV");
   const [generating, setGenerating] = useState(false);
-  const [startDate, setStartDate] = useState("2026-01-01");
-  const [endDate, setEndDate] = useState("2026-07-12");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [department, setDepartment] = useState("All Departments");
   const [category, setCategory] = useState("All Categories");
   const [status, setStatus] = useState("All Statuses");
@@ -563,15 +1104,16 @@ function ExportTab() {
   const handleGenerate = async () => {
     try {
       setGenerating(true);
-      const res = await reportApi.generate({
+      const payload: Record<string, unknown> = {
         type: "custom",
         format: selectedFormat.toLowerCase(),
-        startDate,
-        endDate,
         department: department === "All Departments" ? undefined : department,
         category: category === "All Categories" ? undefined : category,
         status: status === "All Statuses" ? undefined : status,
-      });
+      };
+      if (startDate) payload.startDate = startDate;
+      if (endDate) payload.endDate = endDate;
+      const res = await reportApi.generate(payload);
       const report = res.data as { id?: string } | undefined;
       if (report?.id) {
         await reportApi.download(report.id);
@@ -586,8 +1128,8 @@ function ExportTab() {
 
   const handleReset = () => {
     setSelectedFormat("CSV");
-    setStartDate("2026-01-01");
-    setEndDate("2026-07-12");
+    setStartDate("");
+    setEndDate("");
     setDepartment("All Departments");
     setCategory("All Categories");
     setStatus("All Statuses");
@@ -621,8 +1163,8 @@ function ExportTab() {
           </div>
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
-          <TableDropdown label="Department" options={["All Departments", ...DEPARTMENTS].map((d) => ({ label: d, value: d }))} value={department} onChange={setDepartment} placeholder="All Depts" />
-          <TableDropdown label="Category" options={["All Categories", ...CATEGORIES].map((c) => ({ label: c, value: c }))} value={category} onChange={setCategory} placeholder="All Categories" />
+          <TableDropdown label="Department" options={["All Departments", ...departmentsList].map((d) => ({ label: d, value: d }))} value={department} onChange={setDepartment} placeholder="All Depts" />
+          <TableDropdown label="Category" options={["All Categories", ...categoriesList].map((c) => ({ label: c, value: c }))} value={category} onChange={setCategory} placeholder="All Categories" />
           <TableDropdown label="Status" options={["All Statuses", "Active", "Idle", "Under Maintenance", "Retired"].map((s) => ({ label: s, value: s }))} value={status} onChange={setStatus} placeholder="All Statuses" />
         </div>
         <div className="mt-6 flex items-center gap-3">
@@ -636,8 +1178,8 @@ function ExportTab() {
   );
 }
 
-function DeptBarChart() {
-  const data = MOCK_DEPARTMENT.sort((a, b) => b.utilizationRate - a.utilizationRate);
+function DeptBarChart({ data }: { data: DepartmentAllocation[] }) {
+  const rows = [...data].sort((a, b) => b.utilizationRate - a.utilizationRate);
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div>
@@ -645,7 +1187,7 @@ function DeptBarChart() {
         <p className="text-xs text-muted-foreground">Current utilization rates</p>
       </div>
       <div className="mt-5 space-y-3">
-        {data.map((d) => (
+        {rows.map((d) => (
           <div key={d.department} className="flex items-center gap-3">
             <span className="w-28 text-xs text-muted-foreground">{d.department}</span>
             <div className="flex-1 h-5 rounded-sm bg-muted/50 overflow-hidden">
@@ -654,17 +1196,19 @@ function DeptBarChart() {
             <span className="w-10 text-right text-xs font-medium text-foreground">{d.utilizationRate}%</span>
           </div>
         ))}
+        {rows.length === 0 && <p className="text-sm text-muted-foreground">No data available</p>}
       </div>
     </div>
   );
 }
 
-function MaintenanceDonut() {
-  const offsets = MAINTENANCE_TYPES.reduce<number[]>((acc, _s, idx) => {
-    const lastOffset = acc.length > 0 ? acc[acc.length - 1] + MAINTENANCE_TYPES[acc.length - 1].value : 0;
+function MaintenanceDonut({ data }: { data: MaintenanceSlice[] }) {
+  const offsets = data.reduce<number[]>((acc, _s, idx) => {
+    const lastOffset = acc.length > 0 ? acc[acc.length - 1] + data[acc.length - 1].value : 0;
     acc.push(idx === 0 ? 0 : lastOffset);
     return acc;
   }, []);
+  const total = data.reduce((sum, s) => sum + s.value, 0);
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div>
@@ -674,7 +1218,7 @@ function MaintenanceDonut() {
       <div className="mt-5 flex items-center gap-6">
         <div className="relative h-32 w-32 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
-            {MAINTENANCE_TYPES.map((s, i) => {
+            {data.map((s, i) => {
               const dash = (s.value / 100) * 100;
               return (
                 <circle key={s.label} cx="18" cy="18" r="15.915" fill="none" className={s.color} strokeOpacity="0.8" strokeWidth="3.5" strokeDasharray={`${dash} ${100 - dash}`} strokeDashoffset={`${-offsets[i]}`} />
@@ -682,12 +1226,12 @@ function MaintenanceDonut() {
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl font-bold text-foreground">100%</span>
+            <span className="text-xl font-bold text-foreground">{total}%</span>
             <span className="text-[10px] text-muted-foreground">Total</span>
           </div>
         </div>
         <div className="flex-1 space-y-2">
-          {MAINTENANCE_TYPES.map((s) => (
+          {data.map((s) => (
             <div key={s.label} className="flex items-center gap-2">
               <div className={`h-2.5 w-2.5 rounded-full ${s.color}`} />
               <span className="flex-1 text-sm text-muted-foreground">{s.label}</span>
@@ -712,19 +1256,23 @@ function MonthlyLineChart({ data, title, subtitle }: { data: { month: string; va
         <p className="text-xs text-muted-foreground">{subtitle}</p>
       </div>
       <div className="mt-5 relative h-40 sm:h-48">
-        <svg viewBox="0 0 120 80" className="h-full w-full" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id={`grad-${title}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.15" />
-              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d={`M0,${80 - ((values[0] - min) / range) * 70} ${values.map((v, i) => `L${i * (120 / (values.length - 1))},${80 - ((v - min) / range) * 70}`).join(" ")} L120,80 L0,80 Z`} fill={`url(#grad-${title})`} />
-          <path d={`M0,${80 - ((values[0] - min) / range) * 70} ${values.map((v, i) => `L${i * (120 / (values.length - 1))},${80 - ((v - min) / range) * 70}`).join(" ")}`} fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
-          {values.map((v, i) => (
-            <circle key={i} cx={i * (120 / (values.length - 1))} cy={80 - ((v - min) / range) * 70} r="1.5" fill="var(--primary)" />
-          ))}
-        </svg>
+        {data.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No data available</p>
+        ) : (
+          <svg viewBox="0 0 120 80" className="h-full w-full" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id={`grad-${title}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path d={`M0,${80 - ((values[0] - min) / range) * 70} ${values.map((v, i) => `L${i * (120 / (values.length - 1))},${80 - ((v - min) / range) * 70}`).join(" ")} L120,80 L0,80 Z`} fill={`url(#grad-${title})`} />
+            <path d={`M0,${80 - ((values[0] - min) / range) * 70} ${values.map((v, i) => `L${i * (120 / (values.length - 1))},${80 - ((v - min) / range) * 70}`).join(" ")}`} fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" />
+            {values.map((v, i) => (
+              <circle key={i} cx={i * (120 / (values.length - 1))} cy={80 - ((v - min) / range) * 70} r="1.5" fill="var(--primary)" />
+            ))}
+          </svg>
+        )}
       </div>
       <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">{data.map((d) => <span key={d.month}>{d.month}</span>)}</div>
     </div>
@@ -732,7 +1280,7 @@ function MonthlyLineChart({ data, title, subtitle }: { data: { month: string; va
 }
 
 function BarChart({ data, title, subtitle }: { data: { month: string; value: number }[]; title: string; subtitle: string }) {
-  const max = Math.max(...data.map((d) => d.value)) + 5;
+  const max = data.length > 0 ? Math.max(...data.map((d) => d.value)) + 5 : 5;
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div>
@@ -745,6 +1293,7 @@ function BarChart({ data, title, subtitle }: { data: { month: string; value: num
             <div className="rounded-t-sm bg-primary/70 transition-colors hover:bg-primary" style={{ height: "100%" }} />
           </div>
         ))}
+        {data.length === 0 && <p className="text-sm text-muted-foreground">No data available</p>}
       </div>
       <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">{data.map((d) => <span key={d.month}>{d.month}</span>)}</div>
     </div>

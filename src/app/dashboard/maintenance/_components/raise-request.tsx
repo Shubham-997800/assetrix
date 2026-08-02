@@ -1,24 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Wrench,
-  Upload,
   AlertCircle,
   CheckCircle,
-  X,
   Loader2,
 } from "lucide-react";
-import { maintenanceApi } from "@/lib/api";
+import { assetApi, maintenanceApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown";
-import {
-  ASSET_OPTIONS,
-  ISSUE_CATEGORIES,
-  PRIORITY_CLASSES,
-} from "./types";
+import { ISSUE_CATEGORIES, PRIORITY_CLASSES } from "./types";
 import type { Priority, IssueCategory } from "./types";
+import type { Asset } from "@/lib/types";
 
 interface RaiseRequestFormProps {
   onSubmit: () => void;
@@ -30,22 +25,38 @@ const inputCls =
 const labelCls = "text-xs font-medium text-foreground";
 
 export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) {
-  const [assetTag, setAssetTag] = useState("");
+  const [assetId, setAssetId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority | "">("");
   const [category, setCategory] = useState<IssueCategory | "">("");
-  const [files, setFiles] = useState<string[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const selectedAsset = ASSET_OPTIONS.find((a) => a.tag === assetTag);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await assetApi.list({ limit: 1000 });
+        if (cancelled) return;
+        setAssets((res.data ?? []) as Asset[]);
+      } catch (err) {
+        console.error("Failed to load assets:", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectedAsset = assets.find((a) => a.id === assetId);
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
-    if (!assetTag) errs.asset = "Select an asset";
+    if (!assetId) errs.asset = "Select an asset";
     if (!title.trim()) errs.title = "Issue title is required";
     if (!description.trim()) errs.description = "Description is required";
     if (!priority) errs.priority = "Select priority";
@@ -59,15 +70,20 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
     try {
       setSubmitting(true);
       setSubmitError(null);
-      const selectedOpt = ASSET_OPTIONS.find((a) => a.tag === assetTag);
       await maintenanceApi.create({
-        assetTag,
-        assetName: selectedOpt?.name || "",
-        issueTitle: title,
-        issueDescription: description,
-        priority,
-        category,
-        attachments: files,
+        assetId,
+        title,
+        description,
+        priority:
+          priority === "Low"
+            ? 1
+            : priority === "Medium"
+              ? 2
+              : priority === "High"
+                ? 3
+                : 4,
+        type: "CORRECTIVE",
+        scheduledDate: new Date().toISOString(),
       });
       setSubmitted(true);
       onSubmit();
@@ -116,12 +132,12 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
           <div className="sm:col-span-2">
             <TableDropdown
               label="Select Asset *"
-              options={ASSET_OPTIONS.map((a) => ({
-                label: `${a.tag} — ${a.name}`,
-                value: a.tag,
+              options={assets.map((a) => ({
+                label: `${a.assetTag} — ${a.name}`,
+                value: a.id,
               }))}
-              value={assetTag}
-              onChange={setAssetTag}
+              value={assetId}
+              onChange={setAssetId}
               placeholder="Choose the affected asset"
             />
             {errors.asset && (
@@ -132,7 +148,7 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
             {selectedAsset && (
               <div className="mt-2 rounded-lg border border-border bg-muted/30 p-3">
                 <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <span>Department: {selectedAsset.department}</span>
+                  <span>Department: {selectedAsset.department?.name ?? ""}</span>
                   <span>Asset: {selectedAsset.name}</span>
                 </div>
               </div>
@@ -213,43 +229,6 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
               <p className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
                 <AlertCircle className="h-3 w-3" /> {errors.category}
               </p>
-            )}
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className={labelCls}>Attachments</label>
-            <label
-              htmlFor="maint-upload"
-              className="mt-1.5 flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-border p-6 transition-colors hover:border-primary/40 hover:bg-muted/20"
-            >
-              <div className="text-center">
-                <Upload className="mx-auto h-6 w-6 text-muted-foreground/50" />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Upload photos, videos, or documents
-                </p>
-              </div>
-              <input
-                id="maint-upload"
-                type="file"
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  const names = Array.from(e.target.files || []).map((f) => f.name);
-                  setFiles((prev) => [...prev, ...names]);
-                }}
-              />
-            </label>
-            {files.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {files.map((f, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-lg border border-border px-3 py-1.5">
-                    <span className="text-xs text-foreground">{f}</span>
-                    <button onClick={() => setFiles((p) => p.filter((_, idx) => idx !== i))} className="text-muted-foreground hover:text-destructive">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
             )}
           </div>
         </div>

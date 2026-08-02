@@ -13,7 +13,6 @@ export interface AssetUtilization {
   department: string;
   utilizationPercent: number;
   totalAllocationDays: number;
-  usageFrequency: number;
   averageDowntimeDays: number;
   bookingHours: number;
 }
@@ -37,20 +36,16 @@ export interface MaintenanceTrend {
   totalRequests: number;
   averageRepairDays: number;
   totalCost: number;
-  lastRepairDate: string;
-  failureRate: number;
 }
 
 export interface RetirementForecast {
   assetTag: string;
   assetName: string;
-  category: string;
-  department: string;
   assetAge: number;
   maintenanceFrequency: number;
   conditionScore: number;
   warrantyExpiry: string;
-  remainingUsefulLifeMonths: number;
+  remainingUsefulLifeMonths: number | "—";
   recommendedAction: string;
   status: RetirementStatus;
 }
@@ -74,14 +69,6 @@ export interface MonthlyData {
   month: string;
   value: number;
 }
-
-export const DEPARTMENTS = ["Engineering", "Finance", "HR", "Marketing", "Operations", "Procurement", "Sales", "IT"];
-
-export const CATEGORIES = ["IT Equipment", "Heavy Machinery", "Vehicles", "Printers", "Manufacturing", "Servers", "Furniture", "AV Equipment"];
-
-export const STATUSES = ["Active", "Idle", "Under Maintenance", "Retired"];
-
-export const LOCATIONS = ["Floor 1", "Floor 2", "Floor 3", "Warehouse A", "Production Floor", "Server Room", "Parking"];
 
 export const STATUS_COLORS: Record<RetirementStatus, string> = {
   Healthy: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",

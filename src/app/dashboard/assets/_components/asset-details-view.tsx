@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -19,6 +19,7 @@ import {
   FileText,
   Download,
   Image,
+  Loader2,
   BookOpen,
   AlertTriangle,
   CheckCircle2,
@@ -28,12 +29,15 @@ import {
 } from "lucide-react";
 import type {
   Asset,
+  AllocationRecord,
+  MaintenanceRecord,
+  TimelineEvent,
 } from "./types";
 import {
   STATUS_BADGE_CLASSES,
   CONDITION_BADGE_CLASSES,
 } from "./types";
-import { MOCK_ALLOCATIONS, MOCK_MAINTENANCE, MOCK_TIMELINE } from "./data";
+import { allocationApi, maintenanceApi, ApiError } from "@/lib/api";
 import { AssetQRModal } from "./asset-qr-modal";
 
 interface AssetDetailsViewProps {
@@ -128,13 +132,202 @@ const DOC_ICONS: Record<string, React.ElementType> = {
   certificate: FileText,
 };
 
+interface ApiAllocation {
+  id: string;
+  assetId: string;
+  userId: string;
+  departmentId: string | null;
+  status: "ACTIVE" | "RETURNED" | "TRANSFERRED" | "OVERDUE";
+  allocatedAt: string;
+  expectedReturn: string | null;
+  returnedAt: string | null;
+  createdAt: string;
+  department: { id: string; name: string; code: string } | null;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    employeeId: string;
+    departmentId: string;
+  };
+}
+
+interface ApiMaintenanceTask {
+  id: string;
+  title: string;
+  description: string | null;
+  type: "PREVENTIVE" | "CORRECTIVE" | "PREDICTIVE" | "EMERGENCY";
+  status: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "OVERDUE";
+  priority: number;
+  assignedTo: { firstName: string; lastName: string } | null;
+  scheduledDate: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  estimatedCost: number | null;
+  actualCost: number | null;
+  findings: string | null;
+  notes: string | null;
+  createdAt: string;
+}
+
+interface MaintenanceListItem extends MaintenanceRecord {
+  title: string;
+}
+
+const ALLOCATION_STATUS_MAP: Record<
+  ApiAllocation["status"],
+  AllocationRecord["status"]
+> = {
+  ACTIVE: "Active",
+  RETURNED: "Returned",
+  TRANSFERRED: "Returned",
+  OVERDUE: "Overdue",
+};
+
+const MAINTENANCE_STATUS_MAP: Record<
+  ApiMaintenanceTask["status"],
+  MaintenanceRecord["status"]
+> = {
+  COMPLETED: "Completed",
+  IN_PROGRESS: "In Progress",
+  SCHEDULED: "Open",
+  CANCELLED: "Open",
+  OVERDUE: "Open",
+};
+
+function mapAllocation(a: ApiAllocation): AllocationRecord {
+  return {
+    id: a.id,
+    employee: `${a.user.firstName} ${a.user.lastName}`,
+    department: a.department?.name ?? "",
+    allocatedDate: a.allocatedAt,
+    returnDate: a.returnedAt,
+    expectedReturn: a.expectedReturn,
+    status: ALLOCATION_STATUS_MAP[a.status],
+  };
+}
+
+function mapMaintenance(m: ApiMaintenanceTask): MaintenanceListItem {
+  const priorityMap: Record<number, MaintenanceRecord["priority"]> = {
+    4: "Critical",
+    3: "High",
+    2: "Medium",
+  };
+  return {
+    id: m.id,
+    title: m.title,
+    issue: m.description ?? m.title,
+    priority: priorityMap[m.priority] ?? "Low",
+    technician: m.assignedTo
+      ? `${m.assignedTo.firstName} ${m.assignedTo.lastName}`
+      : "Unassigned",
+    reportedDate: m.createdAt,
+    completedDate: m.completedAt,
+    resolution: m.findings ?? m.notes ?? null,
+    cost: Number(m.actualCost ?? m.estimatedCost ?? 0),
+    status: MAINTENANCE_STATUS_MAP[m.status],
+  };
+}
+
+function buildTimeline(
+  asset: Asset,
+  allocations: ApiAllocation[],
+  maintenance: ApiMaintenanceTask[]
+): TimelineEvent[] {
+  const events: TimelineEvent[] = [
+    {
+      id: "registered",
+      type: "registered",
+      title: "Asset registered",
+      description: "Asset created in the system",
+      date: asset.createdAt,
+      user: "System",
+    },
+  ];
+  for (const a of allocations) {
+    const employee = `${a.user.firstName} ${a.user.lastName}`;
+    events.push({
+      id: `allocated-${a.id}`,
+      type: "allocated",
+      title: `Allocated to ${employee}`,
+      description: `Allocated to ${employee}`,
+      date: a.allocatedAt,
+      user: employee,
+    });
+    if (a.returnedAt) {
+      events.push({
+        id: `returned-${a.id}`,
+        type: "returned",
+        title: `Returned from ${employee}`,
+        description: `Returned from ${employee}`,
+        date: a.returnedAt,
+        user: employee,
+      });
+    }
+  }
+  for (const m of maintenance) {
+    const tech = m.assignedTo
+      ? `${m.assignedTo.firstName} ${m.assignedTo.lastName}`
+      : "System";
+    events.push({
+      id: `maintenance-${m.id}`,
+      type: "maintenance",
+      title: `Maintenance: ${m.title}`,
+      description: m.description ?? m.title,
+      date: m.scheduledDate,
+      user: tech,
+    });
+    if (m.completedAt) {
+      events.push({
+        id: `maintenance-completed-${m.id}`,
+        type: "maintenance_completed",
+        title: "Maintenance completed",
+        description: m.title,
+        date: m.completedAt,
+        user: "System",
+      });
+    }
+  }
+  return events.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+}
+
 export function AssetDetailsView({ asset, onBack }: AssetDetailsViewProps) {
   const [qrOpen, setQrOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
+  const [allocations, setAllocations] = useState<AllocationRecord[]>([]);
+  const [maintenance, setMaintenance] = useState<MaintenanceListItem[]>([]);
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const allocations = MOCK_ALLOCATIONS[asset.id] ?? [];
-  const maintenance = MOCK_MAINTENANCE[asset.id] ?? [];
-  const timeline = MOCK_TIMELINE[asset.id] ?? [];
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [allocRes, maintRes] = await Promise.all([
+        allocationApi.list({ assetId: asset.id, limit: 50 }),
+        maintenanceApi.list({ assetId: asset.id, limit: 50 }),
+      ]);
+      const allocItems = (allocRes.data ?? []) as ApiAllocation[];
+      const maintItems = (maintRes.data ?? []) as ApiMaintenanceTask[];
+      setAllocations(allocItems.map(mapAllocation));
+      setMaintenance(maintItems.map(mapMaintenance));
+      setTimeline(buildTimeline(asset, allocItems, maintItems));
+    } catch (err) {
+      if (err instanceof ApiError && err.status !== 401) {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [asset]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const sections = [
     { id: "overview", label: "Overview" },
@@ -316,11 +509,22 @@ export function AssetDetailsView({ asset, onBack }: AssetDetailsViewProps) {
         <div className="rounded-xl border border-border bg-card">
           <div className="border-b border-border px-6 py-4">
             <h3 className="text-sm font-semibold text-foreground">Allocation History</h3>
-            <p className="text-xs text-muted-foreground">
-              {allocations.length} allocation record{allocations.length !== 1 ? "s" : ""}
-            </p>
+            {!loading && !error && (
+              <p className="text-xs text-muted-foreground">
+                {allocations.length} allocation record{allocations.length !== 1 ? "s" : ""}
+              </p>
+            )}
           </div>
-          {allocations.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+              <p className="text-sm text-muted-foreground">{error}</p>
+              <Button variant="outline" size="sm" className="btn-enterprise mt-3" onClick={fetchData}>Retry</Button>
+            </div>
+          ) : allocations.length === 0 ? (
             <div className="px-6 py-12 text-center">
               <User className="mx-auto h-8 w-8 text-muted-foreground/30" />
               <p className="mt-2 text-sm text-muted-foreground">
@@ -384,7 +588,16 @@ export function AssetDetailsView({ asset, onBack }: AssetDetailsViewProps) {
       {/* Maintenance History */}
       {activeSection === "maintenance" && (
         <div className="space-y-4">
-          {maintenance.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center rounded-xl border border-border bg-card py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-6 py-16 text-center">
+              <p className="text-sm text-muted-foreground">{error}</p>
+              <Button variant="outline" size="sm" className="btn-enterprise mt-3" onClick={fetchData}>Retry</Button>
+            </div>
+          ) : maintenance.length === 0 ? (
             <div className="rounded-xl border border-border bg-card px-6 py-12 text-center">
               <Wrench className="mx-auto h-8 w-8 text-muted-foreground/30" />
               <p className="mt-2 text-sm text-muted-foreground">
@@ -421,8 +634,11 @@ export function AssetDetailsView({ asset, onBack }: AssetDetailsViewProps) {
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-semibold text-foreground">
-                          {m.id}
+                          {m.title}
                         </p>
+                        <span className="font-mono text-xs text-muted-foreground">
+                          {m.id}
+                        </span>
                         <span
                           className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${PRIORITY_CLASSES[m.priority]}`}
                         >
@@ -529,7 +745,16 @@ export function AssetDetailsView({ asset, onBack }: AssetDetailsViewProps) {
             Complete lifecycle history of this asset
           </p>
 
-          {timeline.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+              <p className="text-sm text-muted-foreground">{error}</p>
+              <Button variant="outline" size="sm" className="btn-enterprise mt-3" onClick={fetchData}>Retry</Button>
+            </div>
+          ) : timeline.length === 0 ? (
             <div className="mt-6 px-6 py-12 text-center">
               <Clock className="mx-auto h-8 w-8 text-muted-foreground/30" />
               <p className="mt-2 text-sm text-muted-foreground">
