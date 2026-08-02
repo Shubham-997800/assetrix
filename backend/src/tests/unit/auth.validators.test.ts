@@ -46,13 +46,22 @@ describe("Auth Validators", () => {
       expect(result.success).toBe(false);
     });
 
-    it("should reject password without special character", () => {
+    it("should reject password with fewer than three character classes", () => {
+      const result = registerSchema.safeParse({
+        ...validData,
+        password: "nospecial1",
+        confirmPassword: "nospecial1",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should accept password with three character classes and no special character", () => {
       const result = registerSchema.safeParse({
         ...validData,
         password: "NoSpecial1A",
         confirmPassword: "NoSpecial1A",
       });
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
     });
 
     it("should reject when passwords do not match", () => {

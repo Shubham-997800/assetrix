@@ -168,10 +168,29 @@ export const AUTH_CONSTANTS = {
 
 export const REFRESH_TOKEN_COOKIE = "refreshToken";
 
-export const PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-export const PASSWORD_MIN_MSG =
-  "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+const PASSWORD_CLASSES: Array<[RegExp, string]> = [
+  [/[a-z]/, "one lowercase letter"],
+  [/[A-Z]/, "one uppercase letter"],
+  [/\d/, "one number"],
+  [/[^A-Za-z0-9]/, "one special character"],
+];
+
+export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
+
+export function validatePasswordPolicy(password: string): string | null {
+  if (password.length < PASSWORD_MIN_LENGTH) {
+    return `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
+  }
+  if (password.length > PASSWORD_MAX_LENGTH) {
+    return `Password must not exceed ${PASSWORD_MAX_LENGTH} characters`;
+  }
+  const passed = PASSWORD_CLASSES.filter(([pattern]) => pattern.test(password));
+  if (passed.length < 3) {
+    return `Password must contain at least three of: ${PASSWORD_CLASSES.map(([, label]) => label).join(", ")}`;
+  }
+  return null;
+}
 
 export const PAGINATION_DEFAULTS = {
   PAGE: 1,

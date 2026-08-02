@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PASSWORD_REGEX, PASSWORD_MIN_MSG, ROLES, USER_STATUS } from "../../constants";
+import { validatePasswordPolicy, ROLES, USER_STATUS } from "../../constants";
 
 const userRoles = Object.values(ROLES) as [string, ...string[]];
 const userStatuses = Object.values(USER_STATUS) as [string, ...string[]];
@@ -12,9 +12,13 @@ export const createUserSchema = z.object({
     .max(255, "Email must not exceed 255 characters"),
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password must not exceed 128 characters")
-    .regex(PASSWORD_REGEX, PASSWORD_MIN_MSG),
+    .min(1, "Password is required")
+    .superRefine((value, ctx) => {
+      const error = validatePasswordPolicy(value);
+      if (error) {
+        ctx.addIssue({ code: "custom", message: error });
+      }
+    }),
   firstName: z
     .string()
     .min(1, "First name is required")
@@ -126,9 +130,13 @@ export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
   newPassword: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password must not exceed 128 characters")
-    .regex(PASSWORD_REGEX, PASSWORD_MIN_MSG),
+    .min(1, "Password is required")
+    .superRefine((value, ctx) => {
+      const error = validatePasswordPolicy(value);
+      if (error) {
+        ctx.addIssue({ code: "custom", message: error });
+      }
+    }),
 });
 
 export const userQuerySchema = z.object({

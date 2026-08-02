@@ -1,11 +1,16 @@
 import { z } from "zod";
-import { PASSWORD_REGEX, PASSWORD_MIN_MSG, ROLES } from "../../constants";
+import { validatePasswordPolicy, ROLES } from "../../constants";
 
 const email = z.string().trim().toLowerCase().email("Invalid email format");
 const password = z
   .string()
-  .min(8, "Password must be at least 8 characters")
-  .regex(PASSWORD_REGEX, PASSWORD_MIN_MSG);
+  .min(1, "Password is required")
+  .superRefine((value, ctx) => {
+    const error = validatePasswordPolicy(value);
+    if (error) {
+      ctx.addIssue({ code: "custom", message: error });
+    }
+  });
 
 export const registerSchema = z
   .object({
