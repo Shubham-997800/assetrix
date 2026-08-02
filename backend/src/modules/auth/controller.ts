@@ -33,7 +33,7 @@ export const register = asyncHandler(async (req, res: Response) => {
     .status(HTTP_STATUS.CREATED)
     .cookie(REFRESH_TOKEN_COOKIE, result.refreshToken, cookieOptions(7 * 24 * 60 * 60 * 1000))
     .json(
-      successResponse("Registration successful. Please verify your email.", {
+      successResponse("Registration successful", {
         user: result.user,
         accessToken: result.accessToken,
       })

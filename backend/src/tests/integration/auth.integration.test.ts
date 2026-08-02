@@ -144,9 +144,8 @@ describe("Auth Routes Integration", () => {
         firstName: "John",
         lastName: "Doe",
         role: "EMPLOYEE",
-        status: "PENDING_VERIFICATION",
+        status: "ACTIVE",
       });
-      mockPrisma.verificationToken.create.mockResolvedValue({});
 
       const res = await request(app).post("/api/v1/auth/register").send({
         email: "test@example.com",

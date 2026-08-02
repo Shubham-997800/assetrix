@@ -214,8 +214,6 @@ export const register = async (
   }
 
   const hashedPassword = await hashPassword(data.password);
-  const verificationToken = generateToken(32);
-  const verificationTtl = EMAIL_VERIFICATION_TTL_SECONDS;
 
   const user = await prisma.user.create({
     data: {
@@ -228,45 +226,16 @@ export const register = async (
       designation: data.designation || null,
       departmentId: data.departmentId || null,
       role: "EMPLOYEE",
-      status: "PENDING_VERIFICATION",
-      emailVerified: false,
+      status: "ACTIVE",
+      emailVerified: true,
       termsAccepted: true,
     },
     select: { id: true, email: true, firstName: true, lastName: true, role: true, status: true },
   });
 
-  await prisma.verificationToken.create({
-    data: {
-      userId: user.id,
-      token: verificationToken,
-      type: "EMAIL_VERIFICATION",
-      expiresAt: new Date(Date.now() + verificationTtl * 1000),
-    },
-  });
-
   const tokens = generateTokenPair({ userId: user.id, email: user.email, role: user.role });
   const deviceInfo = getDeviceInfo(userAgent, ipAddress);
   await createSession(user.id, tokens.refreshToken, deviceInfo, false);
-
-  await sendEmail({
-    to: user.email,
-    subject: "Verify your Assetrix account",
-    html: emailTemplate(
-      "Welcome to Assetrix!",
-      `<p>Hi ${user.firstName},</p><p>Please verify your email address to activate your account.</p>`,
-      "Verify Email",
-      `${config.frontendUrl}/verify-email?token=${verificationToken}`
-    ),
-  });
-
-  await createNotification({
-    userId: user.id,
-    type: NOTIFICATION_TYPE.EMAIL_VERIFICATION,
-    title: "Verify your email",
-    message: "Welcome to Assetrix! Please verify your email address.",
-    channel: NOTIFICATION_CHANNEL.IN_APP,
-    link: `/verify-email?token=${verificationToken}`,
-  });
 
   await createAuditLog({
     userId: user.id,

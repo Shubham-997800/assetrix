@@ -12,7 +12,7 @@ import {
 import { PrivacyDialog } from "@/components/shared/privacy-dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, Mail, User } from "lucide-react";
-import { authApi } from "@/lib/api";
+import { useAuth } from "@/contexts/auth-context";
 
 interface FormErrors {
   name?: string;
@@ -25,6 +25,7 @@ interface FormErrors {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [name, setName] = useState("");
@@ -68,7 +69,7 @@ export default function RegisterPage() {
       const nameParts = name.trim().split(/\s+/);
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(" ") || nameParts[0];
-      await authApi.register({
+      await register({
         email,
         password,
         confirmPassword,
@@ -76,7 +77,7 @@ export default function RegisterPage() {
         lastName,
         termsAccepted: acceptTerms,
       });
-      router.push("/verify-email");
+      router.push("/dashboard");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Registration failed. Please try again.";
       setErrors({ general: message });

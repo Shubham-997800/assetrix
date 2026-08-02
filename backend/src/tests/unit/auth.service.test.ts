@@ -134,9 +134,8 @@ describe("AuthService", () => {
         firstName: "John",
         lastName: "Doe",
         role: "EMPLOYEE",
-        status: "PENDING_VERIFICATION",
+        status: "ACTIVE",
       });
-      mockPrisma.verificationToken.create.mockResolvedValue({});
 
       const result = await authService.register(validRegisterData, "127.0.0.1", "Mozilla/5.0");
 
@@ -144,11 +143,15 @@ describe("AuthService", () => {
       expect(result.accessToken).toBeDefined();
       expect(result.refreshToken).toBeDefined();
       expect(mockPrisma.user.create).toHaveBeenCalledTimes(1);
-      expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({
-        to: "test@example.com",
-        subject: expect.stringContaining("Verify"),
+      expect(mockPrisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          status: "ACTIVE",
+          emailVerified: true,
+        }),
       }));
-      expect(createNotification).toHaveBeenCalled();
+      expect(mockPrisma.verificationToken.create).not.toHaveBeenCalled();
+      expect(sendEmail).not.toHaveBeenCalled();
+      expect(createNotification).not.toHaveBeenCalled();
       expect(createAuditLog).toHaveBeenCalledWith(expect.objectContaining({
         action: "REGISTER",
       }));
