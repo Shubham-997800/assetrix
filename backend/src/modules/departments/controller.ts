@@ -13,17 +13,20 @@ function getAuthUser(req: AuthenticatedRequest) {
 }
 
 export const getAll = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { departments, meta } = await departmentService.getAll(req.query as unknown as departmentService.GetAllParams);
+  const { departments, meta } = await departmentService.getAll(
+    req.query as unknown as departmentService.GetAllParams,
+    getAuthUser(req).userId
+  );
   res.status(HTTP_STATUS.OK).json(successResponse("Departments retrieved successfully", departments, meta));
 });
 
 export const getById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const department = await departmentService.getById(req.params.id as string);
+  const department = await departmentService.getById(req.params.id as string, getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Department retrieved successfully", department));
 });
 
-export const getTree = asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
-  const departments = await departmentService.getTree();
+export const getTree = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const departments = await departmentService.getTree(getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Department tree retrieved successfully", departments));
 });
 
@@ -59,6 +62,6 @@ export const remove = asyncHandler(async (req: AuthenticatedRequest, res: Respon
 });
 
 export const getDepartmentStats = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const stats = await departmentService.getDepartmentStats(req.params.id as string);
+  const stats = await departmentService.getDepartmentStats(req.params.id as string, getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Department stats retrieved successfully", stats));
 });

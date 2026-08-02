@@ -153,9 +153,14 @@ model User {
   deletedAt      DateTime?
   createdBy      String?
   updatedBy      String?
+  ownerId        String?
+  owner          User?     @relation("UserOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   version        Int       @default(1)
 
   allocatedAssets      Asset[]          @relation("AssetAllocation")
+  ownedAssets          Asset[]          @relation("AssetOwner")
+  ownedDepartments     Department[]     @relation("DepartmentOwner")
+  createdEmployees     User[]           @relation("UserOwner")
   maintenanceTechnician MaintenanceTask[] @relation("MaintenanceTechnician")
   maintenanceRequestedBy MaintenanceTask[] @relation("MaintenanceRequester")
   bookings             Booking[]         @relation("BookingUser")
@@ -312,6 +317,8 @@ model Department {
   deletedAt   DateTime?
   createdBy   String?
   updatedBy   String?
+  ownerId     String
+  owner       User     @relation("DepartmentOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   version     Int      @default(1)
 
   users       User[]
@@ -321,6 +328,7 @@ model Department {
   @@index([name])
   @@index([code])
   @@index([parentId])
+  @@index([ownerId])
   @@index([deletedAt])
 }
 
@@ -373,6 +381,8 @@ model Asset {
   warrantyProvider String?
   invoiceNumber   String?
   qrCode          String        @unique
+  ownerId         String
+  owner           User          @relation("AssetOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   status          AssetStatus   @default(AVAILABLE)
   condition       AssetCondition @default(GOOD)
   location        String?
@@ -414,6 +424,7 @@ model Asset {
 
   @@index([assetTag])
   @@index([qrCode])
+  @@index([ownerId])
   @@index([serialNumber])
   @@index([status])
   @@index([departmentId])

@@ -33,10 +33,10 @@ export interface GetAllAssetsParams extends PaginationQuery {
   manufacturer?: string;
 }
 
-export const getAll = async (params: GetAllAssetsParams) => {
+export const getAll = async (params: GetAllAssetsParams, ownerId: string) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(params);
 
-  const where: Prisma.AssetWhereInput = { deletedAt: null };
+  const where: Prisma.AssetWhereInput = { deletedAt: null, ownerId };
 
   const searchWhere = buildWhereSearch(
     ["name", "assetTag", "serialNumber", "manufacturer", "model"],
@@ -69,9 +69,9 @@ export const getAll = async (params: GetAllAssetsParams) => {
   return { assets, meta: paginatedMeta(totalItems, page, limit) };
 };
 
-export const getById = async (id: string) => {
+export const getById = async (id: string, ownerId: string) => {
   const asset = await prisma.asset.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId, deletedAt: null },
     include: {
       department: { select: { id: true, name: true, code: true } },
       category: { select: { id: true, name: true, code: true } },
@@ -89,9 +89,9 @@ export const getById = async (id: string) => {
   return asset;
 };
 
-export const getByQrCode = async (qrCode: string) => {
+export const getByQrCode = async (qrCode: string, ownerId: string) => {
   const asset = await prisma.asset.findFirst({
-    where: { qrCode, deletedAt: null },
+    where: { qrCode, ownerId, deletedAt: null },
     include: {
       department: { select: { id: true, name: true, code: true } },
       category: { select: { id: true, name: true, code: true } },
@@ -115,10 +115,11 @@ export const create = async (data: CreateAssetInput, userId: string, ipAddress?:
       ...data,
       assetTag,
       qrCode,
+      ownerId: userId,
       status: ASSET_STATUS.AVAILABLE,
       condition: ASSET_CONDITION.GOOD,
       createdBy: userId,
-    } as Prisma.AssetCreateInput,
+    } as Prisma.AssetUncheckedCreateInput,
   });
 
   await prisma.assetHistory.create({
@@ -152,7 +153,7 @@ export const update = async (
   ipAddress?: string,
   userAgent?: string
 ) => {
-  const existing = await prisma.asset.findFirst({ where: { id, deletedAt: null } });
+  const existing = await prisma.asset.findFirst({ where: { id, ownerId: userId, deletedAt: null } });
   if (!existing) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -189,7 +190,7 @@ export const update = async (
 };
 
 export const remove = async (id: string, userId: string, ipAddress?: string, userAgent?: string) => {
-  const existing = await prisma.asset.findFirst({ where: { id, deletedAt: null } });
+  const existing = await prisma.asset.findFirst({ where: { id, ownerId: userId, deletedAt: null } });
   if (!existing) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -223,7 +224,7 @@ export const assign = async (
   ipAddress?: string,
   userAgent?: string
 ) => {
-  const asset = await prisma.asset.findFirst({ where: { id, deletedAt: null } });
+  const asset = await prisma.asset.findFirst({ where: { id, ownerId: userId, deletedAt: null } });
   if (!asset) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -300,7 +301,7 @@ export const unallocate = async (
   ipAddress?: string,
   userAgent?: string
 ) => {
-  const asset = await prisma.asset.findFirst({ where: { id, deletedAt: null } });
+  const asset = await prisma.asset.findFirst({ where: { id, ownerId: userId, deletedAt: null } });
   if (!asset) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -373,7 +374,7 @@ export const changeStatus = async (
   ipAddress?: string,
   userAgent?: string
 ) => {
-  const asset = await prisma.asset.findFirst({ where: { id, deletedAt: null } });
+  const asset = await prisma.asset.findFirst({ where: { id, ownerId: userId, deletedAt: null } });
   if (!asset) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -415,7 +416,7 @@ export const changeCondition = async (
   userId: string,
   ipAddress?: string
 ) => {
-  const asset = await prisma.asset.findFirst({ where: { id, deletedAt: null } });
+  const asset = await prisma.asset.findFirst({ where: { id, ownerId: userId, deletedAt: null } });
   if (!asset) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -440,8 +441,8 @@ export const changeCondition = async (
   return updated;
 };
 
-export const getHistory = async (id: string, page = 1, limit = 20) => {
-  const asset = await prisma.asset.findFirst({ where: { id, deletedAt: null } });
+export const getHistory = async (id: string, ownerId: string, page = 1, limit = 20) => {
+  const asset = await prisma.asset.findFirst({ where: { id, ownerId, deletedAt: null } });
   if (!asset) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -460,15 +461,16 @@ export const getHistory = async (id: string, page = 1, limit = 20) => {
   return { items, meta: paginatedMeta(totalItems, page, limit) };
 };
 
-export const getStats = async (_userId?: string) => {
+export const getStats = async (userId?: string) => {
+  const baseWhere: Prisma.AssetWhereInput = userId ? { deletedAt: null, ownerId: userId } : { deletedAt: null };
   const [total, byStatus, byCondition, totalValue, departmentBreakdown] = await Promise.all([
-    prisma.asset.count({ where: { deletedAt: null } }),
-    prisma.asset.groupBy({ by: ["status"], where: { deletedAt: null }, _count: true }),
-    prisma.asset.groupBy({ by: ["condition"], where: { deletedAt: null }, _count: true }),
-    prisma.asset.aggregate({ where: { deletedAt: null }, _sum: { currentValue: true, purchasePrice: true } }),
+    prisma.asset.count({ where: baseWhere }),
+    prisma.asset.groupBy({ by: ["status"], where: baseWhere, _count: true }),
+    prisma.asset.groupBy({ by: ["condition"], where: baseWhere, _count: true }),
+    prisma.asset.aggregate({ where: baseWhere, _sum: { currentValue: true, purchasePrice: true } }),
     prisma.asset.groupBy({
       by: ["departmentId"],
-      where: { deletedAt: null },
+      where: baseWhere,
       _count: true,
       _sum: { currentValue: true },
     }),
@@ -488,7 +490,7 @@ export const getStats = async (_userId?: string) => {
   };
 };
 
-export const search = async (query: string, limit = 20) => {
+export const search = async (query: string, ownerId: string, limit = 20) => {
   if (!query || query.length < 2) {
     throw new AppError("Search query must be at least 2 characters", HTTP_STATUS.BAD_REQUEST);
   }
@@ -496,6 +498,7 @@ export const search = async (query: string, limit = 20) => {
   const assets = await prisma.asset.findMany({
     where: {
       deletedAt: null,
+      ownerId,
       OR: [
         { name: { contains: query, mode: "insensitive" } },
         { assetTag: { contains: query, mode: "insensitive" } },

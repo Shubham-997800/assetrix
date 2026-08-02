@@ -184,13 +184,25 @@ describe("AuthService", () => {
       ).rejects.toThrow("An account with this employee ID already exists");
     });
 
-    it("should validate department exists", async () => {
+    it("should ignore departmentId during registration", async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
-      mockPrisma.department.findUnique.mockResolvedValue(null);
+      mockPrisma.user.create.mockResolvedValue({
+        id: "user-1",
+        email: "test@example.com",
+        firstName: "John",
+        lastName: "Doe",
+        role: "EMPLOYEE",
+        status: "ACTIVE",
+      });
 
-      await expect(
-        authService.register({ ...validRegisterData, departmentId: "invalid-dept" })
-      ).rejects.toThrow("Department not found");
+      const result = await authService.register(
+        { ...validRegisterData, departmentId: "invalid-dept" },
+        "127.0.0.1",
+        "Mozilla/5.0"
+      );
+
+      expect(result.accessToken).toBeDefined();
+      expect(mockPrisma.department.findUnique).not.toHaveBeenCalled();
     });
   });
 

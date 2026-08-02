@@ -12,10 +12,10 @@ export interface GetAllParams extends PaginationQuery {
   isActive?: boolean;
 }
 
-export const getAll = async (params: GetAllParams) => {
+export const getAll = async (params: GetAllParams, ownerId: string) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(params);
 
-  const where: Prisma.DepartmentWhereInput = { deletedAt: null };
+  const where: Prisma.DepartmentWhereInput = { deletedAt: null, ownerId };
 
   const searchWhere = buildWhereSearch(
     ["name", "code", "description", "costCenter", "location"],
@@ -68,9 +68,9 @@ export const getAll = async (params: GetAllParams) => {
   return { departments, meta: paginatedMeta(totalItems, page, limit) };
 };
 
-export const getById = async (id: string) => {
-  const department = await prisma.department.findUnique({
-    where: { id, deletedAt: null },
+export const getById = async (id: string, ownerId: string) => {
+  const department = await prisma.department.findFirst({
+    where: { id, ownerId, deletedAt: null },
     include: {
       head: {
         select: {
@@ -150,9 +150,9 @@ export const getById = async (id: string) => {
   return department;
 };
 
-export const getTree = async () => {
+export const getTree = async (ownerId: string) => {
   const departments = await prisma.department.findMany({
-    where: { deletedAt: null },
+    where: { deletedAt: null, ownerId },
     select: {
       id: true,
       name: true,
@@ -204,7 +204,7 @@ export const getTree = async () => {
 
 export const create = async (data: CreateDepartmentInput, userId: string, ipAddress?: string, userAgent?: string) => {
   const existingName = await prisma.department.findFirst({
-    where: { name: data.name, deletedAt: null },
+    where: { name: data.name, ownerId: userId, deletedAt: null },
   });
 
   if (existingName) {
@@ -212,7 +212,7 @@ export const create = async (data: CreateDepartmentInput, userId: string, ipAddr
   }
 
   const existingCode = await prisma.department.findFirst({
-    where: { code: data.code, deletedAt: null },
+    where: { code: data.code, ownerId: userId, deletedAt: null },
   });
 
   if (existingCode) {
@@ -221,7 +221,7 @@ export const create = async (data: CreateDepartmentInput, userId: string, ipAddr
 
   if (data.parentId) {
     const parent = await prisma.department.findFirst({
-      where: { id: data.parentId, deletedAt: null },
+      where: { id: data.parentId, ownerId: userId, deletedAt: null },
     });
 
     if (!parent) {
@@ -235,7 +235,7 @@ export const create = async (data: CreateDepartmentInput, userId: string, ipAddr
 
   if (data.headId) {
     const head = await prisma.user.findFirst({
-      where: { id: data.headId, deletedAt: null },
+      where: { id: data.headId, ownerId: userId, deletedAt: null },
     });
 
     if (!head) {
@@ -256,6 +256,7 @@ export const create = async (data: CreateDepartmentInput, userId: string, ipAddr
       phone: data.phone ?? null,
       email: data.email ?? null,
       isActive: data.isActive ?? true,
+      ownerId: userId,
       createdBy: userId,
       updatedBy: userId,
     },
@@ -299,7 +300,7 @@ export const update = async (
   userAgent?: string
 ) => {
   const existing = await prisma.department.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId: userId, deletedAt: null },
   });
 
   if (!existing) {
@@ -308,7 +309,7 @@ export const update = async (
 
   if (data.name && data.name !== existing.name) {
     const nameTaken = await prisma.department.findFirst({
-      where: { name: data.name, deletedAt: null, id: { not: id } },
+      where: { name: data.name, ownerId: userId, deletedAt: null, id: { not: id } },
     });
 
     if (nameTaken) {
@@ -318,7 +319,7 @@ export const update = async (
 
   if (data.code && data.code !== existing.code) {
     const codeTaken = await prisma.department.findFirst({
-      where: { code: data.code, deletedAt: null, id: { not: id } },
+      where: { code: data.code, ownerId: userId, deletedAt: null, id: { not: id } },
     });
 
     if (codeTaken) {
@@ -334,7 +335,7 @@ export const update = async (
 
   if (parentId) {
     const parent = await prisma.department.findFirst({
-      where: { id: parentId, deletedAt: null },
+      where: { id: parentId, ownerId: userId, deletedAt: null },
     });
 
     if (!parent) {
@@ -349,7 +350,7 @@ export const update = async (
 
   if (data.headId) {
     const head = await prisma.user.findFirst({
-      where: { id: data.headId, deletedAt: null },
+      where: { id: data.headId, ownerId: userId, deletedAt: null },
     });
 
     if (!head) {
@@ -409,7 +410,7 @@ export const update = async (
 
 export const remove = async (id: string, userId: string, ipAddress?: string, userAgent?: string) => {
   const department = await prisma.department.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId: userId, deletedAt: null },
     include: {
       _count: {
         select: {
@@ -467,9 +468,9 @@ export const remove = async (id: string, userId: string, ipAddress?: string, use
   return { id };
 };
 
-export const getDepartmentStats = async (id: string) => {
+export const getDepartmentStats = async (id: string, ownerId: string) => {
   const department = await prisma.department.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId, deletedAt: null },
   });
 
   if (!department) {
@@ -478,20 +479,20 @@ export const getDepartmentStats = async (id: string) => {
 
   const [userCount, assetCounts, budgetAggregation, allocationCount] = await Promise.all([
     prisma.user.count({
-      where: { departmentId: id, deletedAt: null },
+      where: { departmentId: id, ownerId, deletedAt: null },
     }),
     prisma.asset.groupBy({
       by: ["status"],
-      where: { departmentId: id, deletedAt: null },
+      where: { departmentId: id, ownerId, deletedAt: null },
       _count: { id: true },
       _sum: { purchasePrice: true, currentValue: true },
     }),
     prisma.asset.aggregate({
-      where: { departmentId: id, deletedAt: null },
+      where: { departmentId: id, ownerId, deletedAt: null },
       _sum: { purchasePrice: true, currentValue: true },
     }),
     prisma.allocation.count({
-      where: { departmentId: id, status: "ACTIVE" },
+      where: { departmentId: id, status: "ACTIVE", asset: { ownerId } },
     }),
   ]);
 

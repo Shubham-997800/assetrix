@@ -60,10 +60,20 @@ export interface GetAllUsersParams extends PaginationQuery {
   status?: string;
 }
 
-export const getAll = async (query: GetAllUsersParams) => {
+const resolveOwnerId = async (userId: string): Promise<string> => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { ownerId: true },
+  });
+  return user?.ownerId ?? userId;
+};
+
+export const getAll = async (query: GetAllUsersParams, requesterId: string) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
 
-  const where: Prisma.UserWhereInput = { deletedAt: null };
+  const ownerId = await resolveOwnerId(requesterId);
+
+  const where: Prisma.UserWhereInput = { deletedAt: null, ownerId };
 
   const searchWhere = buildWhereSearch(
     ["firstName", "lastName", "email", "employeeId"],
@@ -112,9 +122,11 @@ export const getAll = async (query: GetAllUsersParams) => {
   };
 };
 
-export const getById = async (id: string) => {
+export const getById = async (id: string, requesterId: string) => {
+  const ownerId = await resolveOwnerId(requesterId);
+
   const user = await prisma.user.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId, deletedAt: null },
     select: {
       ...USER_SELECT_WITH_DEPARTMENT,
       _count: {
@@ -148,6 +160,8 @@ export const getByEmail = async (email: string) => {
 };
 
 export const create = async (data: CreateUserInput, createdByUserId: string) => {
+  const ownerId = await resolveOwnerId(createdByUserId);
+
   const existingEmail = await prisma.user.findUnique({
     where: { email: data.email.toLowerCase().trim() },
   });
@@ -158,7 +172,7 @@ export const create = async (data: CreateUserInput, createdByUserId: string) => 
 
   if (data.employeeId) {
     const existingEmployeeId = await prisma.user.findFirst({
-      where: { employeeId: data.employeeId, deletedAt: null },
+      where: { employeeId: data.employeeId, ownerId, deletedAt: null },
     });
 
     if (existingEmployeeId) {
@@ -168,7 +182,7 @@ export const create = async (data: CreateUserInput, createdByUserId: string) => 
 
   if (data.departmentId) {
     const department = await prisma.department.findFirst({
-      where: { id: data.departmentId, deletedAt: null },
+      where: { id: data.departmentId, ownerId, deletedAt: null },
     });
 
     if (!department) {
@@ -178,7 +192,7 @@ export const create = async (data: CreateUserInput, createdByUserId: string) => 
 
   if (data.managerId) {
     const manager = await prisma.user.findFirst({
-      where: { id: data.managerId, deletedAt: null },
+      where: { id: data.managerId, ownerId, deletedAt: null },
     });
 
     if (!manager) {
@@ -201,6 +215,7 @@ export const create = async (data: CreateUserInput, createdByUserId: string) => 
       designation: data.designation,
       departmentId: data.departmentId,
       managerId: data.managerId,
+      ownerId,
       createdBy: createdByUserId,
     },
     select: USER_SELECT,
@@ -233,8 +248,10 @@ export const update = async (
   ipAddress?: string,
   userAgent?: string
 ) => {
+  const ownerId = await resolveOwnerId(updatedByUserId);
+
   const existing = await prisma.user.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId, deletedAt: null },
   });
 
   if (!existing) {
@@ -243,7 +260,7 @@ export const update = async (
 
   if (data.employeeId) {
     const employeeIdConflict = await prisma.user.findFirst({
-      where: { employeeId: data.employeeId, id: { not: id }, deletedAt: null },
+      where: { employeeId: data.employeeId, ownerId, id: { not: id }, deletedAt: null },
     });
 
     if (employeeIdConflict) {
@@ -253,7 +270,7 @@ export const update = async (
 
   if (data.departmentId) {
     const department = await prisma.department.findFirst({
-      where: { id: data.departmentId, deletedAt: null },
+      where: { id: data.departmentId, ownerId, deletedAt: null },
     });
 
     if (!department) {
@@ -263,7 +280,7 @@ export const update = async (
 
   if (data.managerId) {
     const manager = await prisma.user.findFirst({
-      where: { id: data.managerId, deletedAt: null },
+      where: { id: data.managerId, ownerId, deletedAt: null },
     });
 
     if (!manager) {
@@ -368,8 +385,10 @@ export const changeRole = async (
   ipAddress?: string,
   userAgent?: string
 ) => {
+  const ownerId = await resolveOwnerId(performedByUserId);
+
   const target = await prisma.user.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId, deletedAt: null },
   });
 
   if (!target) {
@@ -439,8 +458,10 @@ export const changeStatus = async (
   ipAddress?: string,
   userAgent?: string
 ) => {
+  const ownerId = await resolveOwnerId(performedByUserId);
+
   const target = await prisma.user.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId, deletedAt: null },
   });
 
   if (!target) {
@@ -487,8 +508,10 @@ export const remove = async (
   ipAddress?: string,
   userAgent?: string
 ) => {
+  const ownerId = await resolveOwnerId(performedByUserId);
+
   const existing = await prisma.user.findFirst({
-    where: { id, deletedAt: null },
+    where: { id, ownerId, deletedAt: null },
   });
 
   if (!existing) {
@@ -582,9 +605,11 @@ export const changePassword = async (userId: string, currentPassword: string, ne
   });
 };
 
-export const getDirectReports = async (managerId: string) => {
+export const getDirectReports = async (managerId: string, requesterId: string) => {
+  const ownerId = await resolveOwnerId(requesterId);
+
   const manager = await prisma.user.findFirst({
-    where: { id: managerId, deletedAt: null },
+    where: { id: managerId, ownerId, deletedAt: null },
   });
 
   if (!manager) {
@@ -594,6 +619,7 @@ export const getDirectReports = async (managerId: string) => {
   const reports = await prisma.user.findMany({
     where: {
       managerId,
+      ownerId,
       deletedAt: null,
     },
     select: {

@@ -58,10 +58,10 @@ const includeRelations = {
   },
 };
 
-export const getAll = async (params: GetAllBookingsParams) => {
+export const getAll = async (params: GetAllBookingsParams, ownerId: string) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(params);
 
-  const where: Prisma.BookingWhereInput = { deletedAt: null };
+  const where: Prisma.BookingWhereInput = { deletedAt: null, asset: { ownerId } };
 
   if (params.status) where.status = params.status as BookingStatus;
   if (params.assetId) where.assetId = params.assetId;
@@ -105,9 +105,9 @@ export const getAll = async (params: GetAllBookingsParams) => {
   return { bookings, meta: paginatedMeta(totalItems, page, limit) };
 };
 
-export const getById = async (id: string) => {
-  const booking = await prisma.booking.findUnique({
-    where: { id },
+export const getById = async (id: string, ownerId: string) => {
+  const booking = await prisma.booking.findFirst({
+    where: { id, asset: { ownerId } },
     include: includeRelations,
   });
 
@@ -124,7 +124,7 @@ export const create = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const asset = await prisma.asset.findUnique({ where: { id: data.assetId } });
+  const asset = await prisma.asset.findFirst({ where: { id: data.assetId, ownerId: userId } });
   if (!asset) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -196,8 +196,8 @@ export const approveBooking = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const existing = await prisma.booking.findUnique({
-    where: { id },
+  const existing = await prisma.booking.findFirst({
+    where: { id, asset: { ownerId: userId } },
     include: {
       asset: { select: { id: true, name: true, assetTag: true } },
       user: { select: { id: true, firstName: true, lastName: true } },
@@ -275,8 +275,8 @@ export const rejectBooking = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const existing = await prisma.booking.findUnique({
-    where: { id },
+  const existing = await prisma.booking.findFirst({
+    where: { id, asset: { ownerId: userId } },
     include: {
       asset: { select: { id: true, name: true, assetTag: true } },
       user: { select: { id: true, firstName: true, lastName: true } },
@@ -385,7 +385,9 @@ export const completeBooking = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const existing = await prisma.booking.findUnique({ where: { id } });
+  const existing = await prisma.booking.findFirst({
+    where: { id, asset: { ownerId: userId } },
+  });
 
   if (!existing) {
     throw new AppError("Booking not found", HTTP_STATUS.NOT_FOUND);
@@ -499,7 +501,7 @@ export const updateBooking = async (
   return booking;
 };
 
-export const getUpcomingBookings = async (params: GetUpcomingBookingsParams = {}) => {
+export const getUpcomingBookings = async (params: GetUpcomingBookingsParams = {}, ownerId: string) => {
   const { page, limit, skip } = getPagination(params);
   const now = new Date();
 
@@ -507,6 +509,7 @@ export const getUpcomingBookings = async (params: GetUpcomingBookingsParams = {}
     deletedAt: null,
     status: { in: ["PENDING", "APPROVED"] },
     startDate: { gte: now },
+    asset: { ownerId },
   };
 
   const [bookings, totalItems] = await Promise.all([

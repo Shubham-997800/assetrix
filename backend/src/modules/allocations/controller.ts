@@ -14,13 +14,14 @@ function getAuthUser(req: AuthenticatedRequest) {
 
 export const getAllAllocations = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { allocations, meta } = await allocationService.getAll(
-    req.query as unknown as allocationService.GetAllAllocationsParams
+    req.query as unknown as allocationService.GetAllAllocationsParams,
+    getAuthUser(req).userId
   );
   res.status(HTTP_STATUS.OK).json(successResponse("Allocations retrieved successfully", allocations, meta));
 });
 
 export const getAllocationById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const allocation = await allocationService.getById(req.params.id as string);
+  const allocation = await allocationService.getById(req.params.id as string, getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Allocation retrieved successfully", allocation));
 });
 
@@ -47,7 +48,8 @@ export const returnAllocation = asyncHandler(async (req: AuthenticatedRequest, r
 
 export const getActiveAllocations = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { allocations, meta } = await allocationService.getActive(
-    req.query as unknown as allocationService.GetAllAllocationsParams
+    req.query as unknown as allocationService.GetAllAllocationsParams,
+    getAuthUser(req).userId
   );
   res.status(HTTP_STATUS.OK).json(successResponse("Active allocations retrieved successfully", allocations, meta));
 });
@@ -87,7 +89,8 @@ export const rejectTransfer = asyncHandler(async (req: AuthenticatedRequest, res
 
 export const getPendingTransfers = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { allocations, meta } = await allocationService.getPendingTransfers(
-    req.query as unknown as allocationService.GetAllAllocationsParams
+    req.query as unknown as allocationService.GetAllAllocationsParams,
+    getAuthUser(req).userId
   );
   res.status(HTTP_STATUS.OK).json(successResponse("Pending transfers retrieved successfully", allocations, meta));
 });

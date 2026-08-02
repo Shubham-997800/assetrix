@@ -14,19 +14,21 @@ function getAuthUser(req: AuthenticatedRequest) {
 
 export const getAllBookings = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { bookings, meta } = await bookingService.getAll(
-    req.query as unknown as bookingService.GetAllBookingsParams
+    req.query as unknown as bookingService.GetAllBookingsParams,
+    getAuthUser(req).userId
   );
   res.status(HTTP_STATUS.OK).json(successResponse("Bookings retrieved successfully", bookings, meta));
 });
 
 export const getBookingById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const booking = await bookingService.getById(req.params.id as string);
+  const booking = await bookingService.getById(req.params.id as string, getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Booking retrieved successfully", booking));
 });
 
 export const getUpcomingBookings = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { bookings, meta } = await bookingService.getUpcomingBookings(
-    req.query as unknown as bookingService.GetUpcomingBookingsParams
+    req.query as unknown as bookingService.GetUpcomingBookingsParams,
+    getAuthUser(req).userId
   );
   res.status(HTTP_STATUS.OK).json(successResponse("Upcoming bookings retrieved successfully", bookings, meta));
 });

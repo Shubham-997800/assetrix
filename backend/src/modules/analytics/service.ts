@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 
 // ─── DASHBOARD STATS ──────────────────────────────────────
 
-export const getDashboardStats = async () => {
+export const getDashboardStats = async (userId: string) => {
   const now = new Date();
   const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -20,25 +20,27 @@ export const getDashboardStats = async () => {
     pendingTransfers,
     overdueReturns,
   ] = await Promise.all([
-    prisma.asset.count({ where: { deletedAt: null } }),
+    prisma.asset.count({ where: { deletedAt: null, ownerId: userId } }),
     prisma.asset.groupBy({
       by: ["status"],
-      where: { deletedAt: null },
+      where: { deletedAt: null, ownerId: userId },
       _count: { id: true },
     }),
     prisma.asset.aggregate({
-      where: { deletedAt: null },
+      where: { deletedAt: null, ownerId: userId },
       _sum: { currentValue: true, purchasePrice: true },
     }),
-    prisma.allocation.count({ where: { status: "ACTIVE" } }),
+    prisma.allocation.count({ where: { status: "ACTIVE", asset: { ownerId: userId } } }),
     prisma.maintenanceTask.count({
       where: {
         status: { in: ["SCHEDULED", "OVERDUE"] },
         scheduledDate: { lte: sevenDaysFromNow },
         deletedAt: null,
+        asset: { ownerId: userId },
       },
     }),
     prisma.activityLog.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
       take: 10,
       select: {
@@ -65,6 +67,7 @@ export const getDashboardStats = async () => {
         status: { in: ["PENDING", "APPROVED"] },
         startDate: { gte: now },
         deletedAt: null,
+        asset: { ownerId: userId },
       },
       take: 5,
       orderBy: { startDate: "asc" },
@@ -84,12 +87,14 @@ export const getDashboardStats = async () => {
         startDate: { lte: now },
         endDate: { gte: now },
         deletedAt: null,
+        asset: { ownerId: userId },
       },
     }),
     prisma.allocation.count({
       where: {
         status: "ACTIVE",
         transferStatus: "PENDING",
+        asset: { ownerId: userId },
       },
     }),
     prisma.allocation.findMany({
@@ -97,6 +102,7 @@ export const getDashboardStats = async () => {
         status: "ACTIVE",
         expectedReturn: { lt: now },
         returnedAt: null,
+        asset: { ownerId: userId },
       },
       take: 5,
       orderBy: { expectedReturn: "asc" },

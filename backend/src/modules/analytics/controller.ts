@@ -5,8 +5,8 @@ import { HTTP_STATUS } from "../../constants";
 import type { AuthenticatedRequest } from "../../middleware/auth";
 import * as analyticsService from "./service";
 
-export const getDashboardStats = asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
-  const data = await analyticsService.getDashboardStats();
+export const getDashboardStats = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const data = await analyticsService.getDashboardStats(req.user?.userId as string);
   res.status(HTTP_STATUS.OK).json(successResponse("Dashboard stats retrieved successfully", data));
 });
 

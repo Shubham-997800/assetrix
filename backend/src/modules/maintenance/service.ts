@@ -119,6 +119,8 @@ export const getAllTasks = async (
 
   if (userRole === "TECHNICIAN") {
     where.assignedToId = userId;
+  } else if (userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
+    where.asset = { ownerId: userId };
   }
 
   const orderBy: Prisma.MaintenanceTaskOrderByWithRelationInput = {
@@ -166,7 +168,7 @@ export const createTask = async (
   userAgent?: string
 ) => {
   const asset = await prisma.asset.findFirst({
-    where: { id: data.assetId, deletedAt: null },
+    where: { id: data.assetId, ownerId: userId, deletedAt: null },
   });
 
   if (!asset) {
@@ -675,7 +677,7 @@ export const createSchedule = async (
   userAgent?: string
 ) => {
   const asset = await prisma.asset.findFirst({
-    where: { id: data.assetId, deletedAt: null },
+    where: { id: data.assetId, ownerId: userId, deletedAt: null },
   });
 
   if (!asset) {

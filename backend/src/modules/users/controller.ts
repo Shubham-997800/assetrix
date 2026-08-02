@@ -13,12 +13,15 @@ function getAuthUser(req: AuthenticatedRequest) {
 }
 
 export const getAll = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { users, meta } = await userService.getAll(req.query as unknown as userService.GetAllUsersParams);
+  const { users, meta } = await userService.getAll(
+    req.query as unknown as userService.GetAllUsersParams,
+    getAuthUser(req).userId
+  );
   res.status(HTTP_STATUS.OK).json(successResponse("Users retrieved successfully", users, meta));
 });
 
 export const getById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const user = await userService.getById(req.params.id as string);
+  const user = await userService.getById(req.params.id as string, getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("User retrieved successfully", user));
 });
 
@@ -92,6 +95,6 @@ export const changePassword = asyncHandler(async (req: AuthenticatedRequest, res
 });
 
 export const getDirectReports = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const reports = await userService.getDirectReports(req.params.id as string);
+  const reports = await userService.getDirectReports(req.params.id as string, getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Direct reports retrieved successfully", reports));
 });

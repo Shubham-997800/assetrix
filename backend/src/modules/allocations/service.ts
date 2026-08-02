@@ -51,10 +51,10 @@ const includeRelations = {
   },
 };
 
-export const getAll = async (params: GetAllAllocationsParams) => {
+export const getAll = async (params: GetAllAllocationsParams, ownerId: string) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(params);
 
-  const where: Prisma.AllocationWhereInput = {};
+  const where: Prisma.AllocationWhereInput = { asset: { ownerId } };
 
   if (params.status) where.status = params.status;
   if (params.userId) where.userId = params.userId;
@@ -85,9 +85,9 @@ export const getAll = async (params: GetAllAllocationsParams) => {
   return { allocations, meta: paginatedMeta(totalItems, page, limit) };
 };
 
-export const getById = async (id: string) => {
-  const allocation = await prisma.allocation.findUnique({
-    where: { id },
+export const getById = async (id: string, ownerId: string) => {
+  const allocation = await prisma.allocation.findFirst({
+    where: { id, asset: { ownerId } },
     include: includeRelations,
   });
 
@@ -104,7 +104,7 @@ export const create = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const asset = await prisma.asset.findUnique({ where: { id: data.assetId } });
+  const asset = await prisma.asset.findFirst({ where: { id: data.assetId, ownerId: userId } });
   if (!asset) {
     throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
   }
@@ -174,8 +174,8 @@ export const returnAllocation = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const existing = await prisma.allocation.findUnique({
-    where: { id },
+  const existing = await prisma.allocation.findFirst({
+    where: { id, asset: { ownerId: userId } },
     include: { asset: true },
   });
 
@@ -235,8 +235,8 @@ export const returnAllocation = async (
   return allocation;
 };
 
-export const getActive = async (params: GetAllAllocationsParams) => {
-  return getAll({ ...params, status: "ACTIVE" });
+export const getActive = async (params: GetAllAllocationsParams, ownerId: string) => {
+  return getAll({ ...params, status: "ACTIVE" }, ownerId);
 };
 
 export const transferAsset = async (
@@ -246,8 +246,8 @@ export const transferAsset = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const existing = await prisma.allocation.findUnique({
-    where: { id },
+  const existing = await prisma.allocation.findFirst({
+    where: { id, asset: { ownerId: userId } },
     include: { asset: true, user: true },
   });
 
@@ -307,8 +307,8 @@ export const approveTransfer = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const existing = await prisma.allocation.findUnique({
-    where: { id },
+  const existing = await prisma.allocation.findFirst({
+    where: { id, asset: { ownerId: userId } },
     include: { asset: true },
   });
 
@@ -387,8 +387,8 @@ export const rejectTransfer = async (
   ip?: string,
   userAgent?: string
 ) => {
-  const existing = await prisma.allocation.findUnique({
-    where: { id },
+  const existing = await prisma.allocation.findFirst({
+    where: { id, asset: { ownerId: userId } },
     include: { asset: true },
   });
 
@@ -434,6 +434,6 @@ export const rejectTransfer = async (
   return allocation;
 };
 
-export const getPendingTransfers = async (params: GetAllAllocationsParams) => {
-  return getAll({ ...params, status: "PENDING_APPROVAL" });
+export const getPendingTransfers = async (params: GetAllAllocationsParams, ownerId: string) => {
+  return getAll({ ...params, status: "PENDING_APPROVAL" }, ownerId);
 };

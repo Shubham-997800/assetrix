@@ -14,18 +14,19 @@ function getAuthUser(req: AuthenticatedRequest) {
 
 export const getAll = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { assets, meta } = await assetService.getAll(
-    req.query as unknown as assetService.GetAllAssetsParams
+    req.query as unknown as assetService.GetAllAssetsParams,
+    getAuthUser(req).userId
   );
   res.status(HTTP_STATUS.OK).json(successResponse("Assets retrieved successfully", assets, meta));
 });
 
 export const getById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const asset = await assetService.getById(req.params.id as string);
+  const asset = await assetService.getById(req.params.id as string, getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Asset retrieved successfully", asset));
 });
 
 export const getByQrCode = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const asset = await assetService.getByQrCode(req.params.qrCode as string);
+  const asset = await assetService.getByQrCode(req.params.qrCode as string, getAuthUser(req).userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Asset retrieved successfully", asset));
 });
 
@@ -106,7 +107,7 @@ export const changeCondition = asyncHandler(async (req: AuthenticatedRequest, re
 export const getHistory = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
-  const result = await assetService.getHistory(req.params.id as string, page, limit);
+  const result = await assetService.getHistory(req.params.id as string, getAuthUser(req).userId, page, limit);
   res.status(HTTP_STATUS.OK).json(successResponse("Asset history retrieved successfully", result.items, result.meta));
 });
 
@@ -118,6 +119,6 @@ export const getStats = asyncHandler(async (req: AuthenticatedRequest, res: Resp
 export const search = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const query = req.query.q as string;
   const limit = parseInt(req.query.limit as string) || 20;
-  const assets = await assetService.search(query, limit);
+  const assets = await assetService.search(query, getAuthUser(req).userId, limit);
   res.status(HTTP_STATUS.OK).json(successResponse("Search results retrieved successfully", assets));
 });

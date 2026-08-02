@@ -6,13 +6,13 @@ import * as aiService from "./service";
 import type { AuthenticatedRequest } from "../../middleware/auth";
 
 export const getAssetHealthScore = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const result = await aiService.getAssetHealthScore(req.params.assetId as string);
+  const result = await aiService.getAssetHealthScore(req.params.assetId as string, req.user!.userId);
   res.status(HTTP_STATUS.OK).json(successResponse("Asset health score calculated successfully", result));
 });
 
 export const getRecommendationsForAsset = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
-    const result = await aiService.getRecommendationsForAsset(req.params.assetId as string);
+    const result = await aiService.getRecommendationsForAsset(req.params.assetId as string, req.user!.userId);
     res.status(HTTP_STATUS.OK).json(successResponse("Recommendations retrieved successfully", result));
   }
 );
@@ -48,7 +48,8 @@ export const markAsActioned = asyncHandler(async (req: AuthenticatedRequest, res
 export const getPredictiveMaintenance = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
     const result = await aiService.getPredictiveMaintenance(
-      req.query.assetId as string | undefined
+      req.query.assetId as string | undefined,
+      req.user!.userId
     );
     res.status(HTTP_STATUS.OK).json(
       successResponse("Predictive maintenance analysis retrieved", result)

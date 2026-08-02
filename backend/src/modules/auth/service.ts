@@ -206,13 +206,6 @@ export const register = async (
     }
   }
 
-  if (data.departmentId) {
-    const dept = await prisma.department.findUnique({ where: { id: data.departmentId }, select: { id: true } });
-    if (!dept) {
-      throw new AppError("Department not found", HTTP_STATUS.BAD_REQUEST);
-    }
-  }
-
   const hashedPassword = await hashPassword(data.password);
 
   const user = await prisma.user.create({
@@ -231,6 +224,11 @@ export const register = async (
       termsAccepted: true,
     },
     select: { id: true, email: true, firstName: true, lastName: true, role: true, status: true },
+  });
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { ownerId: user.id },
   });
 
   const tokens = generateTokenPair({ userId: user.id, email: user.email, role: user.role });

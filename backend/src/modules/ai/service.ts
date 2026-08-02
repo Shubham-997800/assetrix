@@ -85,9 +85,9 @@ export const calculateHealthScore = (
   return { score, grade, factors };
 };
 
-export const getAssetHealthScore = async (assetId: string) => {
-  const asset = await prisma.asset.findUnique({
-    where: { id: assetId },
+export const getAssetHealthScore = async (assetId: string, ownerId: string) => {
+  const asset = await prisma.asset.findFirst({
+    where: { id: assetId, ownerId },
     include: {
       maintenanceTasks: {
         where: { deletedAt: null },
@@ -374,13 +374,17 @@ async function generateAndStoreRecommendationsForAsset(assetId: string) {
   };
 }
 
-export const getRecommendationsForAsset = async (assetId: string) => {
+export const getRecommendationsForAsset = async (assetId: string, ownerId: string) => {
+  const owned = await prisma.asset.findFirst({ where: { id: assetId, ownerId }, select: { id: true } });
+  if (!owned) {
+    throw new AppError("Asset not found", HTTP_STATUS.NOT_FOUND);
+  }
   return generateAndStoreRecommendationsForAsset(assetId);
 };
 
 export const generateRecommendations = async (userId: string) => {
   const assets = await prisma.asset.findMany({
-    where: { deletedAt: null, status: { not: "RETIRED" } },
+    where: { deletedAt: null, status: { not: "RETIRED" }, ownerId: userId },
     select: { id: true },
   });
 
@@ -522,9 +526,10 @@ interface TaskPrediction {
   intervalDays?: number | null;
 }
 
-export const getPredictiveMaintenance = async (assetId?: string) => {
+export const getPredictiveMaintenance = async (assetId?: string, ownerId?: string) => {
   const where: Prisma.AssetWhereInput = { deletedAt: null };
   if (assetId) where.id = assetId;
+  if (ownerId) where.ownerId = ownerId;
 
   const assets = await prisma.asset.findMany({
     where,
