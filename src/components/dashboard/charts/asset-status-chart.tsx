@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { useMemo } from "react";
-import { ChevronRight } from "lucide-react";
-import { assetStatuses as demoStatuses } from "./dashboard-data";
+import { ChevronRight, PackageOpen } from "lucide-react";
 import type { DashboardStats } from "@/lib/types";
 
 export function AssetStatusChart({ stats }: { stats?: DashboardStats }) {
   const statuses = useMemo(() => {
-    if (!stats || stats.totalAssets === 0) return demoStatuses;
+    if (!stats || stats.totalAssets === 0) return [];
     const built = [
       { label: "Available", value: stats.availableAssets, color: "#10B981" },
       { label: "Allocated", value: stats.allocatedAssets, color: "#0891B2" },
@@ -19,6 +18,29 @@ export function AssetStatusChart({ stats }: { stats?: DashboardStats }) {
   }, [stats]);
 
   const total = useMemo(() => statuses.reduce((a, s) => a + s.value, 0), [statuses]);
+
+  if (!stats || stats.totalAssets === 0) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">
+              Asset Status
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Distribution across all statuses
+            </p>
+          </div>
+        </div>
+        <div className="mt-5 flex flex-col items-center justify-center gap-3 py-8 text-center">
+          <PackageOpen className="h-8 w-8 text-muted-foreground/40" />
+          <p className="text-sm text-muted-foreground">
+            No assets registered yet.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">

@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, Send, ChevronRight } from "lucide-react";
-import { overdueItems } from "./dashboard-data";
+import { AlertTriangle, Send, ChevronRight, CheckCircle2 } from "lucide-react";
 import type { OverdueReturnItem } from "@/lib/types";
 
 function priorityStyle(p: "warning" | "high" | "critical") {
@@ -12,7 +11,7 @@ function priorityStyle(p: "warning" | "high" | "critical") {
 }
 
 export function OverdueReturns({ items }: { items?: OverdueReturnItem[] }) {
-  const list = items && items.length > 0 ? items : overdueItems;
+  const list = items ?? [];
   return (
     <div className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -37,6 +36,14 @@ export function OverdueReturns({ items }: { items?: OverdueReturnItem[] }) {
           <ChevronRight className="h-3 w-3" />
         </Link>
       </div>
+      {list.length === 0 ? (
+        <div className="flex items-center gap-3 px-5 py-8">
+          <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+          <p className="text-sm text-muted-foreground">
+            No overdue returns. All allocated assets are on schedule.
+          </p>
+        </div>
+      ) : (
       <div className="divide-y divide-border">
         {list.map((item) => {
           const priority = item.days >= 7 ? "critical" : item.days >= 4 ? "high" : "warning";
@@ -82,6 +89,7 @@ export function OverdueReturns({ items }: { items?: OverdueReturnItem[] }) {
           );
         })}
       </div>
+      )}
     </div>
   );
 }

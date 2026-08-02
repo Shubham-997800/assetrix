@@ -3,7 +3,6 @@ import {
   Clock, ChevronRight, ArrowLeftRight, Plus, Wrench, ArrowRightLeft,
   CalendarClock, ClipboardCheck, Circle,
 } from "lucide-react";
-import { activities } from "./dashboard-data";
 import type { ActivityLogItem } from "@/lib/types";
 
 const typeIcon: Record<string, typeof Plus> = {
@@ -53,7 +52,7 @@ function initials(f?: { firstName: string; lastName: string } | null) {
 }
 
 export function ActivityTimeline({ items }: { items?: ActivityLogItem[] }) {
-  const list = items && items.length > 0 ? items : activities;
+  const list = items ?? [];
   return (
     <div className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -76,61 +75,38 @@ export function ActivityTimeline({ items }: { items?: ActivityLogItem[] }) {
           <ChevronRight className="h-3 w-3" />
         </Link>
       </div>
+      {list.length === 0 ? (
+        <div className="px-5 py-8 text-center text-sm text-muted-foreground">
+          No recent activity yet.
+        </div>
+      ) : (
       <div className="divide-y divide-border">
         {list.map((a, i) => {
-          if ("createdAt" in a) {
-            const TypeIcon = typeIcon[typeByAction[a.action] || "registration"] || Circle;
-            return (
-              <div
-                key={a.id}
-                className="flex items-start gap-3 px-5 py-3 transition-colors hover:bg-muted/30"
-              >
-                <div
-                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${colorForIndex(i)}`}
-                >
-                  {initials(a.user)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-foreground">
-                    <span className="font-medium">
-                      {a.user ? `${a.user.firstName} ${a.user.lastName}` : "System"}
-                    </span>{" "}
-                    <span className="text-muted-foreground">
-                      {a.action.toLowerCase()}
-                    </span>{" "}
-                    <span className="font-medium text-primary">{a.entity}</span>
-                  </p>
-                  <div className="mt-1 flex items-center gap-2">
-                    <TypeIcon className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {timeAgo(a.createdAt)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-          const TypeIcon = typeIcon[a.type] || Circle;
+          const TypeIcon = typeIcon[typeByAction[a.action] || "registration"] || Circle;
           return (
             <div
-              key={i}
+              key={a.id}
               className="flex items-start gap-3 px-5 py-3 transition-colors hover:bg-muted/30"
             >
               <div
-                className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${a.color}`}
+                className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${colorForIndex(i)}`}
               >
-                {a.user}
+                {initials(a.user)}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-foreground">
-                  <span className="font-medium">{a.name}</span>{" "}
-                  <span className="text-muted-foreground">{a.action}</span>{" "}
+                  <span className="font-medium">
+                    {a.user ? `${a.user.firstName} ${a.user.lastName}` : "System"}
+                  </span>{" "}
+                  <span className="text-muted-foreground">
+                    {a.action.toLowerCase()}
+                  </span>{" "}
                   <span className="font-medium text-primary">{a.entity}</span>
                 </p>
                 <div className="mt-1 flex items-center gap-2">
                   <TypeIcon className="h-3 w-3 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">
-                    {a.time}
+                    {timeAgo(a.createdAt)}
                   </span>
                 </div>
               </div>
@@ -138,6 +114,7 @@ export function ActivityTimeline({ items }: { items?: ActivityLogItem[] }) {
           );
         })}
       </div>
+      )}
     </div>
   );
 }

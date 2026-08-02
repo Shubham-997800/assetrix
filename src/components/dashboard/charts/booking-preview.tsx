@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { CalendarDays, ChevronRight } from "lucide-react";
-import { bookings as demoBookings } from "./dashboard-data";
 import type { UpcomingBooking } from "@/lib/types";
 
 function fmtTime(iso: string) {
@@ -10,19 +9,16 @@ function fmtTime(iso: string) {
 
 export function BookingPreview({ bookings }: { bookings?: UpcomingBooking[] }) {
   const now = new Date();
-  const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
-  const list = bookings && bookings.length > 0
-    ? bookings.map((b) => ({
-        id: b.id,
-        room: b.asset?.name ?? "Unnamed asset",
-        owner: b.user ? `${b.user.firstName} ${b.user.lastName}` : "Unknown",
-        start: fmtTime(b.startDate),
-        end: fmtTime(b.endDate),
-        startDate: b.startDate,
-        endDate: b.endDate,
-      }))
-    : demoBookings;
+  const list = (bookings ?? []).map((b) => ({
+    id: b.id,
+    room: b.asset?.name ?? "Unnamed asset",
+    owner: b.user ? `${b.user.firstName} ${b.user.lastName}` : "Unknown",
+    start: fmtTime(b.startDate),
+    end: fmtTime(b.endDate),
+    startDate: b.startDate,
+    endDate: b.endDate,
+  }));
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -49,14 +45,16 @@ export function BookingPreview({ bookings }: { bookings?: UpcomingBooking[] }) {
         </Link>
       </div>
       <div className="mt-4 space-y-2">
-        {list.map((b, i) => {
-          const isOngoing =
-            "startDate" in b
-              ? new Date(b.startDate) <= now && now < new Date(b.endDate)
-              : timeStr >= b.start && timeStr < b.end;
+        {list.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
+            No bookings scheduled.
+          </p>
+        ) : (
+        list.map((b) => {
+          const isOngoing = new Date(b.startDate) <= now && now < new Date(b.endDate);
           return (
             <div
-              key={i}
+              key={b.id}
               className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
                 isOngoing
                   ? "border-primary/30 bg-primary/5"
@@ -87,7 +85,8 @@ export function BookingPreview({ bookings }: { bookings?: UpcomingBooking[] }) {
               )}
             </div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );
