@@ -89,7 +89,7 @@ jest.mock("jsonwebtoken", () => ({
   verify: jest.fn().mockReturnValue({
     userId: "test-user-id",
     email: "test@example.com",
-    role: "EMPLOYEE",
+    role: "ADMIN",
     type: "refresh",
   }),
 }));
@@ -133,7 +133,7 @@ describe("AuthService", () => {
         email: "test@example.com",
         firstName: "John",
         lastName: "Doe",
-        role: "EMPLOYEE",
+        role: "ADMIN",
         status: "ACTIVE",
       });
 
@@ -191,7 +191,7 @@ describe("AuthService", () => {
         email: "test@example.com",
         firstName: "John",
         lastName: "Doe",
-        role: "EMPLOYEE",
+        role: "ADMIN",
         status: "ACTIVE",
       });
 
@@ -215,7 +215,7 @@ describe("AuthService", () => {
       password: "hashed-password",
       firstName: "John",
       lastName: "Doe",
-      role: "EMPLOYEE",
+      role: "ADMIN",
       status: "ACTIVE",
       avatar: null,
       lastLoginAt: null,

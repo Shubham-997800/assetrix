@@ -1,9 +1,8 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import {
   changePasswordSchema,
-  changeRoleSchema,
   changeStatusSchema,
   createUserSchema,
   profileUpdateSchema,
@@ -22,7 +21,6 @@ router.get("/:id", authenticate, userController.getById);
 router.post(
   "/",
   authenticate,
-  authorize("SUPER_ADMIN", "ADMIN"),
   validate(createUserSchema),
   userController.create
 );
@@ -34,27 +32,17 @@ router.patch("/profile", authenticate, validate(profileUpdateSchema), userContro
 router.put(
   "/:id",
   authenticate,
-  authorize("SUPER_ADMIN", "ADMIN"),
   validate(updateUserSchema),
   userController.update
 );
 
 router.patch(
-  "/:id/role",
-  authenticate,
-  authorize("SUPER_ADMIN", "ADMIN"),
-  validate(changeRoleSchema),
-  userController.changeRole
-);
-
-router.patch(
   "/:id/status",
   authenticate,
-  authorize("SUPER_ADMIN", "ADMIN"),
   validate(changeStatusSchema),
   userController.changeStatus
 );
 
-router.delete("/:id", authenticate, authorize("SUPER_ADMIN", "ADMIN"), userController.remove);
+router.delete("/:id", authenticate, userController.remove);
 
 export default router;

@@ -80,9 +80,7 @@ const scheduleInclude = {
 // ─── GET ALL TASKS ──────────────────────────────────────────
 
 export const getAllTasks = async (
-  query: MaintenanceTaskQueryInput,
-  userId: string,
-  userRole: string
+  query: MaintenanceTaskQueryInput
 ) => {
   const { page, limit, search, sortBy, sortOrder, status, type, assetId, assignedToId, requestedById, priority, startDate, endDate } = query;
   const skip = (page - 1) * limit;
@@ -115,12 +113,6 @@ export const getAllTasks = async (
       ...(startDate && { gte: startDate }),
       ...(endDate && { lte: endDate }),
     };
-  }
-
-  if (userRole === "TECHNICIAN") {
-    where.assignedToId = userId;
-  } else if (userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
-    where.asset = { ownerId: userId };
   }
 
   const orderBy: Prisma.MaintenanceTaskOrderByWithRelationInput = {
@@ -177,7 +169,7 @@ export const createTask = async (
 
   if (data.assignedToId) {
     const technician = await prisma.user.findFirst({
-      where: { id: data.assignedToId, role: "TECHNICIAN", deletedAt: null },
+      where: { id: data.assignedToId, deletedAt: null },
     });
 
     if (!technician) {
@@ -340,7 +332,7 @@ export const assignTask = async (
   }
 
   const technician = await prisma.user.findFirst({
-    where: { id: assignedToId, role: "TECHNICIAN", deletedAt: null },
+    where: { id: assignedToId, deletedAt: null },
   });
 
   if (!technician) {

@@ -33,7 +33,7 @@ export interface User {
   updatedAt: string;
 }
 
-export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'DEPARTMENT_MANAGER' | 'TECHNICIAN' | 'EMPLOYEE';
+export type UserRole = 'ADMIN';
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING_VERIFICATION';
 export type AssetStatus = 'AVAILABLE' | 'ALLOCATED' | 'MAINTENANCE' | 'RETIRED' | 'LOST' | 'STOLEN';
 export type AssetCondition = 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR' | 'DAMAGED';

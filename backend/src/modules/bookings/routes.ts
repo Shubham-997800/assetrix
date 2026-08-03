@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import {
   approveBookingSchema,
@@ -27,7 +27,6 @@ router.post("/", validate(createBookingSchema), bookingController.createBooking)
 
 router.post(
   "/:id/approve",
-  authorize("SUPER_ADMIN", "ADMIN", "DEPARTMENT_MANAGER"),
   validate(bookingIdParamSchema, "params"),
   validate(approveBookingSchema),
   bookingController.approveBooking
@@ -35,7 +34,6 @@ router.post(
 
 router.post(
   "/:id/reject",
-  authorize("SUPER_ADMIN", "ADMIN", "DEPARTMENT_MANAGER"),
   validate(bookingIdParamSchema, "params"),
   validate(rejectBookingSchema),
   bookingController.rejectBooking
@@ -50,7 +48,6 @@ router.post(
 
 router.post(
   "/:id/complete",
-  authorize("SUPER_ADMIN", "ADMIN", "DEPARTMENT_MANAGER"),
   validate(bookingIdParamSchema, "params"),
   validate(completeBookingSchema),
   bookingController.completeBooking

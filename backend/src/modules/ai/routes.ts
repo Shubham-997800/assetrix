@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import {
   assetIdParamSchema,
@@ -22,7 +22,6 @@ router.get(
 router.post(
   "/recommendations/generate",
   authenticate,
-  authorize("ADMIN", "SUPER_ADMIN", "DEPARTMENT_MANAGER"),
   aiController.generateRecommendations
 );
 

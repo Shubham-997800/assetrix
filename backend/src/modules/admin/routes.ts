@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import { updateSystemSettingSchema, forceLogoutParamsSchema } from "./validators";
 import * as adminController from "./controller";
@@ -7,7 +7,6 @@ import * as adminController from "./controller";
 const router = Router();
 
 router.use(authenticate);
-router.use(authorize("SUPER_ADMIN", "ADMIN"));
 
 router.get("/stats", adminController.getSystemStats);
 router.get("/stats/users", adminController.getUserStats);

@@ -178,7 +178,6 @@ export const register = async (
     employeeId?: string;
     designation?: string;
     departmentId?: string;
-    role?: string;
     termsAccepted: boolean;
   },
   ipAddress?: string,
@@ -218,7 +217,7 @@ export const register = async (
       employeeId: data.employeeId || null,
       designation: data.designation || null,
       departmentId: data.departmentId || null,
-      role: "EMPLOYEE",
+      role: "ADMIN",
       status: "ACTIVE",
       emailVerified: true,
       termsAccepted: true,

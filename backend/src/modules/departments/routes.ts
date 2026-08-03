@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import {
   createDepartmentSchema,
@@ -20,14 +20,12 @@ router.get("/:id", validate(departmentParamsSchema, "params"), departmentControl
 
 router.post(
   "/",
-  authorize("SUPER_ADMIN", "ADMIN"),
   validate(createDepartmentSchema),
   departmentController.create
 );
 
 router.put(
   "/:id",
-  authorize("SUPER_ADMIN", "ADMIN"),
   validate(departmentParamsSchema, "params"),
   validate(updateDepartmentSchema),
   departmentController.update
@@ -35,7 +33,6 @@ router.put(
 
 router.patch(
   "/:id",
-  authorize("SUPER_ADMIN", "ADMIN"),
   validate(departmentParamsSchema, "params"),
   validate(updateDepartmentSchema),
   departmentController.update
@@ -43,7 +40,6 @@ router.patch(
 
 router.delete(
   "/:id",
-  authorize("SUPER_ADMIN", "ADMIN"),
   validate(departmentParamsSchema, "params"),
   departmentController.remove
 );

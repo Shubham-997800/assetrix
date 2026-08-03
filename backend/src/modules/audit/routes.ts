@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import {
   auditQuerySchema,
@@ -13,7 +13,6 @@ import * as auditController from "./controller";
 const router = Router();
 
 router.use(authenticate);
-router.use(authorize("SUPER_ADMIN", "ADMIN"));
 
 router.get("/", validate(auditQuerySchema, "query"), auditController.getAll);
 router.get("/recent", validate(recentActivityQuerySchema, "query"), auditController.getRecentActivity);

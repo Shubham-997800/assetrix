@@ -89,7 +89,7 @@ jest.mock("../../modules/shared/email", () => ({
 
 jest.mock("../../middleware/auth", () => ({
   authenticate: (req: any, _res: any, next: any) => {
-    req.user = { userId: "test-user-id", email: "test@example.com", role: "EMPLOYEE" };
+    req.user = { userId: "test-user-id", email: "test@example.com", role: "ADMIN" };
     next();
   },
   authorize: () => (_req: any, _res: any, next: any) => next(),
@@ -105,7 +105,7 @@ jest.mock("jsonwebtoken", () => ({
   verify: jest.fn().mockReturnValue({
     userId: "test-user-id",
     email: "test@example.com",
-    role: "EMPLOYEE",
+    role: "ADMIN",
     type: "access",
   }),
 }));
@@ -143,7 +143,7 @@ describe("Auth Routes Integration", () => {
         email: "test@example.com",
         firstName: "John",
         lastName: "Doe",
-        role: "EMPLOYEE",
+        role: "ADMIN",
         status: "ACTIVE",
       });
 
@@ -196,7 +196,7 @@ describe("Auth Routes Integration", () => {
         password: "hashed-password",
         firstName: "John",
         lastName: "Doe",
-        role: "EMPLOYEE",
+        role: "ADMIN",
         status: "ACTIVE",
         avatar: null,
         lastLoginAt: null,
@@ -318,7 +318,7 @@ describe("Auth Routes Integration", () => {
         lastName: "Doe",
         phone: null,
         avatar: null,
-        role: "EMPLOYEE",
+        role: "ADMIN",
         status: "ACTIVE",
         employeeId: null,
         designation: null,

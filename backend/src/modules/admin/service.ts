@@ -42,12 +42,7 @@ export const getSystemStats = async () => {
 };
 
 export const getUserStats = async () => {
-  const [byRole, byStatus, registrationsOverTime] = await Promise.all([
-    prisma.user.groupBy({
-      by: ["role"],
-      _count: { id: true },
-      where: { deletedAt: null },
-    }),
+  const [byStatus, registrationsOverTime] = await Promise.all([
     prisma.user.groupBy({
       by: ["status"],
       _count: { id: true },
@@ -66,7 +61,6 @@ export const getUserStats = async () => {
   ]);
 
   return {
-    byRole: byRole.map((r) => ({ role: r.role, count: Number(r._count.id) })),
     byStatus: byStatus.map((s) => ({ status: s.status, count: Number(s._count.id) })),
     registrationsOverTime: registrationsOverTime.map((r) => ({
       date: r.date,

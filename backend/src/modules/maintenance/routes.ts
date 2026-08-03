@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
-import { ROLES } from "../../constants";
 import {
   approveMaintenanceSchema,
   assignTaskSchema,
@@ -31,14 +30,12 @@ router.get(
 
 router.post(
   "/schedules",
-  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
   validate(createMaintenanceScheduleSchema),
   maintenanceController.createSchedule
 );
 
 router.put(
   "/schedules/:id",
-  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
   validate(scheduleIdParamSchema, "params"),
   validate(updateMaintenanceScheduleSchema),
   maintenanceController.updateSchedule
@@ -46,7 +43,6 @@ router.put(
 
 router.delete(
   "/schedules/:id",
-  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
   validate(scheduleIdParamSchema, "params"),
   maintenanceController.deleteSchedule
 );
@@ -115,14 +111,12 @@ router.put(
 
 router.delete(
   "/:id",
-  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN),
   validate(taskIdParamSchema, "params"),
   maintenanceController.deleteTask
 );
 
 router.post(
   "/:id/approve",
-  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
   validate(taskIdParamSchema, "params"),
   validate(approveMaintenanceSchema),
   maintenanceController.approveTask
@@ -130,7 +124,6 @@ router.post(
 
 router.post(
   "/:id/reject",
-  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER),
   validate(taskIdParamSchema, "params"),
   validate(rejectMaintenanceSchema),
   maintenanceController.rejectTask

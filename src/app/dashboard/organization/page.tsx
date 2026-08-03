@@ -17,9 +17,8 @@ import {
   ChevronRight,
   Shield,
   AlertTriangle,
+  AlertCircle,
   Eye,
-  ArrowRight,
-  ArrowUp,
 } from "lucide-react";
 import { departmentApi, categoryApi, adminApi, ApiError } from "@/lib/api";
 import type { Department as ApiDepartment, AssetCategory as ApiAssetCategory, User as ApiUser } from "@/lib/types";
@@ -59,17 +58,13 @@ interface Employee {
   email: string;
   employeeId: string;
   department: string;
-  role: "Employee" | "Department Head" | "Asset Manager" | "Admin";
+  role: "Admin";
   status: "Active" | "Inactive";
   lastLogin: string;
 }
 
 const ROLE_MAP: Record<string, Employee["role"]> = {
-  SUPER_ADMIN: "Admin",
   ADMIN: "Admin",
-  DEPARTMENT_MANAGER: "Department Head",
-  TECHNICIAN: "Asset Manager",
-  EMPLOYEE: "Employee",
 };
 
 const STATUS_MAP: Record<string, "Active" | "Inactive"> = {
@@ -116,7 +111,7 @@ function mapApiUser(u: ApiUser): Employee {
     email: u.email,
     employeeId: u.employeeId ?? "—",
     department: u.department?.name ?? "—",
-    role: ROLE_MAP[u.role] ?? "Employee",
+    role: ROLE_MAP[u.role] ?? "Admin",
     status: STATUS_MAP[u.status] ?? "Active",
     lastLogin: u.lastLoginAt ? computeTimeAgo(u.lastLoginAt) : "Never",
   };
@@ -136,9 +131,6 @@ function computeTimeAgo(dateStr: string): string {
 
 const roleColors: Record<string, string> = {
   Admin: "bg-red-500/10 text-red-600 dark:text-red-400",
-  "Department Head": "bg-violet-500/10 text-violet-600 dark:text-violet-400",
-  "Asset Manager": "bg-primary/10 text-primary",
-  Employee: "bg-muted text-muted-foreground",
 };
 
 /* ═══════════════════════════════════════════════════════
@@ -776,9 +768,27 @@ function CategoryForm({
   const [maintenance, setMaintenance] = useState(initial?.maintenanceRequired ?? false);
   const [warranty, setWarranty] = useState(initial?.warrantyTracking ?? false);
   const [fields, setFields] = useState(initial?.fields || []);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const addField = () => setFields((prev) => [...prev, { name: "", type: "Text" }]);
   const removeField = (i: number) => setFields((prev) => prev.filter((_, idx) => idx !== i));
+
+  const handleSubmit = () => {
+    if (!name.trim()) {
+      setFormError("Category name is required");
+      return;
+    }
+    if (!code.trim()) {
+      setFormError("Category code is required");
+      return;
+    }
+    if (code.trim().length > 20) {
+      setFormError("Category code must be 20 characters or fewer");
+      return;
+    }
+    setFormError(null);
+    onSubmit({ name: name.trim(), code: code.trim(), description, sharedAllowed: shared, maintenanceRequired: maintenance, warrantyTracking: warranty, fields, status: initial?.status ?? "Active" });
+  };
 
   return (
     <div className="space-y-4">
@@ -789,7 +799,7 @@ function CategoryForm({
         </div>
         <div className="space-y-1">
           <label className="text-sm font-medium text-foreground">Category Code</label>
-          <input value={code} onChange={(e) => setCode(e.target.value)} className="w-full rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-foreground outline-none focus:border-primary" placeholder="e.g. ELEC" />
+          <input value={code} onChange={(e) => setCode(e.target.value)} maxLength={20} className="w-full rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-foreground outline-none focus:border-primary" placeholder="e.g. ELEC" />
         </div>
       </div>
       <div className="space-y-1">
@@ -831,9 +841,14 @@ function CategoryForm({
           </div>
         ))}
       </div>
+      {formError && (
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+          <AlertCircle className="h-3.5 w-3.5" /> {formError}
+        </div>
+      )}
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="outline" size="sm" onClick={onCancel} className="btn-enterprise">Cancel</Button>
-        <Button size="sm" onClick={() => onSubmit({ name, code, description, sharedAllowed: shared, maintenanceRequired: maintenance, warrantyTracking: warranty, fields, status: initial?.status ?? "Active" })} className="btn-enterprise">
+        <Button size="sm" onClick={handleSubmit} className="btn-enterprise">
           {initial ? "Save Changes" : "Create Category"}
         </Button>
       </div>
@@ -856,7 +871,6 @@ function EmployeesTab({
   const [page, setPage] = useState(1);
   const perPage = 8;
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [promoteEmp, setPromoteEmp] = useState<Employee | null>(null);
   const [confirm, setConfirm] = useState<{ open: boolean; id: string; action: string }>({ open: false, id: "", action: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -891,21 +905,6 @@ function EmployeesTab({
   const totalPages = Math.ceil(filtered.length / perPage);
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
-  const promote = async (id: string, newRole: Employee["role"]) => {
-    const apiRoleMap: Record<string, string> = {
-      "Department Head": "DEPARTMENT_MANAGER",
-      "Asset Manager": "TECHNICIAN",
-    };
-    try {
-      await adminApi.updateUserRole(id, apiRoleMap[newRole] || newRole);
-      setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, role: newRole } : e)));
-      setPromoteEmp(null);
-      showToast(`Employee promoted to ${newRole}`);
-    } catch (err) {
-      if (err instanceof ApiError) showToast(err.message);
-    }
-  };
-
   const deactivate = async (id: string) => {
     try {
       await adminApi.updateUserStatus(id, "INACTIVE");
@@ -919,13 +918,13 @@ function EmployeesTab({
 
   return (
     <div className="space-y-4">
-      {/* Role assignment notice */}
+      {/* Admin notice */}
       <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
         <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         <div>
-          <p className="text-sm font-medium text-foreground">Role Assignment</p>
+          <p className="text-sm font-medium text-foreground">Admin Access</p>
           <p className="text-xs text-muted-foreground">
-            Roles are assigned by Admin only from this directory. Users cannot self-assign elevated roles.
+            All users in this workspace have Admin role with full access to departments, employees, and assets.
           </p>
         </div>
       </div>
@@ -945,9 +944,6 @@ function EmployeesTab({
           <select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }} className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary">
             <option value="All">All Roles</option>
             <option value="Admin">Admin</option>
-            <option value="Department Head">Dept Head</option>
-            <option value="Asset Manager">Asset Mgr</option>
-            <option value="Employee">Employee</option>
           </select>
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary">
             <option value="All">All Status</option>
@@ -1018,11 +1014,6 @@ function EmployeesTab({
                     <td className="hidden px-4 py-3 text-xs text-muted-foreground lg:table-cell">{emp.lastLogin}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        {emp.role === "Employee" && emp.status === "Active" && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setPromoteEmp(emp)} title="Promote">
-                            <ArrowUp className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
                         <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setConfirm({ open: true, id: emp.id, action: "deactivate" })} title="Deactivate">
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -1058,44 +1049,6 @@ function EmployeesTab({
           </div>
         </div>
       </div>
-
-      {/* Promote Modal */}
-      <Modal open={!!promoteEmp} title="Promote Employee" onClose={() => setPromoteEmp(null)}>
-        {promoteEmp && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                {promoteEmp.name.split(" ").map((n) => n[0]).join("")}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">{promoteEmp.name}</p>
-                <p className="text-xs text-muted-foreground">{promoteEmp.email} · {promoteEmp.department}</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Assign new role:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {(["Department Head", "Asset Manager"] as const).map((role) => (
-                  <button
-                    key={role}
-                    onClick={() => promote(promoteEmp.id, role)}
-                    className="flex items-center gap-2 rounded-lg border border-border p-3 text-left transition-all hover:border-primary/30 hover:bg-primary/5"
-                  >
-                    <ArrowRight className="h-4 w-4 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{role}</p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {role === "Department Head" ? "Manages department operations" : "Manages asset lifecycle"}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => setPromoteEmp(null)} className="btn-enterprise">Cancel</Button>
-          </div>
-        )}
-      </Modal>
 
       {/* Confirm */}
       <ConfirmDialog

@@ -7,13 +7,13 @@ const SALT_ROUNDS = 10;
 
 const USERS = [
   { email: "admin@assetrix.com", password: "Admin@123", firstName: "Rahul", lastName: "Mehta", role: UserRole.ADMIN, employeeId: "EMP-001", designation: "System Administrator" },
-  { email: "asset.manager@assetrix.com", password: "Manager@123", firstName: "Priya", lastName: "Sharma", role: UserRole.DEPARTMENT_MANAGER, employeeId: "EMP-002", designation: "Asset Manager" },
-  { email: "dept.head@assetrix.com", password: "DeptHead@123", firstName: "Amit", lastName: "Verma", role: UserRole.DEPARTMENT_MANAGER, employeeId: "EMP-003", designation: "Department Head - Engineering" },
-  { email: "employee1@assetrix.com", password: "Employee@123", firstName: "Neha", lastName: "Gupta", role: UserRole.EMPLOYEE, employeeId: "EMP-004", designation: "Software Engineer" },
-  { email: "employee2@assetrix.com", password: "Employee@123", firstName: "Arjun", lastName: "Singh", role: UserRole.EMPLOYEE, employeeId: "EMP-005", designation: "Software Engineer" },
-  { email: "auditor@assetrix.com", password: "Auditor@123", firstName: "Kavya", lastName: "Patel", role: UserRole.EMPLOYEE, employeeId: "EMP-006", designation: "Internal Auditor" },
-  { email: "technician@assetrix.com", password: "Tech@123", firstName: "Vikram", lastName: "Reddy", role: UserRole.TECHNICIAN, employeeId: "EMP-007", designation: "IT Support Technician" },
-  { email: "hr@assetrix.com", password: "Hr@123", firstName: "Sneha", lastName: "Joshi", role: UserRole.DEPARTMENT_MANAGER, employeeId: "EMP-008", designation: "HR Manager" },
+  { email: "asset.manager@assetrix.com", password: "Manager@123", firstName: "Priya", lastName: "Sharma", role: UserRole.ADMIN, employeeId: "EMP-002", designation: "Asset Manager" },
+  { email: "dept.head@assetrix.com", password: "DeptHead@123", firstName: "Amit", lastName: "Verma", role: UserRole.ADMIN, employeeId: "EMP-003", designation: "Department Head - Engineering" },
+  { email: "employee1@assetrix.com", password: "Employee@123", firstName: "Neha", lastName: "Gupta", role: UserRole.ADMIN, employeeId: "EMP-004", designation: "Software Engineer" },
+  { email: "employee2@assetrix.com", password: "Employee@123", firstName: "Arjun", lastName: "Singh", role: UserRole.ADMIN, employeeId: "EMP-005", designation: "Software Engineer" },
+  { email: "auditor@assetrix.com", password: "Auditor@123", firstName: "Kavya", lastName: "Patel", role: UserRole.ADMIN, employeeId: "EMP-006", designation: "Internal Auditor" },
+  { email: "technician@assetrix.com", password: "Tech@123", firstName: "Vikram", lastName: "Reddy", role: UserRole.ADMIN, employeeId: "EMP-007", designation: "IT Support Technician" },
+  { email: "hr@assetrix.com", password: "Hr@123", firstName: "Sneha", lastName: "Joshi", role: UserRole.ADMIN, employeeId: "EMP-008", designation: "HR Manager" },
 ];
 
 const DEPARTMENTS = [

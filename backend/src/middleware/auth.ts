@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { config } from "../config/env";
-import { HTTP_STATUS, type Role } from "../constants";
+import { HTTP_STATUS } from "../constants";
 import { errorResponse } from "../utils/response";
 import type { JwtPayload } from "../types";
 
@@ -29,20 +29,4 @@ export const authenticate = (req: AuthenticatedRequest, res: Response, next: Nex
   } catch {
     res.status(HTTP_STATUS.UNAUTHORIZED).json(errorResponse("Invalid or expired token.", HTTP_STATUS.UNAUTHORIZED));
   }
-};
-
-export const authorize = (...roles: Role[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-    if (!req.user) {
-      res.status(HTTP_STATUS.UNAUTHORIZED).json(errorResponse("Access denied. No token provided.", HTTP_STATUS.UNAUTHORIZED));
-      return;
-    }
-
-    if (!roles.includes(req.user.role)) {
-      res.status(HTTP_STATUS.FORBIDDEN).json(errorResponse("Insufficient permissions.", HTTP_STATUS.FORBIDDEN));
-      return;
-    }
-
-    next();
-  };
 };

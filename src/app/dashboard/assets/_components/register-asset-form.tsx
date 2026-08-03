@@ -88,6 +88,8 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
   const [categories, setCategories] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [locations, setLocations] = useState<string[]>([]);
+  const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
+  const [departmentIdMap, setDepartmentIdMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -96,33 +98,28 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
         const [catRes, deptRes, assetRes] = await Promise.all([
           categoryApi.list(),
           departmentApi.list(),
-          assetApi.list({ limit: 1000 }),
+          assetApi.list({ limit: 100 }),
         ]);
         if (cancelled) return;
-        setCategories(
-          Array.from(
-            new Set(
-              ((catRes.data ?? []) as { name: string }[])
-                .map((c) => c.name)
-                .filter((n) => Boolean(n && n.trim()))
-            )
-          ).sort()
+        const catList = ((catRes.data ?? []) as { id: string; name: string }[]).filter(
+          (c) => Boolean(c.name && c.name.trim())
         );
-        setDepartments(
-          Array.from(
-            new Set(
-              ((deptRes.data ?? []) as { name: string }[])
-                .map((d) => d.name)
-                .filter((n) => Boolean(n && n.trim()))
-            )
-          ).sort()
+        const deptList = ((deptRes.data ?? []) as { id: string; name: string; location?: string | null }[]).filter(
+          (d) => Boolean(d.name && d.name.trim())
         );
+        setCategories(Array.from(new Set(catList.map((c) => c.name))).sort());
+        setDepartments(Array.from(new Set(deptList.map((d) => d.name))).sort());
+        setCategoryIdMap(Object.fromEntries(catList.map((c) => [c.name, c.id])));
+        setDepartmentIdMap(Object.fromEntries(deptList.map((d) => [d.name, d.id])));
         setLocations(
           Array.from(
             new Set(
-              ((assetRes.data ?? []) as { location?: string | null }[])
-                .map((a) => a.location ?? "")
-                .filter((l) => Boolean(l && l.trim()))
+              [
+                ...(((assetRes.data ?? []) as { location?: string | null }[]).map(
+                  (a) => a.location ?? ""
+                )),
+                ...deptList.map((d) => d.location ?? ""),
+              ].filter((l) => Boolean(l && l.trim()))
             )
           ).sort()
         );
@@ -155,24 +152,21 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
     try {
       setSubmitting(true);
       setSubmitError(null);
+      const toIso = (d: string) => (d ? new Date(d).toISOString() : undefined);
       await assetApi.create({
         name: basicDetails.name,
         description: basicDetails.description || undefined,
-        category: basicDetails.category,
-        condition: basicDetails.condition?.toUpperCase(),
-        department: basicDetails.department,
-        location: basicDetails.location,
-        serialNumber: identification.serialNumber,
-        manufacturer: identification.manufacturer,
+        categoryId: categoryIdMap[basicDetails.category] ?? undefined,
+        departmentId: departmentIdMap[basicDetails.department] ?? undefined,
+        location: basicDetails.location || undefined,
+        serialNumber: identification.serialNumber || undefined,
+        manufacturer: identification.manufacturer || undefined,
         model: identification.modelNumber || undefined,
-        barcode: identification.barcode || undefined,
-        purchaseDate: acquisition.date || undefined,
+        purchaseDate: toIso(acquisition.date),
         purchasePrice: acquisition.cost ? parseFloat(acquisition.cost) : undefined,
-        vendor: acquisition.vendor || undefined,
-        warrantyExpiry: acquisition.warrantyExpiry || undefined,
-        purchaseRef: acquisition.purchaseRef || undefined,
-        sharedResource: resourceConfig.shared,
-        bookableResource: resourceConfig.bookable,
+        warrantyProvider: acquisition.vendor || undefined,
+        warrantyExpiry: toIso(acquisition.warrantyExpiry),
+        invoiceNumber: acquisition.purchaseRef || undefined,
       });
       setSubmitted(true);
       setTimeout(() => onSubmit(), 1500);

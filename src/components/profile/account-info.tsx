@@ -1,11 +1,7 @@
 "use client";
 
 const ROLE_LABELS: Record<string, string> = {
-  SUPER_ADMIN: "Super Admin",
   ADMIN: "Admin",
-  DEPARTMENT_MANAGER: "Department Manager",
-  TECHNICIAN: "Technician",
-  EMPLOYEE: "Employee",
 };
 
 interface AccountInfoProps {

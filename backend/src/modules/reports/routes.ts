@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
-import { ROLES } from "../../constants";
 import {
   generateReportSchema,
   reportIdParamSchema,
@@ -12,7 +11,6 @@ import * as reportController from "./controller";
 const router = Router();
 
 router.use(authenticate);
-router.use(authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN));
 
 router.post("/", validate(generateReportSchema), reportController.generateReport);
 router.get("/", validate(reportQuerySchema, "query"), reportController.getAllReports);

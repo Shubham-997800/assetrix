@@ -67,7 +67,7 @@ async function checkWarrantyExpiries(): Promise<void> {
       if (allocation.userId) recipients.add(allocation.userId);
     }
     const admins = await prisma.user.findMany({
-      where: { role: { in: ["SUPER_ADMIN", "ADMIN"] }, status: "ACTIVE", deletedAt: null },
+      where: { status: "ACTIVE", deletedAt: null },
       select: { id: true },
     });
     for (const admin of admins) recipients.add(admin.id);

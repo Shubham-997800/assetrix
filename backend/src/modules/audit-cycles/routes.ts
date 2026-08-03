@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
-import { ROLES } from "../../constants";
 import {
   assignAuditorsSchema,
   auditCycleParamsSchema,
@@ -18,7 +17,6 @@ import * as auditCycleController from "./controller";
 const router = Router();
 
 router.use(authenticate);
-router.use(authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEPARTMENT_MANAGER));
 
 router.get("/", validate(auditCycleQuerySchema, "query"), auditCycleController.getAll);
 router.get("/:id", validate(auditCycleParamsSchema, "params"), auditCycleController.getById);
@@ -33,7 +31,6 @@ router.put(
 );
 router.delete(
   "/:id",
-  authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN),
   validate(auditCycleParamsSchema, "params"),
   auditCycleController.remove
 );

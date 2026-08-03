@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { validatePasswordPolicy, ROLES, USER_STATUS } from "../../constants";
 
-const userRoles = Object.values(ROLES) as [string, ...string[]];
 const userStatuses = Object.values(USER_STATUS) as [string, ...string[]];
 
 export const createUserSchema = z.object({
@@ -35,7 +34,7 @@ export const createUserSchema = z.object({
     .regex(/^\+?[\d\s\-()]+$/, "Invalid phone number format")
     .optional()
     .nullable(),
-  role: z.enum(userRoles).default(ROLES.EMPLOYEE),
+  role: z.enum(["ADMIN"]).default(ROLES.ADMIN),
   employeeId: z
     .string()
     .max(50, "Employee ID must not exceed 50 characters")
@@ -85,12 +84,6 @@ export const updateUserSchema = z.object({
     .nullable(),
   departmentId: z.string().uuid("Invalid department ID").optional().nullable(),
   managerId: z.string().uuid("Invalid manager ID").optional().nullable(),
-});
-
-export const changeRoleSchema = z.object({
-  role: z.enum(userRoles, {
-    errorMap: () => ({ message: "Invalid role" }),
-  }),
 });
 
 export const changeStatusSchema = z.object({
@@ -158,14 +151,12 @@ export const userQuerySchema = z.object({
     .optional()
     .default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
-  role: z.enum(userRoles).optional(),
   departmentId: z.string().uuid("Invalid department ID").optional(),
   status: z.enum(userStatuses).optional(),
 });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
-export type ChangeRoleInput = z.infer<typeof changeRoleSchema>;
 export type ChangeStatusInput = z.infer<typeof changeStatusSchema>;
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

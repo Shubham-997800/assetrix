@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import {
   assetCategoryParamsSchema,
@@ -20,14 +20,12 @@ router.get("/:id", validate(assetCategoryParamsSchema, "params"), assetCategoryC
 
 router.post(
   "/",
-  authorize("SUPER_ADMIN", "ADMIN", "DEPARTMENT_MANAGER"),
   validate(createAssetCategorySchema),
   assetCategoryController.create
 );
 
 router.put(
   "/:id",
-  authorize("SUPER_ADMIN", "ADMIN", "DEPARTMENT_MANAGER"),
   validate(assetCategoryParamsSchema, "params"),
   validate(updateAssetCategorySchema),
   assetCategoryController.update
@@ -35,7 +33,6 @@ router.put(
 
 router.patch(
   "/:id",
-  authorize("SUPER_ADMIN", "ADMIN", "DEPARTMENT_MANAGER"),
   validate(assetCategoryParamsSchema, "params"),
   validate(updateAssetCategorySchema),
   assetCategoryController.update
@@ -43,7 +40,6 @@ router.patch(
 
 router.delete(
   "/:id",
-  authorize("SUPER_ADMIN", "ADMIN"),
   validate(assetCategoryParamsSchema, "params"),
   assetCategoryController.remove
 );

@@ -1,20 +1,8 @@
 export const ROLES = {
-  SUPER_ADMIN: "SUPER_ADMIN",
   ADMIN: "ADMIN",
-  DEPARTMENT_MANAGER: "DEPARTMENT_MANAGER",
-  TECHNICIAN: "TECHNICIAN",
-  EMPLOYEE: "EMPLOYEE",
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
-
-export const ROLE_HIERARCHY: Record<string, number> = {
-  SUPER_ADMIN: 5,
-  ADMIN: 4,
-  DEPARTMENT_MANAGER: 3,
-  TECHNICIAN: 2,
-  EMPLOYEE: 1,
-};
 
 export const USER_STATUS = {
   ACTIVE: "ACTIVE",

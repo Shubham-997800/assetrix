@@ -63,11 +63,7 @@ const DashboardNavbar = memo(function DashboardNavbar() {
   const userRole = useMemo(() => {
     if (!user) return "";
     const roleMap: Record<string, string> = {
-      SUPER_ADMIN: "Super Admin",
       ADMIN: "Admin",
-      DEPARTMENT_MANAGER: "Dept Manager",
-      TECHNICIAN: "Technician",
-      EMPLOYEE: "Employee",
     };
     return roleMap[user.role] ?? user.role;
   }, [user]);

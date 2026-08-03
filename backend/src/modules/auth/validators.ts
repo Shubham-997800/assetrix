@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { validatePasswordPolicy, ROLES } from "../../constants";
+import { validatePasswordPolicy } from "../../constants";
 
 const email = z.string().trim().toLowerCase().email("Invalid email format");
 const password = z
@@ -23,7 +23,6 @@ export const registerSchema = z
     employeeId: z.string().trim().max(50).optional().nullable(),
     designation: z.string().trim().max(100).optional().nullable(),
     departmentId: z.string().uuid("Invalid department ID").optional().nullable(),
-    role: z.enum(Object.values(ROLES) as [string, ...string[]]).default(ROLES.EMPLOYEE),
     termsAccepted: z
       .boolean()
       .refine((val) => val === true, {

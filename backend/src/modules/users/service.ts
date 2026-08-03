@@ -1,15 +1,14 @@
 import { hash, compare } from "bcryptjs";
-import { Prisma, UserRole, UserStatus } from "@prisma/client";
+import { Prisma, UserStatus } from "@prisma/client";
 import prisma from "../../config/prisma";
 import { AppError, paginatedMeta } from "../../utils/response";
-import { ALLOCATION_STATUS, HTTP_STATUS, ROLE_HIERARCHY, USER_STATUS } from "../../constants";
+import { ALLOCATION_STATUS, HTTP_STATUS, ROLES, USER_STATUS } from "../../constants";
 import { createAuditLog } from "../shared/audit";
 import { createActivityLog } from "../shared/activity";
 import { sendEmail, emailTemplate } from "../shared/email";
 import { buildWhereSearch, getPagination } from "../shared/pagination";
 import type { PaginationQuery } from "../../types";
 import type {
-  ChangeRoleInput,
   ChangeStatusInput,
   CreateUserInput,
   ProfileUpdateInput,
@@ -55,7 +54,6 @@ const USER_SELECT_WITH_DEPARTMENT = {
 } as const;
 
 export interface GetAllUsersParams extends PaginationQuery {
-  role?: string;
   departmentId?: string;
   status?: string;
 }
@@ -80,10 +78,6 @@ export const getAll = async (query: GetAllUsersParams, requesterId: string) => {
     query.search?.trim()
   );
   if (searchWhere.OR) Object.assign(where, searchWhere);
-
-  if (query.role) {
-    where.role = query.role as UserRole;
-  }
 
   if (query.departmentId) {
     where.departmentId = query.departmentId;
@@ -209,7 +203,7 @@ export const create = async (data: CreateUserInput, createdByUserId: string) => 
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
       phone: data.phone,
-      role: data.role as UserRole,
+      role: ROLES.ADMIN,
       status: USER_STATUS.PENDING_VERIFICATION,
       employeeId: data.employeeId,
       designation: data.designation,
@@ -377,80 +371,6 @@ export const updateProfile = async (id: string, data: ProfileUpdateInput) => {
   return updated;
 };
 
-export const changeRole = async (
-  id: string,
-  data: ChangeRoleInput,
-  performedByUserId: string,
-  performedByRole: string,
-  ipAddress?: string,
-  userAgent?: string
-) => {
-  const ownerId = await resolveOwnerId(performedByUserId);
-
-  const target = await prisma.user.findFirst({
-    where: { id, ownerId, deletedAt: null },
-  });
-
-  if (!target) {
-    throw new AppError("User not found", HTTP_STATUS.NOT_FOUND);
-  }
-
-  const currentPerformerLevel = ROLE_HIERARCHY[performedByRole] || 0;
-  const currentTargetLevel = ROLE_HIERARCHY[target.role] || 0;
-  const newTargetLevel = ROLE_HIERARCHY[data.role] || 0;
-
-  if (currentTargetLevel >= currentPerformerLevel && performedByRole !== "SUPER_ADMIN") {
-    throw new AppError(
-      "You cannot change the role of a user with equal or higher privileges",
-      HTTP_STATUS.FORBIDDEN
-    );
-  }
-
-  if (newTargetLevel >= currentPerformerLevel && performedByRole !== "SUPER_ADMIN") {
-    throw new AppError(
-      "You cannot assign a role equal to or higher than your own",
-      HTTP_STATUS.FORBIDDEN
-    );
-  }
-
-  if (target.id === performedByUserId) {
-    throw new AppError("You cannot change your own role", HTTP_STATUS.FORBIDDEN);
-  }
-
-  const privilegedRoles = ["ADMIN", "DEPARTMENT_MANAGER"];
-  if (privilegedRoles.includes(data.role) && performedByRole !== "SUPER_ADMIN") {
-    throw new AppError(
-      "Only a Super Admin can assign Admin or Department Manager roles",
-      HTTP_STATUS.FORBIDDEN
-    );
-  }
-
-  const oldRole = target.role;
-
-  const updated = await prisma.user.update({
-    where: { id },
-    data: {
-      role: data.role as UserRole,
-      updatedBy: performedByUserId,
-      version: { increment: 1 },
-    },
-    select: USER_SELECT_WITH_DEPARTMENT,
-  });
-
-  await createAuditLog({
-    userId: performedByUserId,
-    action: "CHANGE_ROLE",
-    entity: "User",
-    entityId: id,
-    oldValues: { role: oldRole },
-    newValues: { role: data.role },
-    ipAddress,
-    userAgent,
-  });
-
-  return updated;
-};
-
 export const changeStatus = async (
   id: string,
   data: ChangeStatusInput,
@@ -470,10 +390,6 @@ export const changeStatus = async (
 
   if (target.id === performedByUserId) {
     throw new AppError("You cannot change your own status", HTTP_STATUS.FORBIDDEN);
-  }
-
-  if (target.role === "SUPER_ADMIN" && data.status === "SUSPENDED") {
-    throw new AppError("Cannot suspend a Super Admin user", HTTP_STATUS.FORBIDDEN);
   }
 
   const oldStatus = target.status;
@@ -516,10 +432,6 @@ export const remove = async (
 
   if (!existing) {
     throw new AppError("User not found", HTTP_STATUS.NOT_FOUND);
-  }
-
-  if (existing.role === "SUPER_ADMIN") {
-    throw new AppError("Cannot delete a Super Admin user", HTTP_STATUS.FORBIDDEN);
   }
 
   if (existing.id === performedByUserId) {

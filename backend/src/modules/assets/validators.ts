@@ -1,6 +1,15 @@
 import { z } from "zod";
 import { ASSET_CONDITION, ASSET_STATUS } from "../../constants";
 
+const dateString = z
+  .string()
+  .transform((val) => {
+    if (!val) return val;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return new Date(val).toISOString();
+    return val;
+  })
+  .pipe(z.string().datetime({ offset: true }));
+
 const assetStatusEnum = z.enum([
   ASSET_STATUS.AVAILABLE,
   ASSET_STATUS.ALLOCATED,
@@ -25,11 +34,11 @@ export const createAssetSchema = z.object({
   model: z.string().max(100).optional(),
   manufacturer: z.string().max(100).optional(),
   yearOfManufacture: z.number().int().min(1900).max(new Date().getFullYear() + 1).optional(),
-  purchaseDate: z.string().datetime().optional(),
+  purchaseDate: dateString.optional(),
   purchasePrice: z.number().min(0).optional(),
   currentValue: z.number().min(0).optional(),
   salvageValue: z.number().min(0).optional(),
-  warrantyExpiry: z.string().datetime().optional(),
+  warrantyExpiry: dateString.optional(),
   warrantyProvider: z.string().max(200).optional(),
   invoiceNumber: z.string().max(100).optional(),
   location: z.string().max(200).optional(),
@@ -38,7 +47,7 @@ export const createAssetSchema = z.object({
   departmentId: z.string().uuid().optional(),
   categoryId: z.string().uuid().optional(),
   insuranceProvider: z.string().max(200).optional(),
-  insuranceExpiry: z.string().datetime().optional(),
+  insuranceExpiry: dateString.optional(),
   image: z.string().max(500).optional(),
 });
 

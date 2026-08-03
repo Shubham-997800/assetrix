@@ -12,12 +12,8 @@ import type {
 // ─── TASK CONTROLLERS ───────────────────────────────────────
 
 export const getAllTasks = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.userId;
-  const userRole = req.user!.role;
   const result = await maintenanceService.getAllTasks(
-    req.query as unknown as MaintenanceTaskQueryInput,
-    userId,
-    userRole
+    req.query as unknown as MaintenanceTaskQueryInput
   );
 
   res.status(HTTP_STATUS.OK).json(

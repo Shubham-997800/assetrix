@@ -11,11 +11,7 @@ datasource db {
 // ─── ENUMS ────────────────────────────────────────────────
 
 enum UserRole {
-  SUPER_ADMIN
   ADMIN
-  DEPARTMENT_MANAGER
-  TECHNICIAN
-  EMPLOYEE
 }
 
 enum UserStatus {
@@ -134,7 +130,7 @@ model User {
   lastName       String
   phone          String?
   avatar         String?
-  role           UserRole  @default(EMPLOYEE)
+  role           UserRole  @default(ADMIN)
   status         UserStatus @default(PENDING_VERIFICATION)
   employeeId     String?   @unique
   designation    String?

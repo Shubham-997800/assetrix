@@ -1,5 +1,5 @@
 ﻿import { Router } from "express";
-import { authenticate, authorize } from "../../middleware/auth";
+import { authenticate } from "../../middleware/auth";
 import { validate } from "../../middleware/validate";
 import {
   createAssetSchema,
@@ -31,14 +31,12 @@ router.get("/:id/history", validate(assetParamsSchema, "params"), assetControlle
 
 router.post(
   "/",
-  authorize("ADMIN", "SUPER_ADMIN", "DEPARTMENT_MANAGER"),
   validate(createAssetSchema),
   assetController.create
 );
 
 router.put(
   "/:id",
-  authorize("ADMIN", "SUPER_ADMIN", "DEPARTMENT_MANAGER"),
   validate(assetParamsSchema, "params"),
   validate(updateAssetSchema),
   assetController.update
@@ -46,14 +44,12 @@ router.put(
 
 router.delete(
   "/:id",
-  authorize("ADMIN", "SUPER_ADMIN"),
   validate(assetParamsSchema, "params"),
   assetController.remove
 );
 
 router.post(
   "/:id/assign",
-  authorize("ADMIN", "SUPER_ADMIN", "DEPARTMENT_MANAGER"),
   validate(assetParamsSchema, "params"),
   validate(assignAssetSchema),
   assetController.assign
@@ -61,7 +57,6 @@ router.post(
 
 router.post(
   "/:id/unallocate",
-  authorize("ADMIN", "SUPER_ADMIN", "DEPARTMENT_MANAGER"),
   validate(assetParamsSchema, "params"),
   validate(changeConditionSchema),
   assetController.unallocate
@@ -69,7 +64,6 @@ router.post(
 
 router.patch(
   "/:id/status",
-  authorize("ADMIN", "SUPER_ADMIN", "DEPARTMENT_MANAGER"),
   validate(assetParamsSchema, "params"),
   validate(changeStatusSchema),
   assetController.changeStatus

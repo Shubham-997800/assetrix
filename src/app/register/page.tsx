@@ -98,13 +98,12 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Employee notice */}
+        {/* Admin notice */}
         <div className="rounded-lg border border-border bg-muted/30 px-3 py-2">
           <p className="text-xs text-muted-foreground">
             All new accounts are created as{" "}
-            <span className="font-medium text-foreground">Employee</span>{" "}
-            accounts. Administrative roles are assigned internally by
-            administrators.
+            <span className="font-medium text-foreground">Admin</span>{" "}
+            accounts with full access to departments, employees, and assets.
           </p>
         </div>
 
