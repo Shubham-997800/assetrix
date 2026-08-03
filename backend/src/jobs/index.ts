@@ -84,14 +84,18 @@ async function checkWarrantyExpiries(): Promise<void> {
   }
 }
 
+export async function runScheduledJobs(): Promise<void> {
+  await markOverdueAllocations();
+  await markOverdueMaintenance();
+  const now = new Date();
+  if (now.getUTCHours() === 6) {
+    await checkWarrantyExpiries();
+  }
+}
+
 export function startJobs(): void {
   cron.schedule("0 * * * *", () => {
-    void markOverdueAllocations();
-    void markOverdueMaintenance();
-  });
-
-  cron.schedule("0 6 * * *", () => {
-    void checkWarrantyExpiries();
+    void runScheduledJobs();
   });
 
   logger.info("Cron jobs scheduled");

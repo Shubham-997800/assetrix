@@ -23,6 +23,7 @@ import auditCycleRouter from "./modules/audit-cycles/routes";
 import assetCategoryRouter from "./modules/asset-categories/routes";
 import adminRouter from "./modules/admin/routes";
 import aiRouter from "./modules/ai/routes";
+import { runScheduledJobs } from "./jobs";
 
 const app = express();
 
@@ -38,6 +39,7 @@ const allowedOrigins = [
   config.frontendUrl,
   process.env.CORS_ORIGIN || "http://localhost:5173",
   "http://localhost:3000",
+  "https://*.vercel.app",
 ];
 
 app.use(
@@ -93,6 +95,21 @@ apiRouter.use("/asset-categories", assetCategoryRouter);
 apiRouter.use("/admin", adminRouter);
 apiRouter.use("/ai", aiRouter);
 app.use(`/api/${config.apiVersion}`, apiRouter);
+
+// ─── CRON WEBHOOK (Vercel Cron) ───────────────────────────
+const cronSecret = process.env.CRON_SECRET;
+app.post("/api/v1/cron", async (req, res) => {
+  if (cronSecret && req.headers["x-cron-secret"] !== cronSecret) {
+    res.status(403).json({ success: false, message: "Forbidden" });
+    return;
+  }
+  try {
+    await runScheduledJobs();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Cron failed" });
+  }
+});
 
 // ─── ERROR HANDLING ───────────────────────────────────────
 app.use(notFoundHandler);
