@@ -23,6 +23,7 @@ router.get("/:id", validate(auditCycleParamsSchema, "params"), auditCycleControl
 router.get("/:id/history", validate(auditCycleParamsSchema, "params"), auditCycleController.getCycleHistory);
 
 router.post("/", validate(createAuditCycleSchema), auditCycleController.create);
+router.post("/:id/start", validate(auditCycleParamsSchema, "params"), auditCycleController.startCycle);
 router.put(
   "/:id",
   validate(auditCycleParamsSchema, "params"),

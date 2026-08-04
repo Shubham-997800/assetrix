@@ -330,6 +330,8 @@ export const auditApi = {
     api.get("/audit-cycles", { params }),
   getCycle: (id: string) => api.get(`/audit-cycles/${id}`),
   createCycle: (data: Record<string, unknown>) => api.post("/audit-cycles", data),
+  startCycle: (cycleId: string) =>
+    api.post(`/audit-cycles/${cycleId}/start`),
   getVerifications: (cycleId: string) =>
     api.get(`/audit-cycles/${cycleId}/verifications`),
   verifyAsset: (cycleId: string, assetId: string, data: Record<string, unknown>) =>

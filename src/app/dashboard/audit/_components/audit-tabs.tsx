@@ -262,6 +262,12 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
     if (selectedCycleId) await fetchCycleData(selectedCycleId);
   };
 
+  const handleStartCycle = async (cycleId: string) => {
+    await auditApi.startCycle(cycleId);
+    onRefresh();
+    if (selectedCycleId) await fetchCycleData(selectedCycleId);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-muted/20 p-1">
@@ -308,6 +314,7 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
           setPage={setPage}
           badgeStyle={badgeStyle}
           onSelectCycle={() => {}}
+          onStart={handleStartCycle}
         />
       )}
 
@@ -404,7 +411,7 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
   );
 }
 
-function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSelectCycle }: {
+function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSelectCycle, onStart }: {
   cycles: AuditCycle[];
   total: number;
   page: number;
@@ -412,7 +419,22 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
   setPage: (p: number) => void;
   badgeStyle: (s: string) => string;
   onSelectCycle: (c: AuditCycle) => void;
+  onStart: (id: string) => Promise<void>;
 }) {
+  const [startingId, setStartingId] = useState<string | null>(null);
+
+  const handleStart = async (id: string) => {
+    setStartingId(id);
+    try {
+      await onStart(id);
+    } catch (err) {
+      const apiErr = err as ApiError;
+      alert(apiErr.message || "Failed to start cycle");
+    } finally {
+      setStartingId(null);
+    }
+  };
+
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
@@ -463,6 +485,12 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
+                      {cycle.status === "Draft" && (
+                        <Button variant="ghost" size="sm" className="h-7 text-xs text-cyan-500 hover:text-cyan-600" onClick={() => handleStart(cycle.id)} disabled={startingId !== null}>
+                          {startingId === cycle.id && <Loader2 className="h-3 w-3 animate-spin" />}
+                          Start
+                        </Button>
+                      )}
                       <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary/80" onClick={() => onSelectCycle(cycle)}>
                         <Eye className="h-3 w-3" /> View
                       </Button>
@@ -484,6 +512,8 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
   const [department, setDepartment] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -504,7 +534,11 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
   }, []);
 
   const handleCreate = async () => {
-    if (!name.trim() || !department || !location) return;
+    if (!name.trim() || !department || !location || !startDate || !endDate) return;
+    if (new Date(startDate) >= new Date(endDate)) {
+      setError("End date must be after start date");
+      return;
+    }
     try {
       setSubmitting(true);
       setError(null);
@@ -513,6 +547,8 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
         departmentScope: department,
         locationScope: location,
         notes,
+        startDate: new Date(`${startDate}T00:00:00.000Z`).toISOString(),
+        endDate: new Date(`${endDate}T00:00:00.000Z`).toISOString(),
       });
       onRefresh();
       onSubmit();
@@ -548,10 +584,20 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
           <label className="text-xs font-medium text-foreground">Notes</label>
           <textarea className={`${inputCls} mt-1.5 w-full resize-none`} rows={3} placeholder="Additional instructions or scope..." value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-medium text-foreground">Start Date *</label>
+            <input type="date" className={`${inputCls} mt-1.5 w-full`} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-foreground">End Date *</label>
+            <input type="date" className={`${inputCls} mt-1.5 w-full`} value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+          </div>
+        </div>
       </div>
       {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
       <div className="mt-5 flex gap-2 border-t border-border pt-4">
-        <Button size="default" className="btn-enterprise" onClick={handleCreate} disabled={submitting || !name.trim() || !department || !location}>
+        <Button size="default" className="btn-enterprise" onClick={handleCreate} disabled={submitting || !name.trim() || !department || !location || !startDate || !endDate}>
           {submitting ? "Creating..." : "Create Cycle"}
         </Button>
         <Button variant="outline" size="default" className="btn-enterprise" onClick={onSubmit} disabled={submitting}>Cancel</Button>

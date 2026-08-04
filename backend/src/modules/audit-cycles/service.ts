@@ -138,6 +138,32 @@ export const create = async (data: CreateAuditCycleInput, userId: string, ip?: s
   return cycle;
 };
 
+export const startCycle = async (id: string, userId: string, ip?: string, userAgent?: string) => {
+  const cycle = await prisma.auditCycle.findUnique({ where: { id } });
+  if (!cycle) throw new AppError("Audit cycle not found", HTTP_STATUS.NOT_FOUND);
+  if (cycle.status !== "DRAFT") {
+    throw new AppError("Only draft cycles can be started", HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const updated = await prisma.auditCycle.update({
+    where: { id },
+    data: { status: "IN_PROGRESS", updatedBy: userId },
+    include: includeCycleRelations,
+  });
+
+  await createAuditLog({
+    userId,
+    action: "UPDATE",
+    entity: "AuditCycle",
+    entityId: id,
+    newValues: { status: "IN_PROGRESS" },
+    ipAddress: ip,
+    userAgent,
+  });
+
+  return updated;
+};
+
 export const update = async (id: string, data: UpdateAuditCycleInput, userId: string, ip?: string, userAgent?: string) => {
   const existing = await prisma.auditCycle.findUnique({ where: { id } });
   if (!existing) throw new AppError("Audit cycle not found", HTTP_STATUS.NOT_FOUND);

@@ -46,6 +46,16 @@ export const update = asyncHandler(async (req: AuthenticatedRequest, res: Respon
   res.status(HTTP_STATUS.OK).json(successResponse("Audit cycle updated successfully", result));
 });
 
+export const startCycle = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const result = await auditCycleService.startCycle(
+    (req.params as AuditCycleParamsInput).id,
+    req.user!.userId,
+    req.ip,
+    req.headers["user-agent"]
+  );
+  res.status(HTTP_STATUS.OK).json(successResponse("Audit cycle started successfully", result));
+});
+
 export const remove = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   await auditCycleService.remove(
     (req.params as AuditCycleParamsInput).id,
