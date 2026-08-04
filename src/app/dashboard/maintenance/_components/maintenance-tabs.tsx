@@ -32,13 +32,12 @@ import { TableDropdown } from "@/app/dashboard/assets/_components/table-dropdown
 import {
   STATUS_CLASSES,
   PRIORITY_CLASSES,
-  ISSUE_CATEGORIES,
   type MaintenanceRequest,
   type MaintenanceTimelineEvent,
   type RequestStatus,
   type Priority,
 } from "./types";
-import { maintenanceApi } from "@/lib/api";
+import { maintenanceApi, userApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
@@ -113,11 +112,9 @@ function buildMaintenanceTimeline(
 
 const ALL_STATUSES: RequestStatus[] = [
   "Pending",
-  "Approved",
-  "Rejected",
-  "Technician Assigned",
   "In Progress",
   "Resolved",
+  "Rejected",
 ];
 
 const inputCls =
@@ -136,10 +133,32 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [page, setPage] = useState(1);
   const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
-  const [actionPanel, setActionPanel] = useState<"approve" | "reject" | "assign" | "resolve" | null>(null);
+  const [actionPanel, setActionPanel] = useState<"approve" | "reject" | "assign" | "resolve" | "start" | null>(null);
   const [actionNote, setActionNote] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [requests, setRequests] = useState<MaintenanceRequest[]>(initialRequests);
+  const [technicians, setTechnicians] = useState<{ id: string; name: string }[]>([]);
+  const [selectedTechnicianId, setSelectedTechnicianId] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await userApi.list({ limit: 100 });
+        const users = (res.data as { id: string; firstName?: string; lastName?: string }[]) || [];
+        if (!cancelled) {
+          setTechnicians(
+            users.map((u) => ({ id: u.id, name: [u.firstName, u.lastName].filter(Boolean).join(" ") || u.id }))
+          );
+        }
+      } catch {
+        /* technician list is optional */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     setRequests(initialRequests);
@@ -172,7 +191,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     if (!selectedRequest) return;
     try {
       setActionLoading(true);
-      await maintenanceApi.updateStatus(selectedRequest.id, "Approved");
+      await maintenanceApi.approve(selectedRequest.id, { notes: actionNote || undefined });
       onRefresh();
       setSelectedRequest(null);
       setActionPanel(null);
@@ -189,7 +208,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     if (!selectedRequest) return;
     try {
       setActionLoading(true);
-      await maintenanceApi.update(selectedRequest.id, { status: "Rejected", rejectionReason: actionNote || "Rejected" });
+      await maintenanceApi.reject(selectedRequest.id, { rejectionReason: actionNote || "Rejected" });
       onRefresh();
       setSelectedRequest(null);
       setActionPanel(null);
@@ -202,15 +221,33 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     }
   };
 
-  const handleAssign = async () => {
-    if (!selectedRequest || !actionNote.trim()) return;
+  const handleStart = async () => {
+    if (!selectedRequest) return;
     try {
       setActionLoading(true);
-      await maintenanceApi.assign(selectedRequest.id, actionNote);
+      await maintenanceApi.start(selectedRequest.id);
       onRefresh();
       setSelectedRequest(null);
       setActionPanel(null);
       setActionNote("");
+    } catch (err) {
+      const apiErr = err as ApiError;
+      alert(apiErr.message || "Failed to start work");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleAssign = async () => {
+    if (!selectedRequest || !selectedTechnicianId) return;
+    try {
+      setActionLoading(true);
+      await maintenanceApi.assign(selectedRequest.id, selectedTechnicianId);
+      onRefresh();
+      setSelectedRequest(null);
+      setActionPanel(null);
+      setActionNote("");
+      setSelectedTechnicianId("");
     } catch (err) {
       const apiErr = err as ApiError;
       alert(apiErr.message || "Failed to assign technician");
@@ -223,7 +260,10 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     if (!selectedRequest) return;
     try {
       setActionLoading(true);
-      await maintenanceApi.updateStatus(selectedRequest.id, "Resolved");
+      await maintenanceApi.complete(selectedRequest.id, {
+        notes: actionNote || undefined,
+        findings: actionNote || undefined,
+      });
       onRefresh();
       setSelectedRequest(null);
       setActionPanel(null);
@@ -248,21 +288,26 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
         actionNote={actionNote}
         actionLoading={actionLoading}
         setActionNote={setActionNote}
+        technicians={technicians}
+        selectedTechnicianId={selectedTechnicianId}
+        setSelectedTechnicianId={setSelectedTechnicianId}
         onApprove={() => setActionPanel("approve")}
         onReject={() => setActionPanel("reject")}
         onAssign={() => setActionPanel("assign")}
         onResolve={() => setActionPanel("resolve")}
+        onStart={() => setActionPanel("start")}
         onConfirmApprove={handleApprove}
         onConfirmReject={handleReject}
         onConfirmAssign={handleAssign}
         onConfirmResolve={handleResolve}
+        onConfirmStart={handleStart}
         onCancelAction={() => { setActionPanel(null); setActionNote(""); }}
-        onBack={() => { setSelectedRequest(null); setActionPanel(null); setActionNote(""); }}
+        onBack={() => { setSelectedRequest(null); setActionPanel(null); setActionNote(""); setSelectedTechnicianId(""); }}
       />
     );
   }
 
-  const tabs: (RequestStatus | "All")[] = ["All", "Pending", "Approved", "Rejected", "Technician Assigned", "In Progress", "Resolved"];
+  const tabs: (RequestStatus | "All")[] = ["All", "Pending", "In Progress", "Resolved", "Rejected"];
 
   return (
     <div className="space-y-4">
@@ -296,7 +341,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
           <Filter className="h-3.5 w-3.5 text-muted-foreground" />
           <TableDropdown label="" options={ALL_STATUSES.map((s) => ({ label: s, value: s }))} value={statusFilter} onChange={(v) => { setStatusFilter(v as RequestStatus | "All"); setPage(1); }} placeholder="All Statuses" />
           <TableDropdown label="" options={["Low", "Medium", "High", "Critical"].map((p) => ({ label: p, value: p }))} value={priorityFilter} onChange={(v) => { setPriorityFilter(v as Priority | "All"); setPage(1); }} placeholder="All Priorities" />
-          <TableDropdown label="" options={ISSUE_CATEGORIES.map((c) => ({ label: c, value: c }))} value={categoryFilter} onChange={(v) => { setCategoryFilter(v); setPage(1); }} placeholder="All Categories" />
+          <TableDropdown label="" options={["PREVENTIVE", "CORRECTIVE", "PREDICTIVE", "EMERGENCY"].map((c) => ({ label: c, value: c }))} value={categoryFilter} onChange={(v) => { setCategoryFilter(v); setPage(1); }} placeholder="All Types" />
         </div>
       </div>
 
@@ -381,18 +426,23 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
 
 interface SelectedRequestViewProps {
   request: MaintenanceRequest;
-  actionPanel: "approve" | "reject" | "assign" | "resolve" | null;
+  actionPanel: "approve" | "reject" | "assign" | "resolve" | "start" | null;
   actionNote: string;
   actionLoading: boolean;
   setActionNote: (v: string) => void;
+  technicians: { id: string; name: string }[];
+  selectedTechnicianId: string;
+  setSelectedTechnicianId: (v: string) => void;
   onApprove: () => void;
   onReject: () => void;
   onAssign: () => void;
   onResolve: () => void;
+  onStart: () => void;
   onConfirmApprove: () => void;
   onConfirmReject: () => void;
   onConfirmAssign: () => void;
   onConfirmResolve: () => void;
+  onConfirmStart: () => void;
   onCancelAction: () => void;
   onBack: () => void;
 }
@@ -403,14 +453,19 @@ function SelectedRequestView({
   actionNote,
   actionLoading,
   setActionNote,
+  technicians,
+  selectedTechnicianId,
+  setSelectedTechnicianId,
   onApprove,
   onReject,
   onAssign,
   onResolve,
+  onStart,
   onConfirmApprove,
   onConfirmReject,
   onConfirmAssign,
   onConfirmResolve,
+  onConfirmStart,
   onCancelAction,
   onBack,
 }: SelectedRequestViewProps) {
@@ -430,15 +485,14 @@ function SelectedRequestView({
             <Button size="sm" variant="outline" className="btn-enterprise border-destructive/30 text-destructive hover:bg-destructive/10" onClick={onReject}>
               <ThumbsDown className="h-3.5 w-3.5" /> Reject
             </Button>
+            <Button size="sm" variant="outline" className="btn-enterprise" onClick={onAssign}>
+              <User className="h-3.5 w-3.5" /> Assign Technician
+            </Button>
+            <Button size="sm" variant="outline" className="btn-enterprise" onClick={onStart}>
+              <Wrench className="h-3.5 w-3.5" /> Start Work
+            </Button>
           </div>
         );
-      case "Approved":
-        return (
-          <Button size="sm" className="btn-enterprise" onClick={onAssign}>
-            <User className="h-3.5 w-3.5" /> Assign Technician
-          </Button>
-        );
-      case "Technician Assigned":
       case "In Progress":
         return (
           <Button size="sm" className="btn-enterprise bg-emerald-600 hover:bg-emerald-700" onClick={onResolve}>
@@ -466,15 +520,25 @@ function SelectedRequestView({
             {actionPanel === "reject" && <ThumbsDown className="h-4 w-4 text-destructive" />}
             {actionPanel === "assign" && <User className="h-4 w-4 text-primary" />}
             {actionPanel === "resolve" && <CheckCircle className="h-4 w-4 text-emerald-500" />}
+            {actionPanel === "start" && <Wrench className="h-4 w-4 text-primary" />}
             <span className="text-sm font-medium text-foreground">
               {actionPanel === "approve" && "Approve Request"}
               {actionPanel === "reject" && "Reject Request"}
               {actionPanel === "assign" && "Assign Technician"}
               {actionPanel === "resolve" && "Mark as Resolved"}
+              {actionPanel === "start" && "Start Work"}
             </span>
           </div>
           {actionPanel === "assign" ? (
-            <input className={inputCls} placeholder="Technician name..." value={actionNote} onChange={(e) => setActionNote(e.target.value)} />
+            <TableDropdown
+              label="Technician"
+              options={technicians.map((t) => ({ label: t.name, value: t.id }))}
+              value={selectedTechnicianId}
+              onChange={setSelectedTechnicianId}
+              placeholder="Select technician"
+            />
+          ) : actionPanel === "start" ? (
+            <p className="text-sm text-muted-foreground">Start work on this maintenance task?</p>
           ) : (
             <textarea className={`${inputCls} resize-none`} rows={3} placeholder={actionPanel === "resolve" ? "Resolution notes..." : "Add a note..."} value={actionNote} onChange={(e) => setActionNote(e.target.value)} />
           )}
@@ -483,6 +547,7 @@ function SelectedRequestView({
               actionPanel === "approve" ? onConfirmApprove :
               actionPanel === "reject" ? onConfirmReject :
               actionPanel === "assign" ? onConfirmAssign :
+              actionPanel === "start" ? onConfirmStart :
               onConfirmResolve
             }>{actionLoading ? "Processing..." : "Confirm"}</Button>
             <Button size="sm" variant="outline" className="btn-enterprise" onClick={onCancelAction}>Cancel</Button>
@@ -577,9 +642,7 @@ function InfoBlock({ icon, label, value }: { icon: React.ReactNode; label: strin
 }
 
 const workflowSteps: { key: string; label: string; statuses: RequestStatus[] }[] = [
-  { key: "pending", label: "Submitted", statuses: ["Pending", "Approved", "Rejected", "Technician Assigned", "In Progress", "Resolved"] },
-  { key: "approved", label: "Approved", statuses: ["Approved", "Technician Assigned", "In Progress", "Resolved"] },
-  { key: "assigned", label: "Technician Assigned", statuses: ["Technician Assigned", "In Progress", "Resolved"] },
+  { key: "pending", label: "Submitted", statuses: ["Pending", "Rejected", "In Progress", "Resolved"] },
   { key: "inprogress", label: "In Progress", statuses: ["In Progress", "Resolved"] },
   { key: "resolved", label: "Resolved", statuses: ["Resolved"] },
 ];

@@ -318,11 +318,17 @@ export const maintenanceApi = {
     api.get("/maintenance", { params }),
   get: (id: string) => api.get(`/maintenance/${id}`),
   create: (data: Record<string, unknown>) => api.post("/maintenance", data),
-  update: (id: string, data: Record<string, unknown>) => api.patch(`/maintenance/${id}`, data),
-  assign: (id: string, technicianId: string) =>
-    api.post(`/maintenance/${id}/assign`, { technicianId }),
-  updateStatus: (id: string, status: string) =>
-    api.post(`/maintenance/${id}/status`, { status }),
+  update: (id: string, data: Record<string, unknown>) => api.put(`/maintenance/${id}`, data),
+  assign: (id: string, assignedToId: string) =>
+    api.put(`/maintenance/${id}/assign`, { assignedToId }),
+  start: (id: string) => api.put(`/maintenance/${id}/start`),
+  complete: (id: string, data: Record<string, unknown>) =>
+    api.put(`/maintenance/${id}/complete`, data),
+  cancel: (id: string) => api.put(`/maintenance/${id}/cancel`),
+  approve: (id: string, data?: Record<string, unknown>) =>
+    api.post(`/maintenance/${id}/approve`, data ?? {}),
+  reject: (id: string, data: Record<string, unknown>) =>
+    api.post(`/maintenance/${id}/reject`, data),
 };
 
 export const auditApi = {

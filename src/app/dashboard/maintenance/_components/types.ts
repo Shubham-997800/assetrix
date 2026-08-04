@@ -12,7 +12,7 @@ export interface MaintenanceRequest {
   issueTitle: string;
   issueDescription: string;
   priority: Priority;
-  category: IssueCategory;
+  category: string;
   status: RequestStatus;
   createdAt: string;
   approvedAt: string | null;

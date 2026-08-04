@@ -15,7 +15,7 @@ import { MaintenanceTabs } from "./_components/maintenance-tabs";
 import { RaiseRequestForm } from "./_components/raise-request";
 import { maintenanceApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
-import type { MaintenanceRequest } from "./_components/types";
+import type { MaintenanceRequest, Priority, RequestStatus } from "./_components/types";
 
 const STAT_CARDS = [
   { label: "Total Requests", icon: <Wrench className="h-4 w-4" />, color: "text-primary" },
@@ -24,6 +24,62 @@ const STAT_CARDS = [
   { label: "Resolved", icon: <CheckCircle className="h-4 w-4" />, color: "text-emerald-500" },
   { label: "Critical Open", icon: <AlertCircle className="h-4 w-4" />, color: "text-destructive" },
 ] as const;
+
+const STATUS_MAP: Record<string, RequestStatus> = {
+  SCHEDULED: "Pending",
+  OVERDUE: "Pending",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Resolved",
+  CANCELLED: "Rejected",
+};
+
+const PRIORITY_MAP: Record<number, Priority> = {
+  1: "Critical",
+  2: "High",
+  3: "Medium",
+  4: "Medium",
+  5: "Low",
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- backend task shape is loosely typed
+function mapTask(task: any): MaintenanceRequest {
+  const fullName = (u: { firstName?: string; lastName?: string } | null | undefined) =>
+    u ? [u.firstName, u.lastName].filter(Boolean).join(" ") : "";
+  const attachmentNames = Array.isArray(task.attachments)
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any -- attachment entries are loosely typed
+      task.attachments.map((a: any) => (typeof a === "string" ? a : a?.fileName || a?.name || "Attachment"))
+    : [];
+  const rejectionMatch = typeof task.notes === "string" ? task.notes.match(/^Rejected:\s*(.*)/) : null;
+  return {
+    id: task.id,
+    assetTag: task.asset?.assetTag ?? "",
+    assetName: task.asset?.name ?? "",
+    reportedBy: fullName(task.requestedBy) || task.createdBy || "System",
+    department: task.asset?.departmentId ?? "",
+    issueTitle: task.title,
+    issueDescription: task.description ?? "",
+    priority: PRIORITY_MAP[task.priority as number] ?? "Medium",
+    category: task.type ?? "Other",
+    status: STATUS_MAP[task.status as string] ?? "Pending",
+    createdAt: task.createdAt,
+    approvedAt: task.approved ? task.completedAt : null,
+    approvedBy: null,
+    rejectionReason: rejectionMatch ? rejectionMatch[1].trim() : null,
+    technician: fullName(task.assignedTo),
+    technicianAssignedAt: null,
+    estimatedCompletion: task.estimatedCompletion ?? null,
+    repairNotes: task.notes ?? null,
+    spareParts: task.partsUsed ?? null,
+    progress: null,
+    workStartedAt: task.startedAt ?? null,
+    resolvedAt: task.completedAt ?? null,
+    resolutionSummary: task.findings ?? null,
+    finalNotes: task.notes ?? null,
+    repairCost: task.actualCost != null ? Number(task.actualCost) : null,
+    conditionAfter: null,
+    attachments: attachmentNames,
+  };
+}
 
 function MaintenancePage() {
   const [showForm, setShowForm] = useState(false);
@@ -36,7 +92,14 @@ function MaintenancePage() {
       setLoading(true);
       setError(null);
       const res = await maintenanceApi.list();
-      setRequests((res.data || []) as MaintenanceRequest[]);
+      const data = res.data as { tasks?: unknown[] } | unknown[] | null;
+      const tasks = Array.isArray(data)
+        ? data
+        : data && typeof data === "object" && Array.isArray((data as { tasks?: unknown[] }).tasks)
+          ? (data as { tasks: unknown[] }).tasks
+          : [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- task entries are loosely typed
+      setRequests(tasks.map((t: any) => mapTask(t)));
     } catch (err) {
       const apiErr = err as ApiError;
       setError(apiErr.message || "Failed to load maintenance requests");
@@ -52,7 +115,7 @@ function MaintenancePage() {
   const stats = useMemo(() => ({
     total: requests.length,
     pending: requests.filter((r) => r.status === "Pending").length,
-    inProgress: requests.filter((r) => ["In Progress", "Technician Assigned", "Approved"].includes(r.status)).length,
+    inProgress: requests.filter((r) => r.status === "In Progress").length,
     resolved: requests.filter((r) => r.status === "Resolved").length,
     critical: requests.filter((r) => r.priority === "Critical" && r.status !== "Resolved").length,
   }), [requests]);
