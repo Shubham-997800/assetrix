@@ -606,7 +606,7 @@ export function ReportTabs() {
           {activeTab === "retirement" && <RetirementTab search={search} statusFilter={statusFilter} setStatusFilter={setStatusFilter} page={page} setPage={setPage} data={retirementRows} />}
           {activeTab === "department" && <DepartmentTab search={search} page={page} setPage={setPage} data={departmentRows} />}
           {activeTab === "heatmap" && <HeatmapTab data={heatmap.slots} peakText={heatmap.peakText} />}
-          {activeTab === "export" && <ExportTab departmentsList={departmentsList} categoriesList={categoriesList} />}
+          {activeTab === "export" && <ExportTab departments={departments} categories={categories} />}
         </>
       )}
     </div>
@@ -1087,7 +1087,7 @@ function HeatmapTab({ data, peakText }: { data: BookingHeatmapSlot[]; peakText: 
   );
 }
 
-function ExportTab({ departmentsList, categoriesList }: { departmentsList: string[]; categoriesList: string[] }) {
+function ExportTab({ departments, categories }: { departments: ApiDepartment[]; categories: ApiCategory[] }) {
   const [selectedFormat, setSelectedFormat] = useState("CSV");
   const [generating, setGenerating] = useState(false);
   const [startDate, setStartDate] = useState("");
@@ -1095,6 +1095,8 @@ function ExportTab({ departmentsList, categoriesList }: { departmentsList: strin
   const [department, setDepartment] = useState("All Departments");
   const [category, setCategory] = useState("All Categories");
   const [status, setStatus] = useState("All Statuses");
+  const departmentsList = useMemo(() => departments.map((d) => d.name), [departments]);
+  const categoriesList = useMemo(() => categories.map((c) => c.name), [categories]);
   const formats = [
     { label: "CSV", desc: "Comma-separated values for data analysis", icon: FileText, color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
     { label: "PDF", desc: "Formatted report for sharing and printing", icon: File, color: "bg-red-500/10 text-red-600 dark:text-red-400" },
@@ -1104,19 +1106,36 @@ function ExportTab({ departmentsList, categoriesList }: { departmentsList: strin
   const handleGenerate = async () => {
     try {
       setGenerating(true);
+      const filters: Record<string, unknown> = {};
+      if (startDate) filters.startDate = new Date(startDate).toISOString();
+      if (endDate) filters.endDate = new Date(endDate).toISOString();
+      if (department !== "All Departments") {
+        const match = departments.find((d) => d.name === department);
+        if (match) filters.departmentId = match.id;
+      }
+      if (category !== "All Categories") {
+        const match = categories.find((c) => c.name === category);
+        if (match) filters.categoryId = match.id;
+      }
+      if (status !== "All Statuses") {
+        const statusMap: Record<string, string> = {
+          Active: "AVAILABLE",
+          Idle: "ALLOCATED",
+          "Under Maintenance": "MAINTENANCE",
+          Retired: "RETIRED",
+        };
+        filters.status = statusMap[status] ?? status;
+      }
       const payload: Record<string, unknown> = {
-        type: "custom",
-        format: selectedFormat.toLowerCase(),
-        department: department === "All Departments" ? undefined : department,
-        category: category === "All Categories" ? undefined : category,
-        status: status === "All Statuses" ? undefined : status,
+        name: "Custom Asset Report",
+        type: "ASSET",
+        format: selectedFormat === "Excel" ? "CSV" : selectedFormat,
       };
-      if (startDate) payload.startDate = startDate;
-      if (endDate) payload.endDate = endDate;
+      if (Object.keys(filters).length > 0) payload.filters = filters;
       const res = await reportApi.generate(payload);
-      const report = res.data as { id?: string } | undefined;
-      if (report?.id) {
-        await reportApi.download(report.id);
+      const reportId = (res.data as { report?: { id?: string } })?.report?.id;
+      if (reportId) {
+        await reportApi.download(reportId, selectedFormat.toLowerCase());
       }
     } catch (err) {
       const apiErr = err as ApiError;

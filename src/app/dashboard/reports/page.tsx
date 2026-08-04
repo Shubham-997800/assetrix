@@ -13,10 +13,10 @@ function ReportsPage() {
   const handleExportAll = async () => {
     try {
       setExporting(true);
-      const res = await reportApi.generate({ type: "full", format: "csv" });
-      const report = res.data as { id?: string } | undefined;
-      if (report?.id) {
-        await reportApi.download(report.id);
+      const res = await reportApi.generate({ name: "All Assets Report", type: "ASSET", format: "CSV" });
+      const reportId = (res.data as { report?: { id?: string } })?.report?.id;
+      if (reportId) {
+        await reportApi.download(reportId, "csv");
       }
     } catch (err) {
       const apiErr = err as ApiError;

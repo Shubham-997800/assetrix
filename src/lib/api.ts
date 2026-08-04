@@ -340,11 +340,35 @@ export const auditApi = {
     api.patch(`/audit-cycles/discrepancies/${discrepancyId}/resolve`, data),
 };
 
+async function downloadFile(url: string): Promise<void> {
+  const token = getAccessToken();
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(url, { credentials: "include", headers });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => null);
+    throw new ApiError(errData?.message || `Request failed (${res.status})`, res.status, errData?.errors);
+  }
+  const blob = await res.blob();
+  const contentDisposition = res.headers.get("Content-Disposition") || "";
+  const match = contentDisposition.match(/filename="?([^";]+)"?/);
+  const filename = match?.[1] || "report";
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(objectUrl);
+}
+
 export const reportApi = {
   list: (params?: Record<string, string | number | boolean | undefined | null>) =>
     api.get("/reports", { params }),
-  generate: (data: Record<string, unknown>) => api.post("/reports/generate", data),
-  download: (id: string) => api.get(`/reports/${id}/download`),
+  generate: (data: Record<string, unknown>) => api.post("/reports", data),
+  download: (id: string, format?: string) =>
+    downloadFile(`${API_BASE}${API_PREFIX}/reports/${id}/download${format ? `?format=${format}` : ""}`),
 };
 
 export const notificationApi = {
