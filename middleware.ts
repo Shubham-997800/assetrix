@@ -62,5 +62,6 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 }
 
 export const config = {
+  runtime: "nodejs",
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

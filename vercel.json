@@ -1,14 +1,25 @@
 {
-  "framework": "nextjs",
-  "regions": ["iad1"],
-  "headers": [
-    {
-      "source": "/api/(.*)",
+  "services": {
+    "frontend": {
+      "root": ".",
+      "framework": "nextjs",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://assetrix-nu.vercel.app" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+        {
+          "source": "/api/(.*)",
+          "headers": [
+            { "key": "Access-Control-Allow-Origin", "value": "https://assetrix-nu.vercel.app" },
+            { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
+            { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+          ]
+        }
       ]
+    },
+    "backend": {
+      "root": "backend",
+      "framework": "express"
     }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": { "service": "frontend" } }
   ]
 }

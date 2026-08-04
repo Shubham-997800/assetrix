@@ -368,6 +368,6 @@ export const userApi = {
 
 export const adminApi = {
   listUsers: (params?: Record<string, string | number | boolean | undefined | null>) =>
-    api.get("/admin/users", { params }),
-  updateUserStatus: (id: string, status: string) =>    api.patch(`/admin/users/${id}/status`, { status }),
+    api.get("/users", { params }),
+  updateUserStatus: (id: string, status: string) =>    api.patch(`/users/${id}/status`, { status }),
 };
