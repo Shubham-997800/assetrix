@@ -54,11 +54,11 @@ export const getDashboardStats = async (userId: string) => {
       },
     }),
     prisma.department.findMany({
-      where: { deletedAt: null, isActive: true },
+      where: { deletedAt: null, isActive: true, ownerId: userId },
       select: {
         id: true,
         name: true,
-        _count: { select: { assets: true } },
+        _count: { select: { assets: { where: { deletedAt: null } } } },
       },
       orderBy: { name: "asc" },
     }),

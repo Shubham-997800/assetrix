@@ -15,6 +15,7 @@ import {
   Shield,
   BookOpen,
   AlertCircle,
+  MapPin,
 } from "lucide-react";
 import { TableDropdown } from "./table-dropdown";
 import type { AssetCondition } from "./types";
@@ -327,15 +328,25 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             )}
           </div>
           <div>
-            <TableDropdown
-              label="Location *"
-              options={locations.map((l) => ({ label: l, value: l }))}
-              value={basicDetails.location}
-              onChange={(v) =>
-                setBasicDetails((p) => ({ ...p, location: v }))
-              }
-              placeholder="Select location"
-            />
+            <label className={labelCls}>Location *</label>
+            <div className="relative mt-1.5">
+              <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                list="asset-location-options"
+                className={`${errors.location ? inputErrorCls : inputCls} pl-9`}
+                placeholder="Enter or select location"
+                value={basicDetails.location}
+                onChange={(e) =>
+                  setBasicDetails((p) => ({ ...p, location: e.target.value }))
+                }
+              />
+              <datalist id="asset-location-options">
+                {locations.map((l) => (
+                  <option key={l} value={l} />
+                ))}
+              </datalist>
+            </div>
+            <p className={descCls}>Type a new location or pick an existing one.</p>
             {errors.location && (
               <p className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
                 <AlertCircle className="h-3 w-3" /> {errors.location}

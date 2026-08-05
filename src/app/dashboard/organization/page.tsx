@@ -162,12 +162,16 @@ function ConfirmDialog({
   message,
   onConfirm,
   onCancel,
+  confirmText = "Confirm",
+  disabled = false,
 }: {
   open: boolean;
   title: string;
   message: string;
   onConfirm: () => void;
   onCancel: () => void;
+  confirmText?: string;
+  disabled?: boolean;
 }) {
   if (!open) return null;
   return (
@@ -184,8 +188,8 @@ function ConfirmDialog({
           </div>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={onCancel} className="btn-enterprise">Cancel</Button>
-          <Button size="sm" onClick={onConfirm} className="btn-enterprise">Confirm</Button>
+          <Button variant="outline" size="sm" onClick={onCancel} disabled={disabled} className="btn-enterprise">Cancel</Button>
+          <Button size="sm" onClick={onConfirm} disabled={disabled} className="btn-enterprise">{confirmText}</Button>
         </div>
       </div>
     </div>
@@ -565,6 +569,8 @@ function CategoriesTab({
   const [categories, setCategories] = useState<AssetCategory[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [editCat, setEditCat] = useState<AssetCategory | null>(null);
+  const [confirm, setConfirm] = useState<{ open: boolean; id: string }>({ open: false, id: "" });
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -610,6 +616,21 @@ function CategoriesTab({
       showToast("Category created");
     } catch (err) {
       if (err instanceof ApiError) showToast(err.message);
+    }
+  };
+
+  const deleteCat = async (id: string) => {
+    try {
+      setDeleting(true);
+      await categoryApi.delete(id);
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+      setConfirm({ open: false, id: "" });
+      showToast("Category deleted");
+    } catch (err) {
+      if (err instanceof ApiError) showToast(err.message);
+      setConfirm({ open: false, id: "" });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -721,6 +742,9 @@ function CategoriesTab({
                         <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setEditCat(cat)}>
                           <Edit className="h-3.5 w-3.5" />
                         </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setConfirm({ open: true, id: cat.id })} title="Delete">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise">
                           <Eye className="h-3.5 w-3.5" />
                         </Button>
@@ -748,6 +772,17 @@ function CategoriesTab({
           <CategoryForm initial={editCat} onSubmit={(data) => updateCat({ ...editCat, ...data })} onCancel={() => setEditCat(null)} />
         )}
       </Modal>
+
+      {/* Confirm */}
+      <ConfirmDialog
+        open={confirm.open}
+        title="Delete Category"
+        message="This will permanently remove the category. Categories that still have assets or sub-categories cannot be deleted."
+        confirmText={deleting ? "Deleting..." : "Delete"}
+        disabled={deleting}
+        onConfirm={() => deleteCat(confirm.id)}
+        onCancel={() => setConfirm({ open: false, id: "" })}
+      />
     </div>
   );
 }

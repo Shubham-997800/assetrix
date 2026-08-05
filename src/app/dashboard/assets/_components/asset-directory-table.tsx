@@ -8,6 +8,7 @@ import {
   Plus,
   Eye,
   Edit,
+  Trash2,
   ArrowRightLeft,
   Wrench,
   Archive,
@@ -79,6 +80,7 @@ interface AssetDirectoryTableProps {
   assets: Asset[];
   onViewAsset: (asset: Asset) => void;
   onRegisterAsset: () => void;
+  onDeleteAsset: (asset: Asset) => void;
 }
 
 const PAGE_SIZE = 10;
@@ -159,6 +161,7 @@ export function AssetDirectoryTable({
   assets,
   onViewAsset,
   onRegisterAsset,
+  onDeleteAsset,
 }: AssetDirectoryTableProps) {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
@@ -804,6 +807,16 @@ export function AssetDirectoryTable({
                           }
                         >
                           <Archive className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="btn-enterprise text-destructive hover:text-destructive"
+                          title="Delete"
+                          disabled={asset.status === "Allocated"}
+                          onClick={() => onDeleteAsset(asset)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </td>

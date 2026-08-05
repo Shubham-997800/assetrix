@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback, memo } from "react";
-import { assetApi } from "@/lib/api";
+import { assetApi, ApiError } from "@/lib/api";
 import { AssetDirectoryTable } from "./_components/asset-directory-table";
 import { RegisterAssetForm } from "./_components/register-asset-form";
 import { AssetDetailsView } from "./_components/asset-details-view";
 import { AssetLifecycleTab } from "./_components/asset-lifecycle-tab";
 import type { Asset, AssetStatus, AssetCondition } from "./_components/types";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 type View = "directory" | "register" | "details" | "lifecycle";
 
@@ -86,6 +88,8 @@ function AssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Asset | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchAssets = useCallback(async () => {
     try {
@@ -125,6 +129,29 @@ function AssetsPage() {
     fetchAssets();
     setView("directory");
   }, [fetchAssets]);
+
+  const handleDeleteAsset = useCallback(async () => {
+    if (!confirmDelete) return;
+    try {
+      setDeleting(true);
+      await assetApi.delete(confirmDelete.id);
+      setConfirmDelete(null);
+      if (selectedAsset?.id === confirmDelete.id) {
+        setSelectedAsset(null);
+        setView("directory");
+      }
+      await fetchAssets();
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+        setConfirmDelete(null);
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to delete asset");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  }, [confirmDelete, selectedAsset, fetchAssets]);
 
   const handleBack = useCallback(() => {
     setSelectedAsset(null);
@@ -205,6 +232,7 @@ function AssetsPage() {
           assets={assets}
           onViewAsset={handleViewAsset}
           onRegisterAsset={handleRegisterAsset}
+          onDeleteAsset={setConfirmDelete}
         />
       )}
 
@@ -224,6 +252,34 @@ function AssetsPage() {
       {/* Lifecycle Tab */}
       {!loading && view === "lifecycle" && (
         <AssetLifecycleTab assets={assets} />
+      )}
+
+      {/* Delete Confirmation */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !deleting && setConfirmDelete(null)} />
+          <div className="relative z-10 mx-4 w-full max-w-sm rounded-xl border border-border bg-card p-5 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
+                <Trash2 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Delete Asset</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  This will permanently remove "{confirmDelete.name}" ({confirmDelete.tag}). This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button variant="outline" size="sm" className="btn-enterprise" disabled={deleting} onClick={() => setConfirmDelete(null)}>
+                Cancel
+              </Button>
+              <Button size="sm" className="btn-enterprise" disabled={deleting} onClick={handleDeleteAsset}>
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
