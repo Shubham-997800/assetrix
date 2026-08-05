@@ -15,7 +15,8 @@
     "enterprise",
     "maintenance",
     "audit",
-    "workflow-automation"
+    "workflow-automation",
+    "vercel"
   ],
   "scripts": {
     "dev": "next dev -p 5173",
