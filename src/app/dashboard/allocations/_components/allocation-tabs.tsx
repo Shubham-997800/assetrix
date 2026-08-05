@@ -7,8 +7,6 @@ import {
   XCircle,
   AlertTriangle,
   Search,
-  Send,
-  Eye,
   RotateCcw,
   CalendarPlus,
   ArrowRight,

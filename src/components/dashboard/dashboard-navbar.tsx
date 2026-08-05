@@ -6,8 +6,8 @@ import { useDashboard } from "@/contexts/dashboard-context";
 import { useAuth } from "@/contexts/auth-context";
 import { BreadcrumbNav } from "@/components/shared/breadcrumb-nav";
 import {
-  Search, Bell, Menu, PanelLeft, Sun, Moon, CheckCircle, AlertTriangle,
-  Clock, User, LogOut, Settings, ChevronDown, Zap, HelpCircle, Sparkles,
+  Bell, Menu, PanelLeft, Sun, Moon, CheckCircle, AlertTriangle,
+  Clock, User, LogOut, Settings, ChevronDown, Zap, HelpCircle, Sparkles, Search,
 } from "lucide-react";
 
 const DUMMY_NOTIFICATIONS = [
@@ -33,7 +33,7 @@ const TYPE_COLORS: Record<string, string> = {
 const HEADER_CLASS = "sticky top-0 z-20 flex h-16 items-center border-b border-border bg-card/80 backdrop-blur-md px-4 lg:px-6";
 const SIDEBAR_TOGGLE_MOBILE = "rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden";
 const SIDEBAR_TOGGLE_DESKTOP = "hidden lg:flex rounded-lg p-2 min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground";
-const SEARCH_TRIGGER = "flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 min-h-[44px] text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground";
+const SEARCH_TRIGGER = "flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 min-h-[44px] text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground w-10 sm:w-44 md:w-56 lg:w-64";
 const AI_TOGGLE_ACTIVE = "relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors bg-primary/10 text-primary";
 const AI_TOGGLE_INACTIVE = "relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors text-muted-foreground hover:bg-muted hover:text-foreground";
 const ICON_BUTTON = "relative rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground";

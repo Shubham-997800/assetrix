@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import React, { useState, useMemo, useCallback, memo } from "react";
+import React, { useState, useCallback, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
@@ -8,9 +8,9 @@ import { useAuth } from "@/contexts/auth-context";
 import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import {
   LayoutDashboard, Building2, Package, ArrowLeftRight, CalendarClock,
-  Wrench, ClipboardCheck, BarChart3, Bell, FileText, Settings, Star,
+  Wrench, ClipboardCheck, BarChart3, Bell, FileText, Settings,
   ChevronDown, ChevronRight, PanelLeftClose, Sparkles,
-  HelpCircle, LogOut, Clock,
+  HelpCircle, LogOut,
 } from "lucide-react";
 
 interface NavGroup {
@@ -54,43 +54,25 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 const DashboardSidebar = memo(function DashboardSidebar() {
-  const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, favorites, addFavorite, removeFavorite, recentPages, setAiPanelOpen, aiPanelOpen, setShortcutsOpen } = useDashboard();
+  const { sidebarCollapsed, toggleSidebar, mobileDrawerOpen, setMobileDrawerOpen, setAiPanelOpen, aiPanelOpen, setShortcutsOpen } = useDashboard();
   const { logout } = useAuth();
   const pathname = usePathname();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     Main: true, Operations: true, "Compliance & Analytics": true,
   });
-  const [expandedFav, setExpandedFav] = useState(true);
-  const [expandedRecent, setExpandedRecent] = useState(true);
 
   const { containerRef: drawerRef } = useDialogA11y(mobileDrawerOpen, () => setMobileDrawerOpen(false));
 
   const isCollapsed = sidebarCollapsed;
-
-  const favoriteHrefs = useMemo(() => new Set(favorites.map((f) => f.href)), [favorites]);
-  const recentPagesLimited = useMemo(() => recentPages.slice(0, 5), [recentPages]);
 
   const isItemActive = useCallback((href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
     return pathname === href || pathname.startsWith(href + "/");
   }, [pathname]);
 
-  const isFavorited = useCallback((href: string) => favoriteHrefs.has(href), [favoriteHrefs]);
-
   const toggleGroup = useCallback((title: string) => {
     setExpandedGroups((prev) => ({ ...prev, [title]: !prev[title] }));
   }, []);
-
-  const toggleFavorite = useCallback((item: NavItem) => {
-    if (favoriteHrefs.has(item.href)) {
-      removeFavorite(item.href);
-    } else {
-      addFavorite({ label: item.label, href: item.href, icon: "Star" });
-    }
-  }, [favoriteHrefs, removeFavorite, addFavorite]);
-
-  const handleExpandedFavToggle = useCallback(() => setExpandedFav((prev) => !prev), []);
-  const handleExpandedRecentToggle = useCallback(() => setExpandedRecent((prev) => !prev), []);
 
   const handleAiToggle = useCallback((isMobile: boolean) => {
     setAiPanelOpen(!aiPanelOpen);
@@ -126,36 +108,6 @@ const DashboardSidebar = memo(function DashboardSidebar() {
       </div>
 
       <div className="flex-1 overflow-y-auto py-3 px-2">
-        {favorites.length > 0 && (
-          <div className="mb-3">
-            <button onClick={handleExpandedFavToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-muted-foreground hover:bg-muted ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedFav} aria-label="Toggle favorites">
-              {isCollapsed ? <Star className="h-3 w-3" /> : (<><Star className="h-3 w-3" /> Favorites {expandedFav ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>)}
-            </button>
-            {expandedFav && !isCollapsed && favorites.map((fav) => (
-              <Link key={fav.href} href={fav.href} onClick={() => isMobile && setMobileDrawerOpen(false)} aria-current={isItemActive(fav.href) ? "page" : undefined} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${isItemActive(fav.href) ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
-                <Star className="h-3.5 w-3.5 text-yellow-500" />
-                {fav.label}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {recentPages.length > 0 && (
-          <div className="mb-3">
-            <button onClick={handleExpandedRecentToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-muted-foreground hover:bg-muted ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedRecent} aria-label="Toggle recent pages">
-              {isCollapsed ? <FileText className="h-3 w-3" /> : (<><FileText className="h-3 w-3" /> Recent {expandedRecent ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>)}
-            </button>
-            {expandedRecent && !isCollapsed && recentPagesLimited.map((page) => (
-              <Link key={page.href} href={page.href} onClick={() => isMobile && setMobileDrawerOpen(false)} aria-current={isItemActive(page.href) ? "page" : undefined} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${isItemActive(page.href) ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
-                <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
-                {page.label}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {!isCollapsed && favorites.length > 0 && recentPages.length > 0 && <div className="mx-2 mb-3 border-t border-border" />}
-
         {NAV_GROUPS.map((group) => (
           <div key={group.title} className="mb-3">
             <button onClick={() => toggleGroup(group.title)} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-muted-foreground hover:bg-muted ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedGroups[group.title]} aria-label={`Toggle ${group.title} section`}>
@@ -166,7 +118,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
               )}
             </button>
             {expandedGroups[group.title] && group.items.map((item) => (
-              <div key={item.href} className="relative group/fav">
+              <div key={item.href} className="relative">
                 <Link
                   href={item.href}
                   title={isCollapsed ? item.label : undefined}
@@ -190,19 +142,6 @@ const DashboardSidebar = memo(function DashboardSidebar() {
                     </>
                   )}
                 </Link>
-                {!isCollapsed && (
-                  <button
-                    onClick={(e) => { e.preventDefault(); toggleFavorite(item); }}
-                    className="absolute right-0.5 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/0 transition-colors group-hover/fav:text-muted-foreground hover:text-yellow-500 focus-visible:text-yellow-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                    title={isFavorited(item.href) ? "Remove from favorites" : "Add to favorites"}
-                    aria-label={isFavorited(item.href) ? `Remove ${item.label} from favorites` : `Add ${item.label} to favorites`}
-                  >
-                    <Star className={`h-3.5 w-3.5 ${isFavorited(item.href) ? "fill-yellow-500 text-yellow-500" : ""}`} />
-                  </button>
-                )}
-                {isCollapsed && isFavorited(item.href) && (
-                  <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-yellow-500" />
-                )}
               </div>
             ))}
           </div>
