@@ -43,7 +43,7 @@ export function Navbar() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {navLinks.map((link) => (
             <button
               key={link.label}
@@ -58,12 +58,12 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="hidden btn-enterprise sm:inline-flex">
+            <Button variant="ghost" size="sm" className="hidden btn-enterprise lg:inline-flex">
               Sign in
             </Button>
           </Link>
           <Link href="/register">
-            <Button size="sm" className="hidden btn-enterprise sm:inline-flex">
+            <Button size="sm" className="hidden btn-enterprise lg:inline-flex">
               Create Account
             </Button>
           </Link>
@@ -71,7 +71,7 @@ export function Navbar() {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
               render={
-                <Button variant="ghost" size="icon" className="h-11 w-11 md:hidden" aria-label="Toggle navigation menu" aria-expanded={open}>
+                <Button variant="ghost" size="icon" className="h-11 w-11 lg:hidden" aria-label="Toggle navigation menu" aria-expanded={open}>
                   <Menu className="h-5 w-5" />
                 </Button>
               }

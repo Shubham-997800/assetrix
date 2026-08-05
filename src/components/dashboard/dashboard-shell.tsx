@@ -21,7 +21,7 @@ const DashboardShellInner = memo(function DashboardShellInner({ children }: { ch
   );
 
   const mainClassName = useMemo(
-    () => `min-h-[calc(100vh-64px)] pb-24 sm:pb-20 lg:pb-6 ${aiPanelOpen ? "hidden sm:block" : ""}`,
+    () => `min-h-[calc(100vh-64px)] w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-24 sm:pb-20 lg:pb-6 ${aiPanelOpen ? "hidden sm:block" : ""}`,
     [aiPanelOpen],
   );
 

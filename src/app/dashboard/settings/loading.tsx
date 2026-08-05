@@ -1,12 +1,12 @@
 export default function SettingsLoading() {
   return (
-    <div className="space-y-6 animate-pulse p-6">
+    <div className="space-y-6 animate-pulse">
       <div className="space-y-2">
         <div className="h-7 w-28 rounded-lg bg-muted" />
         <div className="h-4 w-56 rounded bg-muted/60" />
       </div>
       <div className="flex flex-col gap-6 lg:flex-row">
-        <div className="flex lg:flex-col gap-1 lg:w-56">
+        <div className="flex flex-wrap gap-1 lg:flex-col lg:flex-nowrap lg:w-56 lg:flex-shrink-0">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="h-8 w-28 rounded-lg bg-muted" />
           ))}

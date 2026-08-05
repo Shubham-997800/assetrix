@@ -266,7 +266,7 @@ function AssetsPage() {
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Delete Asset</h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  This will permanently remove "{confirmDelete.name}" ({confirmDelete.tag}). This action cannot be undone.
+                  This will permanently remove &quot;{confirmDelete.name}&quot; ({confirmDelete.tag}). This action cannot be undone.
                 </p>
               </div>
             </div>

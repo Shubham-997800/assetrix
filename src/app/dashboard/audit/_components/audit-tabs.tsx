@@ -275,6 +275,7 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
           <button
             key={tab.key}
             onClick={() => { setActiveTab(tab.key); setPage(1); setSearch(""); setStatusFilter("All"); }}
+            aria-pressed={activeTab === tab.key}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
               activeTab === tab.key
                 ? "bg-card text-foreground shadow-sm border border-border"
@@ -486,12 +487,12 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
                   <TableCell>
                     <div className="flex gap-1">
                       {cycle.status === "Draft" && (
-                        <Button variant="ghost" size="sm" className="h-7 text-xs text-cyan-500 hover:text-cyan-600" onClick={() => handleStart(cycle.id)} disabled={startingId !== null}>
+                        <Button variant="ghost" size="sm" className="text-xs text-cyan-500 hover:text-cyan-600" onClick={() => handleStart(cycle.id)} disabled={startingId !== null}>
                           {startingId === cycle.id && <Loader2 className="h-3 w-3 animate-spin" />}
                           Start
                         </Button>
                       )}
-                      <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary/80" onClick={() => onSelectCycle(cycle)}>
+                      <Button variant="ghost" size="sm" className="text-xs text-primary hover:text-primary/80" onClick={() => onSelectCycle(cycle)}>
                         <Eye className="h-3 w-3" /> View
                       </Button>
                     </div>
@@ -512,8 +513,8 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
   const [department, setDepartment] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
-  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]);
+  const [startDate, setStartDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(() => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -570,7 +571,7 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
           <label className="text-xs font-medium text-foreground">Cycle Name *</label>
           <input className={`${inputCls} mt-1.5 w-full`} placeholder="e.g. Q3 2026 IT Asset Audit" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="text-xs font-medium text-foreground">Department Scope *</label>
             <TableDropdown label="" options={departments.map((d) => ({ label: d, value: d }))} value={department} onChange={setDepartment} placeholder="Select department" />
@@ -584,7 +585,7 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
           <label className="text-xs font-medium text-foreground">Notes</label>
           <textarea className={`${inputCls} mt-1.5 w-full resize-none`} rows={3} placeholder="Additional instructions or scope..." value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="text-xs font-medium text-foreground">Start Date *</label>
             <input type="date" className={`${inputCls} mt-1.5 w-full`} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
@@ -631,7 +632,7 @@ function VerificationTab({ assets, total, page, totalPages, setPage, selectedAss
               {selectedAsset.result || "Pending Verification"}
             </span>
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-4">
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <InfoItem label="Department" value={selectedAsset.department} />
             <InfoItem label="Current Location" value={selectedAsset.currentLocation} />
             <InfoItem label="Recorded Holder" value={selectedAsset.recordedHolder} />
@@ -684,7 +685,7 @@ function VerificationTab({ assets, total, page, totalPages, setPage, selectedAss
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary/80" onClick={() => onSelectAsset(asset)}>
+                    <Button variant="ghost" size="sm" className="text-xs text-primary hover:text-primary/80" onClick={() => onSelectAsset(asset)}>
                       <Eye className="h-3 w-3" /> View
                     </Button>
                   </TableCell>
@@ -748,7 +749,7 @@ function DiscrepanciesTab({ discrepancies, total, page, totalPages, setPage, bad
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 text-xs text-emerald-500 hover:text-emerald-600"
+                        className="text-xs text-emerald-500 hover:text-emerald-600"
                         onClick={() => onResolve(d.id)}
                         disabled={resolvingId !== null}
                       >
@@ -838,7 +839,7 @@ function HistoryTab({ cycles }: { cycles: AuditCycle[] }) {
         <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="text-sm font-semibold text-foreground">{cycle.name}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{cycle.id} — {cycle.departmentScope}</p>
-          <div className="mt-5 grid grid-cols-2 gap-4">
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <InfoItem label="Location Scope" value={cycle.locationScope} />
             <InfoItem label="Created By" value={cycle.createdBy} />
             <InfoItem label="Period" value={`${cycle.startDate} to ${cycle.endDate}`} />
@@ -890,16 +891,16 @@ function HistoryTab({ cycles }: { cycles: AuditCycle[] }) {
 
 function Pagination({ page, totalPages, total, setPage }: { page: number; totalPages: number; total: number; setPage: (p: number) => void }) {
   return (
-    <div className="flex items-center justify-between border-t border-border pt-4">
+    <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
       <span className="text-xs text-muted-foreground">
         Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, total)} of {total}
       </span>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
+        <Button variant="outline" size="icon" className="btn-enterprise" aria-label="Previous page" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
           <ChevronLeft className="h-3.5 w-3.5" />
         </Button>
         <span className="text-xs text-foreground">{page} / {totalPages}</span>
-        <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
+        <Button variant="outline" size="icon" className="btn-enterprise" aria-label="Next page" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
           <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>

@@ -565,6 +565,7 @@ export function ReportTabs() {
       <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-muted/20 p-1">
         {tabs.map((tab) => (
           <button key={tab.key} onClick={() => { setActiveTab(tab.key); setPage(1); setSearch(""); }}
+            aria-pressed={activeTab === tab.key}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${activeTab === tab.key ? "bg-card text-foreground shadow-sm border border-border" : "text-muted-foreground hover:text-foreground"}`}>
             {tab.icon} {tab.label}
           </button>
@@ -621,7 +622,7 @@ function OverviewTab({ kpis, deptData, maintenanceTypes, monthlyUtilization }: {
 }) {
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {kpis.map((kpi) => (
           <div key={kpi.label} className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center justify-between">
@@ -829,7 +830,7 @@ function MaintenanceTab({ search, catFilter, page, setPage, data, monthlyMainten
         <div className="space-y-3">
           {[...categoryFailureRates].sort((a, b) => b.rate - a.rate).map((c) => (
             <div key={c.category} className="flex items-center gap-3">
-              <span className="w-32 text-xs text-muted-foreground">{c.category}</span>
+              <span className="w-32 min-w-0 truncate text-xs text-muted-foreground">{c.category}</span>
               <div className="flex-1 h-4 rounded-sm bg-muted/50 overflow-hidden">
                 <div className="h-full rounded-sm bg-primary/70" style={{ width: `${(c.rate / maxRate) * 100}%` }} />
               </div>
@@ -1208,7 +1209,7 @@ function DeptBarChart({ data }: { data: DepartmentAllocation[] }) {
       <div className="mt-5 space-y-3">
         {rows.map((d) => (
           <div key={d.department} className="flex items-center gap-3">
-            <span className="w-28 text-xs text-muted-foreground">{d.department}</span>
+            <span className="w-28 min-w-0 truncate text-xs text-muted-foreground">{d.department}</span>
             <div className="flex-1 h-5 rounded-sm bg-muted/50 overflow-hidden">
               <div className="h-full rounded-sm bg-primary/70 transition-all" style={{ width: `${d.utilizationRate}%` }} />
             </div>
@@ -1321,16 +1322,16 @@ function BarChart({ data, title, subtitle }: { data: { month: string; value: num
 
 function Pagination({ page, totalPages, total, setPage }: { page: number; totalPages: number; total: number; setPage: (p: number) => void }) {
   return (
-    <div className="flex items-center justify-between border-t border-border px-6 py-3">
+    <div className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
       <span className="text-xs text-muted-foreground">
         Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, total)} of {total}
       </span>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
+        <Button variant="outline" size="icon" className="btn-enterprise" aria-label="Previous page" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
           <ChevronLeft className="h-3.5 w-3.5" />
         </Button>
         <span className="text-xs text-foreground">{page} / {totalPages}</span>
-        <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
+        <Button variant="outline" size="icon" className="btn-enterprise" aria-label="Next page" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
           <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>

@@ -1,6 +1,6 @@
 export default function MaintenanceLoading() {
   return (
-    <div className="space-y-6 animate-pulse p-6">
+    <div className="space-y-6 animate-pulse">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <div className="h-7 w-36 rounded-lg bg-muted" />
@@ -8,7 +8,7 @@ export default function MaintenanceLoading() {
         </div>
         <div className="h-9 w-40 rounded-lg bg-muted" />
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="rounded-xl border border-border bg-card p-4 space-y-2">
             <div className="h-3 w-20 rounded bg-muted/60" />

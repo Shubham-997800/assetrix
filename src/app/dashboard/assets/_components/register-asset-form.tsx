@@ -610,8 +610,10 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
                     </span>
                   )}
                   <button
+                    type="button"
                     onClick={() => removeFile(idx)}
-                    className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
+                    aria-label={`Remove ${file.name}`}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -649,10 +651,11 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             <button
               role="switch"
               aria-checked={resourceConfig.shared}
+              aria-label="Toggle shared resource"
               onClick={() =>
                 setResourceConfig((p) => ({ ...p, shared: !p.shared }))
               }
-              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full outline-none transition-colors after:absolute after:-inset-2.5 after:content-[''] focus-visible:ring-2 focus-visible:ring-ring/50 ${
                 resourceConfig.shared ? "bg-primary" : "bg-muted"
               }`}
             >
@@ -677,10 +680,11 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             <button
               role="switch"
               aria-checked={resourceConfig.bookable}
+              aria-label="Toggle bookable resource"
               onClick={() =>
                 setResourceConfig((p) => ({ ...p, bookable: !p.bookable }))
               }
-              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full outline-none transition-colors after:absolute after:-inset-2.5 after:content-[''] focus-visible:ring-2 focus-visible:ring-ring/50 ${
                 resourceConfig.bookable ? "bg-primary" : "bg-muted"
               }`}
             >

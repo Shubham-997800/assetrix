@@ -408,6 +408,19 @@ export function AssetDirectoryTable({
     { key: "updatedAt", label: "Last Updated", hide: true },
   ];
 
+  const COLUMN_HIDE_CLASS: Record<SortField, string> = {
+    tag: "",
+    name: "",
+    category: "hidden md:table-cell",
+    department: "hidden md:table-cell",
+    currentHolder: "hidden md:table-cell",
+    location: "hidden lg:table-cell",
+    status: "",
+    condition: "hidden xl:table-cell",
+    acquisitionDate: "hidden xl:table-cell",
+    updatedAt: "hidden xl:table-cell",
+  };
+
   return (
     <>
       <div className="rounded-xl border border-border bg-card">
@@ -432,17 +445,20 @@ export function AssetDirectoryTable({
                 variant="outline"
                 size="sm"
                 className="btn-enterprise"
+                aria-label="QR Search"
                 onClick={() => setQrModal({ tag: "QR-SCAN", name: "QR Code Scanner" })}
               >
                 <QrCode className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">QR Search</span>
               </Button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 className={`btn-enterprise ${showFilters ? "border-primary text-primary" : ""}`}
+                aria-label="Filters"
+                aria-pressed={showFilters}
                 onClick={() => setShowFilters(!showFilters)}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -457,6 +473,8 @@ export function AssetDirectoryTable({
                 variant="outline"
                 size="sm"
                 className={`btn-enterprise ${showColumns ? "border-primary text-primary" : ""}`}
+                aria-label="Columns"
+                aria-pressed={showColumns}
                 onClick={() => setShowColumns(!showColumns)}
               >
                 <Columns3 className="h-3.5 w-3.5" />
@@ -466,13 +484,15 @@ export function AssetDirectoryTable({
                 variant="outline"
                 size="sm"
                 className="btn-enterprise"
+                aria-label="Saved views"
+                aria-pressed={showSavedViews}
                 onClick={() => setShowSavedViews(!showSavedViews)}
               >
                 <Bookmark className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Views</span>
               </Button>
               <div className="relative group">
-                <Button variant="outline" size="sm" className="btn-enterprise">
+                <Button variant="outline" size="sm" className="btn-enterprise" aria-label="Export">
                   <Download className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Export</span>
                 </Button>
@@ -645,7 +665,7 @@ export function AssetDirectoryTable({
                   .map((col) => (
                     <th
                       key={col.key}
-                      className="cursor-pointer select-none px-3 py-3 text-xs font-medium text-muted-foreground hover:text-foreground sm:px-6"
+                      className={`cursor-pointer select-none px-3 py-3 text-xs font-medium text-muted-foreground hover:text-foreground sm:px-6 ${COLUMN_HIDE_CLASS[col.key]}`}
                       onClick={() => handleSort(col.key)}
                     >
                       <div className="flex items-center gap-1">
@@ -697,8 +717,9 @@ export function AssetDirectoryTable({
                           <span className="font-mono text-xs">{asset.tag}</span>
                           <button
                             onClick={() => setQrModal({ tag: asset.tag, name: asset.name })}
-                            className="rounded p-0.5 text-muted-foreground/40 transition-colors hover:bg-muted hover:text-primary"
+                            className="flex h-8 w-8 items-center justify-center rounded p-0.5 text-muted-foreground/40 transition-colors hover:bg-muted hover:text-primary"
                             title="View QR Code"
+                            aria-label={`View QR code for ${asset.tag}`}
                           >
                             <QrCode className="h-3 w-3" />
                           </button>
@@ -834,10 +855,11 @@ export function AssetDirectoryTable({
               Showing {(page - 1) * PAGE_SIZE + 1}–
               {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} assets
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center justify-center gap-1 sm:justify-end">
               <Button
                 variant="outline"
                 size="sm"
+                aria-label="Previous page"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => p - 1)}
               >
@@ -875,6 +897,7 @@ export function AssetDirectoryTable({
               <Button
                 variant="outline"
                 size="sm"
+                aria-label="Next page"
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
               >

@@ -229,8 +229,8 @@ export const GlobalSearch = memo(function GlobalSearch() {
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
-          <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+        <div className="flex flex-col items-start justify-between gap-2 border-t border-border px-4 py-2.5 sm:flex-row sm:items-center">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
             <span className="inline-flex items-center gap-1"><kbd className="rounded border border-border bg-muted px-1 py-0.5">↑↓</kbd> navigate</span>
             <span className="inline-flex items-center gap-1"><kbd className="rounded border border-border bg-muted px-1 py-0.5">↵</kbd> select</span>
             <span className="inline-flex items-center gap-1"><kbd className="rounded border border-border bg-muted px-1 py-0.5">ESC</kbd> close</span>

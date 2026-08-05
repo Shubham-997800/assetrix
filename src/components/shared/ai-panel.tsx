@@ -162,9 +162,9 @@ export const AIPanel = memo(function AIPanel() {
 
       {/* Page Insights */}
       <div className="border-b border-border">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-3 pb-2">
           <p className="text-xs font-semibold text-foreground">Page Insights</p>
-          <div className="flex gap-1">
+          <div className="flex flex-wrap gap-1">
             {FILTER_OPTIONS.map((f) => (
               <button
                 key={f}

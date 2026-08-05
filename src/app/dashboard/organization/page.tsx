@@ -865,14 +865,14 @@ function CategoryForm({
         </div>
         {fields.map((f, i) => (
           <div key={i} className="flex items-center gap-2">
-            <input value={f.name} onChange={(e) => { const n = [...fields]; n[i] = { ...n[i], name: e.target.value }; setFields(n); }} className="flex-1 rounded-lg border border-border bg-muted/30 px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary" placeholder="Field name" />
-            <select value={f.type} onChange={(e) => { const n = [...fields]; n[i] = { ...n[i], type: e.target.value }; setFields(n); }} className="w-32 rounded-lg border border-border bg-muted/30 px-2 py-1.5 text-sm text-foreground outline-none focus:border-primary">
+            <input value={f.name} onChange={(e) => { const n = [...fields]; n[i] = { ...n[i], name: e.target.value }; setFields(n); }} className="min-w-0 flex-1 rounded-lg border border-border bg-muted/30 px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary" placeholder="Field name" />
+            <select value={f.type} onChange={(e) => { const n = [...fields]; n[i] = { ...n[i], type: e.target.value }; setFields(n); }} className="w-28 shrink-0 rounded-lg border border-border bg-muted/30 px-2 py-1.5 text-sm text-foreground outline-none focus:border-primary">
               <option>Text</option>
               <option>Number</option>
               <option>Date</option>
               <option>Dropdown</option>
             </select>
-            <button onClick={() => removeField(i)} className="rounded p-1 text-muted-foreground hover:text-destructive"><X className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={() => removeField(i)} aria-label="Remove field" className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-destructive"><X className="h-3.5 w-3.5" /></button>
           </div>
         ))}
       </div>
@@ -1061,24 +1061,27 @@ function EmployeesTab({
           </table>
         </div>
         {/* Pagination */}
-        <div className="flex items-center justify-between border-t border-border px-4 py-3">
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-border px-4 py-3 sm:flex-row">
           <p className="text-xs text-muted-foreground">
             Showing {((page - 1) * perPage) + 1}–{Math.min(page * perPage, filtered.length)} of {filtered.length} employees
           </p>
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" className="h-7 w-7" disabled={page === 1} onClick={() => setPage(page - 1)}>
+          <div className="flex flex-wrap items-center justify-center gap-1">
+            <Button variant="outline" size="icon" aria-label="Previous page" disabled={page === 1} onClick={() => setPage(page - 1)}>
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
+                type="button"
+                aria-label={`Page ${i + 1}`}
+                aria-current={page === i + 1 ? "page" : undefined}
                 onClick={() => setPage(i + 1)}
-                className={`flex h-7 w-7 items-center justify-center rounded text-xs font-medium transition-colors ${page === i + 1 ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                className={`flex h-9 w-9 items-center justify-center rounded text-xs font-medium transition-colors ${page === i + 1 ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
               >
                 {i + 1}
               </button>
             ))}
-            <Button variant="outline" size="icon" className="h-7 w-7" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+            <Button variant="outline" size="icon" aria-label="Next page" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
           </div>
