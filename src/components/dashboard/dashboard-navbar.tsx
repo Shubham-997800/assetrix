@@ -45,7 +45,7 @@ const TASK_PANEL = "absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-80
 const PROFILE_PANEL = "absolute right-0 top-full mt-2 w-52 rounded-xl border border-border bg-card shadow-2xl overflow-hidden";
 
 const DashboardNavbar = memo(function DashboardNavbar() {
-  const { setSearchOpen, toggleSidebar, isLight, toggleTheme, aiPanelOpen, setAiPanelOpen } = useDashboard();
+  const { searchOpen, setSearchOpen, toggleSidebar, isLight, toggleTheme, aiPanelOpen, setAiPanelOpen } = useDashboard();
   const { user, logout } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -114,10 +114,10 @@ const DashboardNavbar = memo(function DashboardNavbar() {
         <button onClick={toggleSidebar} className={SIDEBAR_TOGGLE_DESKTOP} aria-label="Collapse sidebar">
           <PanelLeft className="h-4 w-4" />
         </button>
-        <button onClick={handleSearchOpen} className={SEARCH_TRIGGER}>
+        <button onClick={handleSearchOpen} className={SEARCH_TRIGGER} aria-haspopup="dialog" aria-expanded={searchOpen}>
           <Search className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Search...</span>
-          <kbd className="hidden sm:inline-flex ml-2 rounded border border-border bg-background px-1 py-0.5 text-[9px] font-medium">Ctrl K</kbd>
+          <kbd className="hidden sm:inline-flex ml-2 rounded border border-border bg-background px-1 py-0.5 text-[10px] font-medium">Ctrl K</kbd>
         </button>
         <div className="hidden md:block ml-2">
           <BreadcrumbNav />
@@ -142,16 +142,17 @@ const DashboardNavbar = memo(function DashboardNavbar() {
             title="Tasks"
             aria-label={`Pending tasks: ${TASK_QUEUE.length}`}
             aria-expanded={tasksOpen}
+            aria-controls="navbar-tasks-panel"
           >
             <Zap className="h-4 w-4" />
             {TASK_QUEUE.length > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
                 {TASK_QUEUE.length}
               </span>
             )}
           </button>
           {tasksOpen && (
-            <div className={TASK_PANEL}>
+            <div id="navbar-tasks-panel" role="dialog" aria-label="Pending tasks" className={TASK_PANEL}>
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <p className="text-xs font-semibold text-foreground">Pending Tasks</p>
                 <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-medium text-orange-500">{TASK_QUEUE.length} pending</span>
@@ -175,16 +176,17 @@ const DashboardNavbar = memo(function DashboardNavbar() {
             title="Notifications"
             aria-label={`Notifications: ${unreadCount} unread`}
             aria-expanded={notificationsOpen}
+            aria-controls="navbar-notif-panel"
           >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                 {unreadCount}
               </span>
             )}
           </button>
           {notificationsOpen && (
-            <div className={NOTIF_PANEL}>
+            <div id="navbar-notif-panel" role="dialog" aria-label="Notifications" className={NOTIF_PANEL}>
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <p className="text-xs font-semibold text-foreground">Notifications</p>
                 <Link href="/dashboard/notifications" onClick={handleCloseNotifications} className="text-[10px] text-primary hover:underline">View all</Link>
@@ -198,7 +200,7 @@ const DashboardNavbar = memo(function DashboardNavbar() {
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-foreground">{n.title}</p>
                       <p className="mt-0.5 text-[11px] text-muted-foreground truncate">{n.desc}</p>
-                      <p className="mt-1 text-[10px] text-muted-foreground/60">{n.time}</p>
+                      <p className="mt-1 text-[10px] text-muted-foreground">{n.time}</p>
                     </div>
                     {!n.read && <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />}
                   </div>
@@ -232,6 +234,7 @@ const DashboardNavbar = memo(function DashboardNavbar() {
             className={PROFILE_TRIGGER}
             aria-label="User menu"
             aria-expanded={profileOpen}
+            aria-controls="navbar-profile-panel"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{userInitials}</span>
             <div className="hidden sm:block text-left">
@@ -241,19 +244,19 @@ const DashboardNavbar = memo(function DashboardNavbar() {
             <ChevronDown className="hidden sm:block h-3 w-3 text-muted-foreground" />
           </button>
           {profileOpen && (
-            <div className={PROFILE_PANEL}>
+            <div id="navbar-profile-panel" role="menu" aria-label="User menu" className={PROFILE_PANEL}>
               <div className="border-b border-border px-4 py-3">
                 <p className="text-xs font-semibold text-foreground">{userName}</p>
                 <p className="text-[10px] text-muted-foreground">{user?.email ?? ""}</p>
               </div>
               <div className="p-1.5">
-                <Link href="/dashboard/profile" onClick={handleCloseProfile} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                <Link href="/dashboard/profile" onClick={handleCloseProfile} role="menuitem" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                   <User className="h-3.5 w-3.5" /> Profile
                 </Link>
-                <Link href="/dashboard/settings" onClick={handleCloseProfile} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                <Link href="/dashboard/settings" onClick={handleCloseProfile} role="menuitem" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                   <Settings className="h-3.5 w-3.5" /> Settings
                 </Link>
-                <button onClick={handleSignOut} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                <button onClick={handleSignOut} role="menuitem" className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                   <LogOut className="h-3.5 w-3.5" /> Sign out
                 </button>
               </div>

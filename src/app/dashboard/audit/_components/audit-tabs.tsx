@@ -43,7 +43,7 @@ import type { ApiError } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
 const inputCls =
-  "h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 
 const VERIFICATION_RESULT_MAP: Record<string, VerificationResult> = {
   VERIFIED: "Verified",
@@ -52,6 +52,22 @@ const VERIFICATION_RESULT_MAP: Record<string, VerificationResult> = {
   DISCREPANCY: "Incorrect Location",
   PENDING: null,
 };
+
+const VERIFICATION_RESULT_CLASSES: Record<string, string> = {
+  Verified: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+  Missing: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+  Damaged: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+  "Incorrect Location": "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+  "Incorrect Holder": "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+};
+
+const VERIFICATION_BADGE_CLASS =
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap";
+
+function verificationBadge(result: string | null) {
+  const classes = result ? VERIFICATION_RESULT_CLASSES[result] : "bg-muted text-muted-foreground border-border";
+  return `${VERIFICATION_BADGE_CLASS} ${classes}`;
+}
 
 const DISCREPANCY_STATUS_MAP: Record<string, DiscrepancyStatus> = {
   OPEN: "Open",
@@ -314,7 +330,6 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
           totalPages={totalPages(filteredCycles)}
           setPage={setPage}
           badgeStyle={badgeStyle}
-          onSelectCycle={() => {}}
           onStart={handleStartCycle}
         />
       )}
@@ -412,25 +427,26 @@ export function AuditTabs({ initialCycles, onRefresh }: AuditTabsProps) {
   );
 }
 
-function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSelectCycle, onStart }: {
+function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onStart }: {
   cycles: AuditCycle[];
   total: number;
   page: number;
   totalPages: number;
   setPage: (p: number) => void;
   badgeStyle: (s: string) => string;
-  onSelectCycle: (c: AuditCycle) => void;
   onStart: (id: string) => Promise<void>;
 }) {
   const [startingId, setStartingId] = useState<string | null>(null);
+  const [startError, setStartError] = useState<string | null>(null);
 
   const handleStart = async (id: string) => {
     setStartingId(id);
+    setStartError(null);
     try {
       await onStart(id);
     } catch (err) {
       const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to start cycle");
+      setStartError(apiErr.message || "Failed to start cycle");
     } finally {
       setStartingId(null);
     }
@@ -438,6 +454,11 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
 
   return (
     <>
+      {startError && (
+        <div role="alert" className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+          <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" /> {startError}
+        </div>
+      )}
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <Table>
           <TableHeader>
@@ -492,9 +513,6 @@ function CyclesTab({ cycles, total, page, totalPages, setPage, badgeStyle, onSel
                           Start
                         </Button>
                       )}
-                      <Button variant="ghost" size="sm" className="text-xs text-primary hover:text-primary/80" onClick={() => onSelectCycle(cycle)}>
-                        <Eye className="h-3 w-3" /> View
-                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -568,8 +586,8 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
       </h3>
       <div className="mt-5 space-y-4">
         <div>
-          <label className="text-xs font-medium text-foreground">Cycle Name *</label>
-          <input className={`${inputCls} mt-1.5 w-full`} placeholder="e.g. Q3 2026 IT Asset Audit" value={name} onChange={(e) => setName(e.target.value)} />
+          <label htmlFor="cycle-name" className="text-xs font-medium text-foreground">Cycle Name *</label>
+          <input id="cycle-name" className={`${inputCls} mt-1.5 w-full`} placeholder="e.g. Q3 2026 IT Asset Audit" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
@@ -577,22 +595,22 @@ function CreateCycleTab({ onSubmit, onRefresh }: { onSubmit: () => void; onRefre
             <TableDropdown label="" options={departments.map((d) => ({ label: d, value: d }))} value={department} onChange={setDepartment} placeholder="Select department" />
           </div>
           <div>
-            <label className="text-xs font-medium text-foreground">Location Scope *</label>
-            <input className={`${inputCls} mt-1.5 w-full`} placeholder="e.g. Floor 3, Wing A" value={location} onChange={(e) => setLocation(e.target.value)} />
+            <label htmlFor="cycle-location" className="text-xs font-medium text-foreground">Location Scope *</label>
+            <input id="cycle-location" className={`${inputCls} mt-1.5 w-full`} placeholder="e.g. Floor 3, Wing A" value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium text-foreground">Notes</label>
-          <textarea className={`${inputCls} mt-1.5 w-full resize-none`} rows={3} placeholder="Additional instructions or scope..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <label htmlFor="cycle-notes" className="text-xs font-medium text-foreground">Notes</label>
+          <textarea id="cycle-notes" className={`${inputCls} mt-1.5 w-full resize-none`} rows={3} placeholder="Additional instructions or scope..." value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-xs font-medium text-foreground">Start Date *</label>
-            <input type="date" className={`${inputCls} mt-1.5 w-full`} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+            <label htmlFor="cycle-start" className="text-xs font-medium text-foreground">Start Date *</label>
+            <input id="cycle-start" type="date" className={`${inputCls} mt-1.5 w-full`} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div>
-            <label className="text-xs font-medium text-foreground">End Date *</label>
-            <input type="date" className={`${inputCls} mt-1.5 w-full`} value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            <label htmlFor="cycle-end" className="text-xs font-medium text-foreground">End Date *</label>
+            <input id="cycle-end" type="date" className={`${inputCls} mt-1.5 w-full`} value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </div>
       </div>
@@ -628,7 +646,7 @@ function VerificationTab({ assets, total, page, totalPages, setPage, selectedAss
               <h3 className="text-lg font-semibold text-foreground">{selectedAsset.assetName}</h3>
               <p className="text-sm text-muted-foreground">{selectedAsset.assetTag}</p>
             </div>
-            <span className={selectedAsset.result ? AUDIT_STATUS_CLASSES.Active : ""}>
+            <span className={verificationBadge(selectedAsset.result)}>
               {selectedAsset.result || "Pending Verification"}
             </span>
           </div>
@@ -680,7 +698,7 @@ function VerificationTab({ assets, total, page, totalPages, setPage, selectedAss
                   <TableCell><span className="text-xs text-foreground">{asset.currentLocation}</span></TableCell>
                   <TableCell><span className="text-xs text-foreground">{asset.assignedAuditor}</span></TableCell>
                   <TableCell>
-                    <span className={asset.result ? AUDIT_STATUS_CLASSES.Active : "text-xs text-muted-foreground"}>
+                    <span className={verificationBadge(asset.result)}>
                       {asset.result || "Pending"}
                     </span>
                   </TableCell>
@@ -866,7 +884,20 @@ function HistoryTab({ cycles }: { cycles: AuditCycle[] }) {
         </div>
       ) : (
         cycles.map((cycle) => (
-          <div key={cycle.id} className="rounded-xl border border-border bg-card p-5 hover:bg-muted/10 cursor-pointer transition-colors" onClick={() => setSelectedCycle(cycle)}>
+          <div
+            key={cycle.id}
+            role="button"
+            tabIndex={0}
+            aria-label={`View details for ${cycle.name}`}
+            className="rounded-xl border border-border bg-card p-5 hover:bg-muted/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer transition-colors"
+            onClick={() => setSelectedCycle(cycle)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setSelectedCycle(cycle);
+              }
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-foreground">{cycle.name}</h4>
@@ -877,7 +908,7 @@ function HistoryTab({ cycles }: { cycles: AuditCycle[] }) {
                   <p className="text-xs text-muted-foreground">Verified</p>
                   <p className="text-sm font-medium text-foreground">{cycle.verifiedCount}/{cycle.totalAssets}</p>
                 </div>
-                <span className={AUDIT_STATUS_CLASSES[cycle.status]}>
+                <span className={`${VERIFICATION_BADGE_CLASS} ${AUDIT_STATUS_CLASSES[cycle.status]}`}>
                   {cycle.status}
                 </span>
               </div>

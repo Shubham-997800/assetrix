@@ -63,6 +63,7 @@ export const GlobalSearch = memo(function GlobalSearch() {
   const [recentSearches, setRecentSearches] = useState<string[]>(loadRecentSearches);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const prevOpen = useRef(searchOpen);
 
@@ -100,7 +101,8 @@ export const GlobalSearch = memo(function GlobalSearch() {
 
   useEffect(() => {
     if (!listRef.current) return;
-    const el = listRef.current.children[selectedIndex] as HTMLElement;
+    const options = listRef.current.querySelectorAll<HTMLElement>('[role="option"]');
+    const el = options[selectedIndex];
     el?.scrollIntoView({ block: "nearest" });
   }, [selectedIndex]);
 
@@ -108,7 +110,7 @@ export const GlobalSearch = memo(function GlobalSearch() {
 
   useEffect(() => {
     if (!searchOpen) return;
-    const container = document.querySelector<HTMLElement>("[aria-label='Global search'] .relative.z-10");
+    const container = dialogRef.current;
     if (!container) return;
     const focusable = container.querySelectorAll<HTMLElement>("input, button, [href], [tabindex]:not([tabindex='-1'])");
     const first = focusable[0];
@@ -156,7 +158,7 @@ export const GlobalSearch = memo(function GlobalSearch() {
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh]" role="dialog" aria-modal="true" aria-label="Global search">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={closeSearch} />
-      <div className="relative z-10 w-full max-w-2xl mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+      <div ref={dialogRef} className="relative z-10 w-full max-w-2xl mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
         <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
           <Search className="h-5 w-5 text-muted-foreground" />
           <input
@@ -165,10 +167,16 @@ export const GlobalSearch = memo(function GlobalSearch() {
             onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
             onKeyDown={handleKeyDown}
             placeholder="Search assets, employees, pages, actions..."
+            role="combobox"
+            aria-label="Search"
+            aria-expanded={true}
+            aria-controls="global-search-listbox"
+            aria-activedescendant={selectedItemId ? `global-search-option-${selectedItemId}` : undefined}
+            aria-autocomplete="list"
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           {query && (
-            <button onClick={() => setQuery("")} className="rounded-md p-1 text-muted-foreground hover:text-foreground">
+            <button onClick={() => setQuery("")} className="rounded-md p-1 text-muted-foreground hover:text-foreground" aria-label="Clear search">
               <X className="h-4 w-4" />
             </button>
           )}
@@ -176,30 +184,18 @@ export const GlobalSearch = memo(function GlobalSearch() {
         </div>
 
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
-          {!query.trim() && recentSearches.length > 0 && (
-            <div className="mb-2">
-              <p className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Recent Searches</p>
-              {recentSearches.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => { setQuery(s); setSelectedIndex(0); }}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:bg-muted"
-                >
-                  <Clock className="h-3.5 w-3.5" />
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {query.trim() && Object.keys(grouped).length > 0 && (
-            Object.entries(grouped).map(([category, items]) => {
-              return (
-                <div key={category} className="mb-2">
-                  <p className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{category}</p>
-                  {items.map((item) => (
+          {query.trim() ? (
+            Object.keys(grouped).length > 0 ? (
+              <div id="global-search-listbox" role="listbox" aria-label="Search results">
+                {Object.entries(grouped).map(([category, items]) => (
+                  <div key={category} className="mb-2">
+                    <p role="presentation" className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{category}</p>
+                    {items.map((item) => (
                       <button
                         key={item.id}
+                        id={`global-search-option-${item.id}`}
+                        role="option"
+                        aria-selected={item.id === selectedItemId}
                         onClick={() => navigateTo(item.href)}
                         className={`flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors ${
                           item.id === selectedItemId ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
@@ -212,20 +208,37 @@ export const GlobalSearch = memo(function GlobalSearch() {
                           <p className="font-medium truncate">{item.label}</p>
                           <p className="text-xs text-muted-foreground truncate">{item.sublabel}</p>
                         </div>
-                        <span className="text-[10px] text-muted-foreground/60 font-medium uppercase">{item.category}</span>
+                        <span className="text-[10px] text-muted-foreground font-medium uppercase">{item.category}</span>
                       </button>
-                  ))}
-                </div>
-              );
-            })
-          )}
-
-          {query.trim() && Object.keys(grouped).length === 0 && (
-            <div className="py-8 text-center">
-              <Search className="mx-auto mb-2 h-8 w-8 text-muted-foreground/30" />
-              <p className="text-sm text-muted-foreground">No results for &ldquo;{query}&rdquo;</p>
-              <p className="mt-1 text-xs text-muted-foreground/60">Try different keywords or browse pages</p>
-            </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-8 text-center">
+                <Search className="mx-auto mb-2 h-8 w-8 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">No results for &ldquo;{query}&rdquo;</p>
+                <p className="mt-1 text-xs text-muted-foreground/60">Try different keywords or browse pages</p>
+              </div>
+            )
+          ) : (
+            recentSearches.length > 0 && (
+              <div id="global-search-listbox" role="listbox" aria-label="Search results">
+                <p role="presentation" className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Recent Searches</p>
+                {recentSearches.map((s) => (
+                  <button
+                    key={s}
+                    role="option"
+                    aria-selected={false}
+                    onClick={() => { setQuery(s); setSelectedIndex(0); }}
+                    className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:bg-muted"
+                  >
+                    <Clock className="h-3.5 w-3.5" />
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )
           )}
         </div>
 

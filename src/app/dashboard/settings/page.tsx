@@ -345,6 +345,7 @@ export default React.memo(function SettingsPage() {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
+                aria-pressed={activeTab === tab.id}
                 className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
                   activeTab === tab.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}

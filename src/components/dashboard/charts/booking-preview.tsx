@@ -29,7 +29,7 @@ export function BookingPreview({ bookings }: { bookings?: UpcomingBooking[] }) {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">
-              Today&apos;s Bookings
+              Upcoming Bookings
             </h3>
             <p className="text-xs text-muted-foreground">
               {list.length} reservations
@@ -55,7 +55,7 @@ export function BookingPreview({ bookings }: { bookings?: UpcomingBooking[] }) {
           return (
             <div
               key={b.id}
-              className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
+              className={`flex items-center gap-3 rounded-lg border px-3 py-3 transition-colors ${
                 isOngoing
                   ? "border-primary/30 bg-primary/5"
                   : "border-border hover:bg-muted/30"
@@ -65,7 +65,7 @@ export function BookingPreview({ bookings }: { bookings?: UpcomingBooking[] }) {
                 <span className="text-xs font-semibold text-foreground">
                   {b.start}
                 </span>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[11px] text-muted-foreground">
                   {b.end}
                 </span>
               </div>
@@ -75,11 +75,11 @@ export function BookingPreview({ bookings }: { bookings?: UpcomingBooking[] }) {
                 <p className="text-xs text-muted-foreground">{b.owner}</p>
               </div>
               {isOngoing ? (
-                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
                   Ongoing
                 </span>
               ) : (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                   Upcoming
                 </span>
               )}

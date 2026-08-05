@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, memo } from "react";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import { assetApi, ApiError } from "@/lib/api";
 import { AssetDirectoryTable } from "./_components/asset-directory-table";
 import { RegisterAssetForm } from "./_components/register-asset-form";
@@ -256,31 +257,48 @@ function AssetsPage() {
 
       {/* Delete Confirmation */}
       {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !deleting && setConfirmDelete(null)} />
-          <div className="relative z-10 mx-4 w-full max-w-sm rounded-xl border border-border bg-card p-5 shadow-2xl">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
-                <Trash2 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">Delete Asset</h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  This will permanently remove &quot;{confirmDelete.name}&quot; ({confirmDelete.tag}). This action cannot be undone.
-                </p>
-              </div>
-            </div>
-            <div className="mt-5 flex justify-end gap-2">
-              <Button variant="outline" size="sm" className="btn-enterprise" disabled={deleting} onClick={() => setConfirmDelete(null)}>
-                Cancel
-              </Button>
-              <Button size="sm" className="btn-enterprise" disabled={deleting} onClick={handleDeleteAsset}>
-                {deleting ? "Deleting..." : "Delete"}
-              </Button>
-            </div>
+        <DeleteConfirmDialog
+          asset={confirmDelete}
+          deleting={deleting}
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={handleDeleteAsset}
+        />
+      )}
+    </div>
+  );
+}
+
+function DeleteConfirmDialog({ asset, deleting, onCancel, onConfirm }: {
+  asset: Asset;
+  deleting: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const { containerRef } = useDialogA11y(true, deleting ? undefined : onCancel);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Delete asset confirmation">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !deleting && onCancel()} />
+      <div ref={containerRef} className="relative z-10 mx-4 w-full max-w-sm animate-scale-in rounded-xl border border-border bg-card p-5 shadow-2xl">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
+            <Trash2 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Delete Asset</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              This will permanently remove &quot;{asset.name}&quot; ({asset.tag}). This action cannot be undone.
+            </p>
           </div>
         </div>
-      )}
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="outline" size="sm" className="btn-enterprise" disabled={deleting} onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button size="sm" className="btn-enterprise" disabled={deleting} onClick={onConfirm}>
+            {deleting ? "Deleting..." : "Delete"}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

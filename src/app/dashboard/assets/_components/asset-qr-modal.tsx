@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { X, QrCode, Eye, Wrench, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 
 interface AssetQRModalProps {
   open: boolean;
@@ -54,6 +54,8 @@ function QRCodePlaceholder({ value }: { value: string }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       className="rounded-lg"
+      role="img"
+      aria-label="Asset QR code"
     >
       <rect width={size} height={size} fill="white" />
       {grid.map((row, r) =>
@@ -75,14 +77,7 @@ function QRCodePlaceholder({ value }: { value: string }) {
 }
 
 export function AssetQRModal({ open, onClose, assetTag, assetName }: AssetQRModalProps) {
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [open, onClose]);
+  const { containerRef } = useDialogA11y(open, onClose);
 
   if (!open) return null;
 
@@ -93,15 +88,16 @@ export function AssetQRModal({ open, onClose, assetTag, assetName }: AssetQRModa
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center" role="dialog" aria-modal="true" aria-label={`QR code for ${assetTag}`}>
       <div
         className="absolute inset-0 bg-background/80 backdrop-blur-sm animate-in fade-in"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg animate-in fade-in zoom-in-95">
+      <div ref={containerRef} className="relative z-10 w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg animate-in fade-in zoom-in-95">
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          aria-label={`Close QR code for ${assetTag}`}
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <X className="h-4 w-4" />
         </button>
@@ -125,7 +121,8 @@ export function AssetQRModal({ open, onClose, assetTag, assetName }: AssetQRModa
             {actions.map((action) => (
               <button
                 key={action.label}
-                className="flex w-full items-center gap-3 rounded-lg border border-border px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
+                onClick={onClose}
+                className="flex w-full items-center gap-3 rounded-lg border border-border px-3 py-2.5 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 <action.icon className="h-4 w-4 text-primary" />
                 <div>

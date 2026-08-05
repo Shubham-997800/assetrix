@@ -133,7 +133,8 @@ function CommandPaletteInner() {
 
   useEffect(() => {
     if (!listRef.current) return;
-    const el = listRef.current.children[selectedIndex] as HTMLElement;
+    const options = listRef.current.querySelectorAll<HTMLElement>('[role="option"]');
+    const el = options[selectedIndex];
     el?.scrollIntoView({ block: "nearest" });
   }, [selectedIndex]);
 
@@ -193,45 +194,56 @@ function CommandPaletteInner() {
             onKeyDown={handleKeyDown}
             placeholder="Type a command, page, or action..."
             aria-label="Search commands"
+            role="combobox"
+            aria-expanded={true}
+            aria-controls="command-palette-listbox"
+            aria-activedescendant={filtered[selectedIndex] ? `command-palette-option-${filtered[selectedIndex].id}` : undefined}
+            aria-autocomplete="list"
             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">ESC</kbd>
         </div>
 
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
-          {Object.entries(grouped).map(([category, items]) => {
-            const offset = categoryOffsets[category];
-            return (
-              <div key={category} className="mb-2">
-                <p className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{category}</p>
-                {items.map((item, localIdx) => {
-                  const idx = offset + localIdx;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => executeItem(item)}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                        idx === selectedIndex ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-muted">
-                        <item.icon className="h-3.5 w-3.5" />
-                      </span>
-                      <div className="flex-1 min-w-0 text-left">
-                        <p className="font-medium truncate text-xs">{item.label}</p>
-                        {item.sublabel && <p className="text-[10px] text-muted-foreground truncate">{item.sublabel}</p>}
-                      </div>
-                      {item.shortcut && (
-                        <span className="text-[9px] text-muted-foreground/40 font-mono">{item.shortcut}</span>
-                      )}
-                      <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-30" />
-                    </button>
-                  );
-                })}
-              </div>
-            );
-          })}
-          {query.trim() && filtered.length === 0 && (
+          {filtered.length > 0 ? (
+            <div id="command-palette-listbox" role="listbox" aria-label="Commands">
+              {Object.entries(grouped).map(([category, items]) => {
+                const offset = categoryOffsets[category];
+                return (
+                  <div key={category} className="mb-2">
+                    <p role="presentation" className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{category}</p>
+                    {items.map((item, localIdx) => {
+                      const idx = offset + localIdx;
+                      return (
+                        <button
+                          key={item.id}
+                          id={`command-palette-option-${item.id}`}
+                          role="option"
+                          aria-selected={idx === selectedIndex}
+                          onClick={() => executeItem(item)}
+                          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                            idx === selectedIndex ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-muted">
+                            <item.icon className="h-3.5 w-3.5" />
+                          </span>
+                          <div className="flex-1 min-w-0 text-left">
+                            <p className="font-medium truncate text-xs">{item.label}</p>
+                            {item.sublabel && <p className="text-[10px] text-muted-foreground truncate">{item.sublabel}</p>}
+                          </div>
+                          {item.shortcut && (
+                            <span className="text-[10px] text-muted-foreground font-mono">{item.shortcut}</span>
+                          )}
+                          <ChevronRight className="h-3 w-3 flex-shrink-0 opacity-30" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
             <div className="py-8 text-center">
               <Search className="mx-auto mb-2 h-8 w-8 text-muted-foreground/30" />
               <p className="text-sm text-muted-foreground">No results for &ldquo;{query}&rdquo;</p>

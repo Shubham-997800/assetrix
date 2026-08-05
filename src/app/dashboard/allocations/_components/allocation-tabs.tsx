@@ -195,17 +195,8 @@ export function ActiveAllocationsTab() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-0.5">
-                      <Button variant="ghost" size="icon-sm" className="btn-enterprise" title="View">
-                        <Eye className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button variant="ghost" size="icon-sm" className="btn-enterprise" title="Transfer">
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button variant="ghost" size="icon-sm" className="btn-enterprise" title="Return" onClick={() => handleReturn(a.id)} disabled={returning === a.id}>
-                        <RotateCcw className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button variant="ghost" size="icon-sm" className="btn-enterprise" title="Extend">
-                        <CalendarPlus className="h-3.5 w-3.5" />
+                      <Button variant="ghost" size="icon-sm" className="btn-enterprise" aria-label={`Return ${a.assetName} (${a.assetTag})`} onClick={() => handleReturn(a.id)} disabled={returning === a.id}>
+                        {returning === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
                       </Button>
                     </div>
                   </td>
@@ -456,9 +447,6 @@ export function OverdueReturnsTab() {
                 <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${PRIORITY_CLASSES["critical"]}`}>
                   {daysOverdue} day{daysOverdue !== 1 ? "s" : ""} overdue · critical
                 </span>
-                <Button variant="outline" size="sm" className="btn-enterprise">
-                  <Send className="h-3.5 w-3.5" /> Send Reminder
-                </Button>
               </div>
             </div>
           </div>

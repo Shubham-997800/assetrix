@@ -96,7 +96,7 @@ export function AssetLifecycleTab({ assets }: AssetLifecycleTabProps) {
           <div className="mt-6 flex flex-col items-center sm:flex-row sm:items-start sm:gap-8">
             {/* SVG Donut */}
             <div className="relative flex-shrink-0">
-              <svg width="200" height="200" viewBox="0 0 200 200">
+              <svg width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Asset lifecycle donut chart">
                 {/* Background circle */}
                 <circle
                   cx="100"

@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, memo } from "react";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import {
   Sparkles, X, TrendingUp, AlertTriangle, Lightbulb, ArrowRight,
   ChevronDown, ChevronUp, Bot, Send, Package, Wrench, CalendarClock,
@@ -94,6 +95,8 @@ export const AIPanel = memo(function AIPanel() {
   const [isTyping, setIsTyping] = useState(false);
   const [filter, setFilter] = useState<"all" | "suggestion" | "warning" | "prediction" | "info">("all");
 
+  const { containerRef } = useDialogA11y(aiPanelOpen, () => setAiPanelOpen(false));
+
   const pageInsights = useMemo(() => {
     const base = PAGE_INSIGHTS[pathname] || PAGE_INSIGHTS["/dashboard"] || [];
     if (filter === "all") return base;
@@ -134,7 +137,7 @@ export const AIPanel = memo(function AIPanel() {
   if (!aiPanelOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col border-l border-border bg-card shadow-2xl sm:inset-y-0 sm:right-0 sm:left-auto sm:w-[380px] sm:max-w-full" role="complementary" aria-label="AI Assistant panel">
+    <div ref={containerRef} className="fixed inset-0 z-50 flex flex-col border-l border-border bg-card shadow-2xl sm:inset-y-0 sm:right-0 sm:left-auto sm:w-[380px] sm:max-w-full" role="complementary" aria-label="AI Assistant panel">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
@@ -144,7 +147,7 @@ export const AIPanel = memo(function AIPanel() {
           <div>
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold text-foreground">AI Assistant</p>
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-amber-600 dark:text-amber-400">
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-amber-600 dark:text-amber-400">
                 Demo
               </span>
             </div>
@@ -195,7 +198,7 @@ export const AIPanel = memo(function AIPanel() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-semibold">{insight.title}</p>
-                      <span className="ml-2 flex-shrink-0 rounded-full bg-background/50 px-1.5 py-0.5 text-[9px] font-medium uppercase">
+                      <span className="ml-2 flex-shrink-0 rounded-full bg-background/50 px-1.5 py-0.5 text-[10px] font-medium uppercase">
                         {PRIORITY_LABELS[insight.priority]}
                       </span>
                     </div>

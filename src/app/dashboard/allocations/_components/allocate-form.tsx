@@ -23,7 +23,7 @@ interface AllocateAssetFormProps {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 const labelCls = "text-xs font-medium text-foreground";
 
 export function AllocateAssetForm({
@@ -210,19 +210,16 @@ export function AllocateAssetForm({
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
                 Direct allocation of an already-allocated asset is not allowed.
-                Create a transfer request instead.
+                Allocate the asset to the current holder or choose another asset.
               </p>
               <div className="mt-3 flex gap-2">
-                <Button variant="outline" size="sm" className="btn-enterprise">
-                  <ArrowLeftRight className="h-3.5 w-3.5" /> Create Transfer Request
-                </Button>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className="btn-enterprise"
                   onClick={() => setConflict(null)}
                 >
-                  View Allocation Details
+                  Choose Another Asset
                 </Button>
               </div>
             </div>
@@ -304,18 +301,19 @@ export function AllocateAssetForm({
           </div>
 
           <div>
-            <label className={labelCls}>Department</label>
+            <label className={labelCls} htmlFor="alloc-dept">Department</label>
             <div className="mt-1.5 flex h-9 items-center rounded-lg border border-border bg-muted/30 px-3">
               <Building2 className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-sm text-foreground">
+              <span className="text-sm text-foreground" id="alloc-dept">
                 {department || "—"}
               </span>
             </div>
           </div>
 
           <div>
-            <label className={labelCls}>Allocation Date *</label>
+            <label className={labelCls} htmlFor="alloc-date">Allocation Date *</label>
             <input
+              id="alloc-date"
               type="date"
               className={inputCls + " mt-1.5"}
               value={allocDate}
@@ -329,8 +327,9 @@ export function AllocateAssetForm({
           </div>
 
           <div>
-            <label className={labelCls}>Expected Return Date *</label>
+            <label className={labelCls} htmlFor="alloc-return-date">Expected Return Date *</label>
             <input
+              id="alloc-return-date"
               type="date"
               className={inputCls + " mt-1.5"}
               value={returnDate}
@@ -345,8 +344,9 @@ export function AllocateAssetForm({
           </div>
 
           <div className="sm:col-span-2">
-            <label className={labelCls}>Allocation Notes</label>
+            <label className={labelCls} htmlFor="alloc-notes">Allocation Notes</label>
             <textarea
+              id="alloc-notes"
               className={inputCls + " mt-1.5 resize-none"}
               rows={3}
               placeholder="Optional notes about this allocation"

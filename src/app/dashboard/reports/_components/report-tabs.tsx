@@ -1091,6 +1091,7 @@ function HeatmapTab({ data, peakText }: { data: BookingHeatmapSlot[]; peakText: 
 function ExportTab({ departments, categories }: { departments: ApiDepartment[]; categories: ApiCategory[] }) {
   const [selectedFormat, setSelectedFormat] = useState("CSV");
   const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [department, setDepartment] = useState("All Departments");
@@ -1107,6 +1108,7 @@ function ExportTab({ departments, categories }: { departments: ApiDepartment[]; 
   const handleGenerate = async () => {
     try {
       setGenerating(true);
+      setGenerateError(null);
       const filters: Record<string, unknown> = {};
       if (startDate) filters.startDate = new Date(startDate).toISOString();
       if (endDate) filters.endDate = new Date(endDate).toISOString();
@@ -1140,7 +1142,7 @@ function ExportTab({ departments, categories }: { departments: ApiDepartment[]; 
       }
     } catch (err) {
       const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to generate report");
+      setGenerateError(apiErr.message || "Failed to generate report");
     } finally {
       setGenerating(false);
     }
@@ -1157,10 +1159,15 @@ function ExportTab({ departments, categories }: { departments: ApiDepartment[]; 
 
   return (
     <div className="space-y-6">
+      {generateError && (
+        <div role="alert" className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+          <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" /> {generateError}
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-3">
         {formats.map((f) => (
-          <button key={f.label} onClick={() => setSelectedFormat(f.label)}
-            className={`rounded-xl border bg-card p-5 text-left transition-colors ${selectedFormat === f.label ? "border-primary ring-1 ring-primary/20" : "border-border hover:bg-muted/20"}`}>
+          <button key={f.label} onClick={() => setSelectedFormat(f.label)} aria-pressed={selectedFormat === f.label}
+            className={`rounded-xl border bg-card p-5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${selectedFormat === f.label ? "border-primary ring-1 ring-primary/20" : "border-border hover:bg-muted/20"}`}>
             <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${f.color}`}>
               <f.icon className="h-5 w-5" />
             </div>
@@ -1237,7 +1244,7 @@ function MaintenanceDonut({ data }: { data: MaintenanceSlice[] }) {
       </div>
       <div className="mt-5 flex items-center gap-6">
         <div className="relative h-32 w-32 flex-shrink-0">
-          <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
+          <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90" role="img" aria-label="Maintenance type distribution">
             {data.map((s, i) => {
               const dash = (s.value / 100) * 100;
               return (
@@ -1279,7 +1286,7 @@ function MonthlyLineChart({ data, title, subtitle }: { data: { month: string; va
         {data.length === 0 ? (
           <p className="text-sm text-muted-foreground">No data available</p>
         ) : (
-          <svg viewBox="0 0 120 80" className="h-full w-full" preserveAspectRatio="none">
+          <svg viewBox="0 0 120 80" className="h-full w-full" preserveAspectRatio="none" role="img" aria-label={`${title} trend chart`}>
             <defs>
               <linearGradient id={`grad-${title}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.15" />

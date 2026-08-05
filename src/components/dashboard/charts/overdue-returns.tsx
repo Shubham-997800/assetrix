@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, Send, ChevronRight, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, ChevronRight, CheckCircle2 } from "lucide-react";
 import type { OverdueReturnItem } from "@/lib/types";
 
 function priorityStyle(p: "warning" | "high" | "critical") {
@@ -57,17 +57,17 @@ export function OverdueReturns({ items }: { items?: OverdueReturnItem[] }) {
                   <span className="text-xs font-mono font-medium text-muted-foreground">
                     {item.tag}
                   </span>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="truncate text-sm font-medium text-foreground">
                     {item.name}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
                   {item.holder} &middot; {item.dept} &middot; Due {item.returnDate}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
                     priority === "critical"
                       ? "bg-red-500/10 text-red-600 dark:text-red-400"
                       : priority === "high"
@@ -77,13 +77,6 @@ export function OverdueReturns({ items }: { items?: OverdueReturnItem[] }) {
                 >
                   {item.days}d overdue
                 </span>
-                <button
-                  className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  title="Send reminder"
-                  aria-label={`Send reminder for ${item.name}`}
-                >
-                  <Send className="h-3.5 w-3.5" />
-                </button>
               </div>
             </div>
           );

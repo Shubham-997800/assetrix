@@ -2,7 +2,7 @@
 
 import { useDashboard } from "@/contexts/dashboard-context";
 import { X, Keyboard } from "lucide-react";
-import { useEffect } from "react";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 
 interface ShortcutGroup {
   title: string;
@@ -46,22 +46,14 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
 
 export function KeyboardShortcutsHelp() {
   const { shortcutsOpen, setShortcutsOpen } = useDashboard();
-
-  useEffect(() => {
-    if (!shortcutsOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShortcutsOpen(false);
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [shortcutsOpen, setShortcutsOpen]);
+  const { containerRef } = useDialogA11y(shortcutsOpen, () => setShortcutsOpen(false));
 
   if (!shortcutsOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setShortcutsOpen(false)} />
-      <div className="relative z-10 w-full max-w-xl mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+      <div ref={containerRef} className="relative z-10 w-full max-w-xl mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
@@ -72,6 +64,7 @@ export function KeyboardShortcutsHelp() {
           <button
             onClick={() => setShortcutsOpen(false)}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Close shortcuts dialog"
           >
             <X className="h-4 w-4" />
           </button>
@@ -79,7 +72,7 @@ export function KeyboardShortcutsHelp() {
         <div className="max-h-[60vh] overflow-y-auto p-5 space-y-5">
           {SHORTCUT_GROUPS.map((group) => (
             <div key={group.title}>
-              <h3 className="mb-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{group.title}</h3>
+              <h3 className="mb-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{group.title}</h3>
               <div className="space-y-1.5">
                 {group.shortcuts.map((shortcut) => (
                   <div key={shortcut.label} className="flex items-center justify-between rounded-lg px-2 py-1.5">

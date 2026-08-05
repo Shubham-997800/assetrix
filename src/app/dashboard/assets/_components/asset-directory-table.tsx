@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { categoryApi, departmentApi } from "@/lib/api";
 import {
@@ -172,6 +172,8 @@ export function AssetDirectoryTable({
   const [showFilters, setShowFilters] = useState(false);
   const [showColumns, setShowColumns] = useState(false);
   const [showSavedViews, setShowSavedViews] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
   const [savedViews, setSavedViews] = useState<SavedView[]>(DEFAULT_SAVED_VIEWS);
   const [viewName, setViewName] = useState("");
   const [qrModal, setQrModal] = useState<{ tag: string; name: string } | null>(null);
@@ -214,6 +216,24 @@ export function AssetDirectoryTable({
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowExportMenu(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [showExportMenu]);
 
   const locations = useMemo(
     () =>
@@ -491,25 +511,29 @@ export function AssetDirectoryTable({
                 <Bookmark className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Views</span>
               </Button>
-              <div className="relative group">
-                <Button variant="outline" size="sm" className="btn-enterprise" aria-label="Export">
+              <div className="relative" ref={exportMenuRef}>
+                <Button variant="outline" size="sm" className={`btn-enterprise ${showExportMenu ? "border-primary text-primary" : ""}`} aria-label="Export" aria-expanded={showExportMenu} aria-haspopup="menu" onClick={() => setShowExportMenu((v) => !v)}>
                   <Download className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Export</span>
                 </Button>
-                <div className="absolute right-0 top-full z-50 mt-1 hidden w-40 overflow-hidden rounded-lg border border-border bg-card shadow-md group-hover:block">
-                  <button
-                    onClick={exportCSV}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-                  >
-                    Export as CSV
-                  </button>
-                  <button
-                    onClick={exportPDF}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
-                  >
-                    Export as PDF
-                  </button>
-                </div>
+                {showExportMenu && (
+                  <div role="menu" aria-label="Export options" className="absolute right-0 top-full z-50 mt-1 w-40 overflow-hidden rounded-lg border border-border bg-card shadow-md">
+                    <button
+                      role="menuitem"
+                      onClick={() => { exportCSV(); setShowExportMenu(false); }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
+                    >
+                      Export as CSV
+                    </button>
+                    <button
+                      role="menuitem"
+                      onClick={() => { exportPDF(); setShowExportMenu(false); }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
+                    >
+                      Export as PDF
+                    </button>
+                  </div>
+                )}
               </div>
               <Button size="sm" className="btn-enterprise" onClick={onRegisterAsset}>
                 <Plus className="h-3.5 w-3.5" /> Register Asset
@@ -717,7 +741,7 @@ export function AssetDirectoryTable({
                           <span className="font-mono text-xs">{asset.tag}</span>
                           <button
                             onClick={() => setQrModal({ tag: asset.tag, name: asset.name })}
-                            className="flex h-8 w-8 items-center justify-center rounded p-0.5 text-muted-foreground/40 transition-colors hover:bg-muted hover:text-primary"
+                            className="flex h-8 w-8 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
                             title="View QR Code"
                             aria-label={`View QR code for ${asset.tag}`}
                           >
@@ -789,6 +813,7 @@ export function AssetDirectoryTable({
                           size="icon-sm"
                           className="btn-enterprise"
                           title="View Details"
+                          aria-label={`View details for ${asset.tag}`}
                           onClick={() => onViewAsset(asset)}
                         >
                           <Eye className="h-3.5 w-3.5" />
@@ -798,6 +823,7 @@ export function AssetDirectoryTable({
                           size="icon-sm"
                           className="btn-enterprise"
                           title="Edit"
+                          aria-label={`Edit ${asset.tag}`}
                         >
                           <Edit className="h-3.5 w-3.5" />
                         </Button>
@@ -806,6 +832,7 @@ export function AssetDirectoryTable({
                           size="icon-sm"
                           className="btn-enterprise"
                           title="Allocate"
+                          aria-label={`Allocate ${asset.tag}`}
                           disabled={asset.status !== "Available"}
                         >
                           <ArrowRightLeft className="h-3.5 w-3.5" />
@@ -815,6 +842,7 @@ export function AssetDirectoryTable({
                           size="icon-sm"
                           className="btn-enterprise"
                           title="Maintenance"
+                          aria-label={`Maintenance for ${asset.tag}`}
                         >
                           <Wrench className="h-3.5 w-3.5" />
                         </Button>
@@ -823,6 +851,7 @@ export function AssetDirectoryTable({
                           size="icon-sm"
                           className="btn-enterprise text-destructive hover:text-destructive"
                           title="Retire"
+                          aria-label={`Retire ${asset.tag}`}
                           disabled={
                             asset.status === "Retired" || asset.status === "Disposed"
                           }
@@ -834,6 +863,7 @@ export function AssetDirectoryTable({
                           size="icon-sm"
                           className="btn-enterprise text-destructive hover:text-destructive"
                           title="Delete"
+                          aria-label={`Delete ${asset.tag}`}
                           disabled={asset.status === "Allocated"}
                           onClick={() => onDeleteAsset(asset)}
                         >

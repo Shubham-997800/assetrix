@@ -1,10 +1,11 @@
 ﻿"use client";
 
-import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
+import React, { useState, useMemo, useCallback, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/contexts/dashboard-context";
 import { useAuth } from "@/contexts/auth-context";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import {
   LayoutDashboard, Building2, Package, ArrowLeftRight, CalendarClock,
   Wrench, ClipboardCheck, BarChart3, Bell, FileText, Settings, Star,
@@ -62,12 +63,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
   const [expandedFav, setExpandedFav] = useState(true);
   const [expandedRecent, setExpandedRecent] = useState(true);
 
-  useEffect(() => {
-    if (!mobileDrawerOpen) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setMobileDrawerOpen(false); };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [mobileDrawerOpen, setMobileDrawerOpen]);
+  const { containerRef: drawerRef } = useDialogA11y(mobileDrawerOpen, () => setMobileDrawerOpen(false));
 
   const isCollapsed = sidebarCollapsed;
 
@@ -132,11 +128,11 @@ const DashboardSidebar = memo(function DashboardSidebar() {
       <div className="flex-1 overflow-y-auto py-3 px-2">
         {favorites.length > 0 && (
           <div className="mb-3">
-            <button onClick={handleExpandedFavToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedFav} aria-label="Toggle favorites">
+            <button onClick={handleExpandedFavToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-muted-foreground hover:bg-muted ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedFav} aria-label="Toggle favorites">
               {isCollapsed ? <Star className="h-3 w-3" /> : (<><Star className="h-3 w-3" /> Favorites {expandedFav ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>)}
             </button>
             {expandedFav && !isCollapsed && favorites.map((fav) => (
-              <Link key={fav.href} href={fav.href} onClick={() => isMobile && setMobileDrawerOpen(false)} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors ${isItemActive(fav.href) ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+              <Link key={fav.href} href={fav.href} onClick={() => isMobile && setMobileDrawerOpen(false)} aria-current={isItemActive(fav.href) ? "page" : undefined} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${isItemActive(fav.href) ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
                 <Star className="h-3.5 w-3.5 text-yellow-500" />
                 {fav.label}
               </Link>
@@ -146,11 +142,11 @@ const DashboardSidebar = memo(function DashboardSidebar() {
 
         {recentPages.length > 0 && (
           <div className="mb-3">
-            <button onClick={handleExpandedRecentToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedRecent} aria-label="Toggle recent pages">
+            <button onClick={handleExpandedRecentToggle} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-muted-foreground hover:bg-muted ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedRecent} aria-label="Toggle recent pages">
               {isCollapsed ? <FileText className="h-3 w-3" /> : (<><FileText className="h-3 w-3" /> Recent {expandedRecent ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>)}
             </button>
             {expandedRecent && !isCollapsed && recentPagesLimited.map((page) => (
-              <Link key={page.href} href={page.href} onClick={() => isMobile && setMobileDrawerOpen(false)} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors ${isItemActive(page.href) ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+              <Link key={page.href} href={page.href} onClick={() => isMobile && setMobileDrawerOpen(false)} aria-current={isItemActive(page.href) ? "page" : undefined} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${isItemActive(page.href) ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
                 <Clock className="h-3.5 w-3.5 text-muted-foreground/60" />
                 {page.label}
               </Link>
@@ -162,8 +158,12 @@ const DashboardSidebar = memo(function DashboardSidebar() {
 
         {NAV_GROUPS.map((group) => (
           <div key={group.title} className="mb-3">
-            <button onClick={() => toggleGroup(group.title)} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 hover:text-muted-foreground ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedGroups[group.title]} aria-label={`Toggle ${group.title} section`}>
-              {isCollapsed ? null : (<>{group.title} {expandedGroups[group.title] ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>)}
+            <button onClick={() => toggleGroup(group.title)} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-muted-foreground hover:bg-muted ${isCollapsed ? "justify-center" : ""}`} aria-expanded={expandedGroups[group.title]} aria-label={`Toggle ${group.title} section`}>
+              {isCollapsed ? (
+                expandedGroups[group.title] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />
+              ) : (
+                <>{group.title} {expandedGroups[group.title] ? <ChevronDown className="ml-auto h-3 w-3" /> : <ChevronRight className="ml-auto h-3 w-3" />}</>
+              )}
             </button>
             {expandedGroups[group.title] && group.items.map((item) => (
               <div key={item.href} className="relative group/fav">
@@ -171,7 +171,8 @@ const DashboardSidebar = memo(function DashboardSidebar() {
                   href={item.href}
                   title={isCollapsed ? item.label : undefined}
                   onClick={() => isMobile && setMobileDrawerOpen(false)}
-                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors ${
+                  aria-current={isItemActive(item.href) ? "page" : undefined}
+                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                     isCollapsed ? "justify-center" : ""
                   } ${
                     isItemActive(item.href)
@@ -184,7 +185,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
                     <>
                       <span className="flex-1">{item.label}</span>
                       {item.shortcut && (
-                        <span className="text-[9px] text-muted-foreground/40 font-mono">{item.shortcut}</span>
+                        <span className="text-[10px] text-muted-foreground font-mono">{item.shortcut}</span>
                       )}
                     </>
                   )}
@@ -192,11 +193,11 @@ const DashboardSidebar = memo(function DashboardSidebar() {
                 {!isCollapsed && (
                   <button
                     onClick={(e) => { e.preventDefault(); toggleFavorite(item); }}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground/0 group-hover/fav:text-muted-foreground hover:text-yellow-500 transition-colors"
+                    className="absolute right-0.5 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/0 transition-colors group-hover/fav:text-muted-foreground hover:text-yellow-500 focus-visible:text-yellow-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     title={isFavorited(item.href) ? "Remove from favorites" : "Add to favorites"}
                     aria-label={isFavorited(item.href) ? `Remove ${item.label} from favorites` : `Add ${item.label} to favorites`}
                   >
-                    <Star className={`h-3 w-3 ${isFavorited(item.href) ? "fill-yellow-500 text-yellow-500" : ""}`} />
+                    <Star className={`h-3.5 w-3.5 ${isFavorited(item.href) ? "fill-yellow-500 text-yellow-500" : ""}`} />
                   </button>
                 )}
                 {isCollapsed && isFavorited(item.href) && (
@@ -256,7 +257,7 @@ const DashboardSidebar = memo(function DashboardSidebar() {
       {mobileDrawerOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden" onClick={() => setMobileDrawerOpen(false)} />
-          <aside aria-label="Mobile navigation" className="fixed inset-y-0 left-0 z-50 w-[280px] border-r border-border bg-card lg:hidden">
+          <aside ref={drawerRef} role="dialog" aria-modal="true" aria-label="Mobile navigation" className="fixed inset-y-0 left-0 z-50 w-[280px] overflow-y-auto border-r border-border bg-card lg:hidden">
             {sidebarContent(true)}
           </aside>
         </>

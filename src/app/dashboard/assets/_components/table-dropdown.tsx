@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useId } from "react";
 import { ChevronDown, Check } from "lucide-react";
 
 interface DropdownOption {
@@ -27,6 +27,10 @@ export function TableDropdown({
 }: TableDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const id = useId();
+  const labelId = `${id}-label`;
+  const listboxId = `${id}-listbox`;
 
   const selected = options.find((o) => o.value === value);
 
@@ -47,19 +51,36 @@ export function TableDropdown({
     };
   }, [close]);
 
+  const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    if (!open) {
+      setOpen(true);
+      return;
+    }
+    const opts = Array.from(listRef.current?.querySelectorAll<HTMLElement>('[role="option"]') ?? []);
+    if (opts.length === 0) return;
+    const currentIdx = opts.indexOf(document.activeElement as HTMLElement);
+    const next = e.key === "ArrowDown" ? (currentIdx + 1) % opts.length : (currentIdx - 1 + opts.length) % opts.length;
+    opts[next]?.focus();
+  };
+
   return (
     <div ref={ref} className={`relative ${className}`}>
       {label && (
-        <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+        <label id={labelId} htmlFor={id} className="mb-1 block text-[11px] font-medium text-muted-foreground">
           {label}
         </label>
       )}
       <button
         type="button"
+        id={id}
         onClick={() => setOpen(!open)}
+        onKeyDown={handleTriggerKeyDown}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={label || placeholder}
+        aria-controls={listboxId}
+        aria-labelledby={label ? labelId : undefined}
         className="flex min-h-[44px] w-full items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20"
       >
         <span className={`min-w-0 truncate ${selected ? "text-foreground" : "text-muted-foreground"}`}>
@@ -72,9 +93,11 @@ export function TableDropdown({
 
       {open && (
         <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border border-border bg-card shadow-md animate-in fade-in slide-in-from-top-1">
-          <div className="max-h-60 overflow-y-auto p-1">
+          <div ref={listRef} id={listboxId} role="listbox" aria-labelledby={label ? labelId : undefined} className="max-h-60 overflow-y-auto p-1">
             <button
               type="button"
+              role="option"
+              aria-selected={!value}
               onClick={() => {
                 onChange("");
                 close();
@@ -90,6 +113,8 @@ export function TableDropdown({
               <button
                 key={opt.value}
                 type="button"
+                role="option"
+                aria-selected={value === opt.value}
                 onClick={() => {
                   onChange(opt.value);
                   close();
@@ -132,6 +157,10 @@ export function MultiDropdown({
 }: MultiDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const id = useId();
+  const labelId = `${id}-label`;
+  const listboxId = `${id}-listbox`;
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -160,19 +189,36 @@ export function MultiDropdown({
     ? `${value.length} selected`
     : placeholder;
 
+  const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    if (!open) {
+      setOpen(true);
+      return;
+    }
+    const opts = Array.from(listRef.current?.querySelectorAll<HTMLElement>('[role="option"]') ?? []);
+    if (opts.length === 0) return;
+    const currentIdx = opts.indexOf(document.activeElement as HTMLElement);
+    const next = e.key === "ArrowDown" ? (currentIdx + 1) % opts.length : (currentIdx - 1 + opts.length) % opts.length;
+    opts[next]?.focus();
+  };
+
   return (
     <div ref={ref} className={`relative ${className}`}>
       {label && (
-        <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+        <label id={labelId} htmlFor={id} className="mb-1 block text-[11px] font-medium text-muted-foreground">
           {label}
         </label>
       )}
       <button
         type="button"
+        id={id}
         onClick={() => setOpen(!open)}
+        onKeyDown={handleTriggerKeyDown}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={label || placeholder}
+        aria-controls={listboxId}
+        aria-labelledby={label ? labelId : undefined}
         className="flex min-h-[44px] w-full items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20"
       >
         <span className={`min-w-0 truncate ${value.length ? "text-foreground" : "text-muted-foreground"}`}>
@@ -185,11 +231,13 @@ export function MultiDropdown({
 
       {open && (
         <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border border-border bg-card shadow-md animate-in fade-in slide-in-from-top-1">
-          <div className="max-h-60 overflow-y-auto p-1">
+          <div ref={listRef} id={listboxId} role="listbox" aria-labelledby={label ? labelId : undefined} className="max-h-60 overflow-y-auto p-1">
             {options.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
+                role="option"
+                aria-selected={value.includes(opt.value)}
                 onClick={() => toggle(opt.value)}
                 className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted ${
                   value.includes(opt.value)

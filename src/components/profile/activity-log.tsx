@@ -41,7 +41,7 @@ export function ActivityLog() {
                 <span className="shrink-0 text-xs text-muted-foreground">{item.time}</span>
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground/60">{item.device}</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">{item.device}</p>
             </div>
           </div>
         ))}

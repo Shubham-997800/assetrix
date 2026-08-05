@@ -27,10 +27,11 @@ function mapType(type: string): "alert" | "success" | "warning" | "info" {
 function timeAgo(createdAt: string) {
   const diff = Date.now() - new Date(createdAt).getTime();
   const mins = Math.max(1, Math.floor(diff / 60000));
-  if (mins < 60) return `${mins} min ago`;
+  if (mins < 60) return `${mins} min${mins !== 1 ? "s" : ""} ago`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hr ago`;
-  return `${Math.floor(hrs / 24)} days ago`;
+  if (hrs < 24) return `${hrs} hr${hrs !== 1 ? "s" : ""} ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
 
 type NotifFilter = "all" | "unread" | "alerts";
@@ -107,7 +108,7 @@ export function NotificationsWidget() {
           <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
             <Bell className="h-4 w-4 text-primary" />
             {unreadCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+              <span className="absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                 {unreadCount}
               </span>
             )}
@@ -178,7 +179,7 @@ export function NotificationsWidget() {
                 {!n.read && (
                   <button
                     onClick={() => markRead(n.id)}
-                    className="flex-shrink-0 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground"
                     title="Mark as read"
                     aria-label={`Mark "${n.title}" as read`}
                   >
@@ -187,7 +188,7 @@ export function NotificationsWidget() {
                 )}
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground">{n.desc}</p>
-              <p className="mt-1 text-[10px] text-muted-foreground/60">
+              <p className="mt-1 text-[11px] text-muted-foreground">
                 {n.time}
               </p>
             </div>

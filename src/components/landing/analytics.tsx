@@ -144,7 +144,7 @@ export function Analytics() {
               </span>
             </div>
             <div className="mt-6 relative" style={{ height: 200 }}>
-              <svg viewBox="0 0 400 160" className="h-full w-full" preserveAspectRatio="none">
+              <svg viewBox="0 0 400 160" className="h-full w-full" preserveAspectRatio="none" role="img" aria-label="Asset availability trend over the last 12 months">
                 <defs>
                   <linearGradient id="analyticsAreaGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.15" />
@@ -229,7 +229,7 @@ export function Analytics() {
             </div>
             <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row">
               <div className="relative h-40 w-40 flex-shrink-0">
-                <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
+                <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90" role="img" aria-label="Retirement forecast breakdown">
                   <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--border)" strokeWidth="3" />
                   {retirement.reduce(
                     (acc, r) => {

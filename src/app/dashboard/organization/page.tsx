@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useDialogA11y } from "@/hooks/use-dialog-a11y";
 import { Button } from "@/components/ui/button";
 import {
   Building2,
@@ -148,7 +149,7 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
       <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3 shadow-lg">
         <CheckCircle className="h-4 w-4 text-emerald-500" />
         <span className="text-sm text-foreground">{message}</span>
-        <button onClick={onClose} className="ml-2 text-muted-foreground hover:text-foreground">
+        <button onClick={onClose} className="ml-2 rounded-md p-1 text-muted-foreground hover:text-foreground" aria-label="Dismiss notification">
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -173,11 +174,12 @@ function ConfirmDialog({
   confirmText?: string;
   disabled?: boolean;
 }) {
+  const { containerRef } = useDialogA11y(open, onCancel);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={title}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onCancel} />
-      <div className="relative z-10 mx-4 w-full max-w-sm animate-scale-in rounded-xl border border-border bg-card p-5 shadow-2xl">
+      <div ref={containerRef} className="relative z-10 mx-4 w-full max-w-sm animate-scale-in rounded-xl border border-border bg-card p-5 shadow-2xl">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
             <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -207,14 +209,15 @@ function Modal({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const { containerRef } = useDialogA11y(open, onClose);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={title}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
-      <div className="relative z-10 mx-4 w-full max-w-lg animate-scale-in rounded-xl border border-border bg-card shadow-2xl">
+      <div ref={containerRef} className="relative z-10 mx-4 w-full max-w-lg animate-scale-in rounded-xl border border-border bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-          <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:text-foreground">
+          <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:text-foreground" aria-label={`Close ${title} dialog`}>
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -435,11 +438,11 @@ function DepartmentsTab({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setEditDept(dept)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 btn-enterprise" onClick={() => setEditDept(dept)} aria-label={`Edit department ${dept.name}`}>
                           <Edit className="h-3.5 w-3.5" />
                         </Button>
                         {dept.status === "Active" && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setConfirm({ open: true, id: dept.id })}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 btn-enterprise" onClick={() => setConfirm({ open: true, id: dept.id })} title="Delete" aria-label={`Delete department ${dept.name}`}>
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         )}
@@ -739,13 +742,13 @@ function CategoriesTab({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setEditCat(cat)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 btn-enterprise" onClick={() => setEditCat(cat)} aria-label={`Edit category ${cat.name}`}>
                           <Edit className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setConfirm({ open: true, id: cat.id })} title="Delete">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 btn-enterprise" onClick={() => setConfirm({ open: true, id: cat.id })} title="Delete" aria-label={`Delete category ${cat.name}`}>
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 btn-enterprise" aria-label={`View category ${cat.name} details`}>
                           <Eye className="h-3.5 w-3.5" />
                         </Button>
                       </div>
@@ -1049,7 +1052,7 @@ function EmployeesTab({
                     <td className="hidden px-4 py-3 text-xs text-muted-foreground lg:table-cell">{emp.lastLogin}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 btn-enterprise" onClick={() => setConfirm({ open: true, id: emp.id, action: "deactivate" })} title="Deactivate">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 btn-enterprise" onClick={() => setConfirm({ open: true, id: emp.id, action: "deactivate" })} title="Deactivate" aria-label={`Deactivate employee ${emp.name}`}>
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
@@ -1130,6 +1133,7 @@ export default function OrganizationPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
+              aria-pressed={activeTab === tab.id}
               className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? "border-primary text-primary"

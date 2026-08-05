@@ -63,7 +63,7 @@ export function AssetStatusChart({ stats }: { stats?: DashboardStats }) {
       </div>
       <div className="mt-5 flex items-center gap-5">
         <div className="relative h-32 w-32 flex-shrink-0">
-          <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
+          <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90" role="img" aria-label="Asset status distribution">
             {statuses.reduce(
               (acc, s) => {
                 const dash = (s.value / total) * 100;

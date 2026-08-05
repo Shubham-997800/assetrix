@@ -317,12 +317,12 @@ export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
               Showing {(activityPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(activityPage * ITEMS_PER_PAGE, actTotal)} of {actTotal}
             </span>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setActivityPage((p) => Math.max(1, p - 1))} disabled={activityPage === 1}>
-                <ChevronLeft className="h-3.5 w-3.5" />
+              <Button variant="outline" size="icon" className="btn-enterprise" onClick={() => setActivityPage((p) => Math.max(1, p - 1))} disabled={activityPage === 1} aria-label="Previous page">
+                <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-xs text-foreground">{activityPage} / {actTotalPages}</span>
-              <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setActivityPage((p) => Math.min(actTotalPages, p + 1))} disabled={activityPage === actTotalPages}>
-                <ChevronRight className="h-3.5 w-3.5" />
+              <Button variant="outline" size="icon" className="btn-enterprise" onClick={() => setActivityPage((p) => Math.min(actTotalPages, p + 1))} disabled={activityPage === actTotalPages} aria-label="Next page">
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -351,12 +351,12 @@ export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
 
       <div className="rounded-xl border border-border bg-muted/20 p-1 flex flex-wrap gap-1">
         {tabs.map((tab) => (
-          <button key={tab.key} onClick={() => { setActiveTab(tab.key); setPage(1); setSearch(""); }}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${activeTab === tab.key ? "bg-card text-foreground shadow-sm border border-border" : "text-muted-foreground hover:text-foreground"}`}>
+          <button key={tab.key} onClick={() => { setActiveTab(tab.key); setPage(1); setSearch(""); }} aria-pressed={activeTab === tab.key} aria-label={`${tab.label} notifications`}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${activeTab === tab.key ? "bg-card text-foreground shadow-sm border border-border" : "text-muted-foreground hover:text-foreground"}`}>
             <tab.icon className="h-3.5 w-3.5" />
             {tab.label}
             {tab.key === "unread" && unreadCount > 0 && (
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                 {unreadCount}
               </span>
             )}
@@ -405,19 +405,19 @@ export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
                   <p className="mt-1 text-sm text-muted-foreground">{n.message}</p>
                   <div className="mt-2 flex items-center gap-3">
                     <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{n.entity}</span>
-                    <span className="text-xs text-muted-foreground/60">{n.timeAgo}</span>
+                    <span className="text-xs text-muted-foreground">{n.timeAgo}</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
                   {n.unread && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => markAsRead(n.id)} title="Mark as read">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => markAsRead(n.id)} title="Mark as read" aria-label={`Mark "${n.title}" as read`}>
                       <CheckCheck className="h-3.5 w-3.5" />
                     </Button>
                   )}
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => archiveNotification(n.id)} title="Archive">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => archiveNotification(n.id)} title="Archive" aria-label={`Archive "${n.title}"`}>
                     <Archive className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => deleteNotification(n.id)} title="Delete">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => deleteNotification(n.id)} title="Delete" aria-label={`Delete "${n.title}"`}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -433,12 +433,12 @@ export function NotificationTabs({ refreshKey = 0 }: { refreshKey?: number }) {
             Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, notifTotal)} of {notifTotal}
           </span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
-              <ChevronLeft className="h-3.5 w-3.5" />
+            <Button variant="outline" size="icon" className="btn-enterprise" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Previous page">
+              <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-xs text-foreground">{page} / {notifTotalPages}</span>
-            <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setPage((p) => Math.min(notifTotalPages, p + 1))} disabled={page === notifTotalPages}>
-              <ChevronRight className="h-3.5 w-3.5" />
+            <Button variant="outline" size="icon" className="btn-enterprise" onClick={() => setPage((p) => Math.min(notifTotalPages, p + 1))} disabled={page === notifTotalPages} aria-label="Next page">
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>

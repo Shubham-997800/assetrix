@@ -52,7 +52,7 @@ export function Devices() {
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground/60 mt-0.5">Last seen: {d.lastSeen}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Last seen: {d.lastSeen}</p>
               </div>
               <div className="flex items-center gap-1">
                 <Button variant="ghost" size="icon" className="h-11 w-11 btn-enterprise" onClick={() => toggleTrust(i)}

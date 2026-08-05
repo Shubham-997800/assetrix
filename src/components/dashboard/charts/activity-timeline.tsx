@@ -32,7 +32,7 @@ const typeByAction: Record<string, string> = {
 function colorForIndex(i: number) {
   const colors = [
     "bg-emerald-500", "bg-primary", "bg-amber-500", "bg-violet-500",
-    "bg-rose-500", "bg-blue-500", "bg-emerald-500", "bg-primary",
+    "bg-rose-500", "bg-cyan-500", "bg-emerald-500", "bg-primary",
   ];
   return colors[i % colors.length];
 }
@@ -40,10 +40,11 @@ function colorForIndex(i: number) {
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.max(1, Math.floor(diff / 60000));
-  if (mins < 60) return `${mins} min ago`;
+  if (mins < 60) return `${mins} min${mins !== 1 ? "s" : ""} ago`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hr ago`;
-  return `${Math.floor(hrs / 24)} days ago`;
+  if (hrs < 24) return `${hrs} hr${hrs !== 1 ? "s" : ""} ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
 
 function initials(f?: { firstName: string; lastName: string } | null) {

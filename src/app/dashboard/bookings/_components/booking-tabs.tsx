@@ -10,7 +10,6 @@ import {
   MapPin,
   CheckCircle,
   XCircle,
-  Edit,
   Trash2,
   AlertTriangle,
   Building,
@@ -192,6 +191,19 @@ function formatDate(d: string) {
   });
 }
 
+function formatDuration(startTime: string, endTime: string) {
+  const [sh, sm] = startTime.split(":").map(Number);
+  const [eh, em] = endTime.split(":").map(Number);
+  if (Number.isNaN(sh) || Number.isNaN(eh)) return "—";
+  const totalMins = eh * 60 + em - (sh * 60 + sm);
+  if (totalMins <= 0) return "—";
+  const hrs = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  if (hrs === 0) return `${mins}m`;
+  if (mins === 0) return `${hrs}h`;
+  return `${hrs}h ${mins}m`;
+}
+
 const RESOURCE_ICONS: Record<string, React.ElementType> = {
   Building,
   Monitor,
@@ -304,8 +316,8 @@ export function ResourceDirectoryTab() {
    ═══════════════════════════════════════════════ */
 
 export function CalendarViewTab() {
-  const [month, setMonth] = useState(6); // July
-  const [year, setYear] = useState(2026);
+  const [month, setMonth] = useState(() => new Date().getMonth());
+  const [year, setYear] = useState(() => new Date().getFullYear());
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [, setLoading] = useState(true);
 
@@ -344,6 +356,29 @@ export function CalendarViewTab() {
     "Training Room": "bg-violet-500",
   };
 
+  const handleCalendarKeyDown = (e: React.KeyboardEvent) => {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
+    const cells = Array.from(
+      (e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[role="gridcell"][tabindex]')
+    );
+    if (cells.length === 0) return;
+    const currentIdx = cells.indexOf(document.activeElement as HTMLElement);
+    if (currentIdx === -1) {
+      (document.activeElement as HTMLElement)?.blur();
+      cells[0]?.focus();
+      return;
+    }
+    e.preventDefault();
+    let next = currentIdx;
+    if (e.key === "ArrowRight") next = Math.min(currentIdx + 1, cells.length - 1);
+    else if (e.key === "ArrowLeft") next = Math.max(currentIdx - 1, 0);
+    else if (e.key === "ArrowDown") next = Math.min(currentIdx + 7, cells.length - 1);
+    else if (e.key === "ArrowUp") next = Math.max(currentIdx - 7, 0);
+    else if (e.key === "Home") next = Math.floor(currentIdx / 7) * 7;
+    else if (e.key === "End") next = Math.min(Math.floor(currentIdx / 7) * 7 + 6, cells.length - 1);
+    cells[next]?.focus();
+  };
+
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -351,20 +386,20 @@ export function CalendarViewTab() {
           <h3 className="text-sm font-semibold text-foreground">{monthName}</h3>
           <p className="text-xs text-muted-foreground">Resource bookings calendar</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-blue-500" /> Meeting Room</span>
             <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-emerald-500" /> Equipment</span>
             <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-amber-500" /> Vehicle</span>
             <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-violet-500" /> Training</span>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon-sm" onClick={() => {
+            <Button variant="ghost" size="icon-sm" aria-label="Previous month" onClick={() => {
               if (month === 0) { setMonth(11); setYear(y => y - 1); } else setMonth(m => m - 1);
             }}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon-sm" onClick={() => {
+            <Button variant="ghost" size="icon-sm" aria-label="Next month" onClick={() => {
               if (month === 11) { setMonth(0); setYear(y => y + 1); } else setMonth(m => m + 1);
             }}>
               <ChevronRight className="h-4 w-4" />
@@ -373,9 +408,14 @@ export function CalendarViewTab() {
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-7 gap-px rounded-lg border border-border bg-border overflow-hidden">
+      <div
+        role="grid"
+        aria-label={`Bookings calendar for ${monthName} ${year}`}
+        onKeyDown={handleCalendarKeyDown}
+        className="mt-5 grid grid-cols-7 gap-px rounded-lg border border-border bg-border overflow-hidden"
+      >
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d} className="bg-muted px-2 py-2 text-center text-xs font-medium text-muted-foreground">
+          <div key={d} role="columnheader" className="bg-muted px-2 py-2 text-center text-xs font-medium text-muted-foreground">
             {d}
           </div>
         ))}
@@ -385,10 +425,18 @@ export function CalendarViewTab() {
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
           const dayBookings = bookingsByDay[d] || [];
           const isToday = d === today;
+          const bookingSummary = dayBookings.length
+            ? `${dayBookings.length} booking${dayBookings.length !== 1 ? "s" : ""}: ${dayBookings
+                .map((b) => `${b.startTime} ${b.resourceName}`)
+                .join(", ")}`
+            : "No bookings";
           return (
             <div
               key={d}
-              className={`bg-background min-h-[5rem] p-1.5 transition-colors hover:bg-muted/50 ${isToday ? "ring-2 ring-inset ring-primary/30" : ""}`}
+              role="gridcell"
+              tabIndex={0}
+              aria-label={`${monthName} ${d}, ${year}. ${bookingSummary}`}
+              className={`bg-background min-h-[5rem] p-1.5 outline-none transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary ${isToday ? "ring-2 ring-inset ring-primary/30" : ""}`}
             >
               <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${isToday ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
                 {d}
@@ -404,7 +452,7 @@ export function CalendarViewTab() {
                     </div>
                   ))}
                   {dayBookings.length > 3 && (
-                    <span className="text-[9px] text-muted-foreground/60">+{dayBookings.length - 3} more</span>
+                    <span className="text-[10px] text-muted-foreground">+{dayBookings.length - 3} more</span>
                   )}
                 </div>
               )}
@@ -476,7 +524,7 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
     }
   };
 
-  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
+  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 
   if (submitted) {
     return (
@@ -513,8 +561,9 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
                     {conflict.suggestedSlots.map((s) => (
                       <button
                         key={s.start}
+                        type="button"
                         onClick={() => { setStartTime(s.start); setEndTime(s.end); setConflict(null); }}
-                        className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/10"
+                        className="min-h-[36px] rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 outline-none transition-colors hover:bg-emerald-500/10 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                       >
                         {s.start} – {s.end}
                       </button>
@@ -553,8 +602,8 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
             {errors.resource && <p className="mt-1 text-[11px] text-destructive">{errors.resource}</p>}
           </div>
           <div>
-            <label className="text-xs font-medium text-foreground">Date *</label>
-            <input type="date" className={inputCls + " mt-1.5"} value={date} onChange={(e) => { setDate(e.target.value); setConflict(null); }} />
+            <label htmlFor="booking-date" className="text-xs font-medium text-foreground">Date *</label>
+            <input id="booking-date" type="date" className={inputCls + " mt-1.5"} value={date} onChange={(e) => { setDate(e.target.value); setConflict(null); }} />
             {errors.date && <p className="mt-1 text-[11px] text-destructive">{errors.date}</p>}
           </div>
           <div />
@@ -579,8 +628,8 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
             {errors.endTime && <p className="mt-1 text-[11px] text-destructive">{errors.endTime}</p>}
           </div>
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium text-foreground">Purpose *</label>
-            <input className={inputCls + " mt-1.5"} placeholder="What is this booking for?" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
+            <label htmlFor="booking-purpose" className="text-xs font-medium text-foreground">Purpose *</label>
+            <input id="booking-purpose" className={inputCls + " mt-1.5"} placeholder="What is this booking for?" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
             {errors.purpose && <p className="mt-1 text-[11px] text-destructive">{errors.purpose}</p>}
           </div>
           <div>
@@ -594,8 +643,8 @@ export function CreateBookingForm({ onSubmit, onCancel }: { onSubmit: () => void
             {errors.department && <p className="mt-1 text-[11px] text-destructive">{errors.department}</p>}
           </div>
           <div>
-            <label className="text-xs font-medium text-foreground">Participants</label>
-            <input className={inputCls + " mt-1.5"} placeholder="Comma-separated names" value={participants} onChange={(e) => setParticipants(e.target.value)} />
+            <label htmlFor="booking-participants" className="text-xs font-medium text-foreground">Participants</label>
+            <input id="booking-participants" className={inputCls + " mt-1.5"} placeholder="Comma-separated names" value={participants} onChange={(e) => setParticipants(e.target.value)} />
           </div>
         </div>
       </div>
@@ -653,10 +702,10 @@ export function UpcomingBookingsTab() {
               <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${TYPE_BADGE[b.resourceType]}`}>{b.resourceType}</span>
             </div>
             <div className="flex gap-1.5">
-              <Button variant="ghost" size="icon-xs"><Edit className="h-3 w-3" /></Button>
               <Button
                 variant="ghost"
                 size="icon-xs"
+                aria-label={`Cancel booking for ${b.resourceName}`}
                 className="text-destructive hover:text-destructive"
                 onClick={async () => {
                   try {
@@ -787,7 +836,7 @@ export function CompletedBookingsTab() {
                 <td className="px-4 py-3.5 text-muted-foreground">{b.booker}</td>
                 <td className="px-4 py-3.5 text-muted-foreground">{formatDate(b.date)}</td>
                 <td className="px-4 py-3.5 text-muted-foreground">{b.startTime} – {b.endTime}</td>
-                <td className="px-4 py-3.5 text-muted-foreground">{b.startTime} – {b.endTime}</td>
+                <td className="px-4 py-3.5 text-muted-foreground">{formatDuration(b.startTime, b.endTime)}</td>
                 <td className="px-4 py-3.5">
                   <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">Completed</span>
                 </td>

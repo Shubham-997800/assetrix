@@ -136,6 +136,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
   const [actionPanel, setActionPanel] = useState<"approve" | "reject" | "assign" | "resolve" | "start" | null>(null);
   const [actionNote, setActionNote] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [requests, setRequests] = useState<MaintenanceRequest[]>(initialRequests);
   const [technicians, setTechnicians] = useState<{ id: string; name: string }[]>([]);
   const [selectedTechnicianId, setSelectedTechnicianId] = useState("");
@@ -191,6 +192,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     if (!selectedRequest) return;
     try {
       setActionLoading(true);
+      setActionError(null);
       await maintenanceApi.approve(selectedRequest.id, { notes: actionNote || undefined });
       onRefresh();
       setSelectedRequest(null);
@@ -198,7 +200,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
       setActionNote("");
     } catch (err) {
       const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to approve request");
+      setActionError(apiErr.message || "Failed to approve request");
     } finally {
       setActionLoading(false);
     }
@@ -208,6 +210,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     if (!selectedRequest) return;
     try {
       setActionLoading(true);
+      setActionError(null);
       await maintenanceApi.reject(selectedRequest.id, { rejectionReason: actionNote || "Rejected" });
       onRefresh();
       setSelectedRequest(null);
@@ -215,7 +218,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
       setActionNote("");
     } catch (err) {
       const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to reject request");
+      setActionError(apiErr.message || "Failed to reject request");
     } finally {
       setActionLoading(false);
     }
@@ -225,6 +228,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     if (!selectedRequest) return;
     try {
       setActionLoading(true);
+      setActionError(null);
       await maintenanceApi.start(selectedRequest.id);
       onRefresh();
       setSelectedRequest(null);
@@ -232,7 +236,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
       setActionNote("");
     } catch (err) {
       const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to start work");
+      setActionError(apiErr.message || "Failed to start work");
     } finally {
       setActionLoading(false);
     }
@@ -242,6 +246,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     if (!selectedRequest || !selectedTechnicianId) return;
     try {
       setActionLoading(true);
+      setActionError(null);
       await maintenanceApi.assign(selectedRequest.id, selectedTechnicianId);
       onRefresh();
       setSelectedRequest(null);
@@ -250,7 +255,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
       setSelectedTechnicianId("");
     } catch (err) {
       const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to assign technician");
+      setActionError(apiErr.message || "Failed to assign technician");
     } finally {
       setActionLoading(false);
     }
@@ -260,6 +265,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
     if (!selectedRequest) return;
     try {
       setActionLoading(true);
+      setActionError(null);
       await maintenanceApi.complete(selectedRequest.id, {
         notes: actionNote || undefined,
         findings: actionNote || undefined,
@@ -270,7 +276,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
       setActionNote("");
     } catch (err) {
       const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to resolve request");
+      setActionError(apiErr.message || "Failed to resolve request");
     } finally {
       setActionLoading(false);
     }
@@ -287,6 +293,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
         actionPanel={actionPanel}
         actionNote={actionNote}
         actionLoading={actionLoading}
+        actionError={actionError}
         setActionNote={setActionNote}
         technicians={technicians}
         selectedTechnicianId={selectedTechnicianId}
@@ -316,6 +323,7 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
           <button
             key={tab}
             onClick={() => { setActiveTab(tab); setPage(1); }}
+            aria-pressed={activeTab === tab}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
               activeTab === tab
                 ? "bg-card text-foreground shadow-sm border border-border"
@@ -410,12 +418,12 @@ export function MaintenanceTabs({ initialRequests, onRefresh }: MaintenanceTabsP
             Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
           </span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
-              <ChevronLeft className="h-3.5 w-3.5" />
+            <Button variant="outline" size="icon" className="btn-enterprise" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Previous page">
+              <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-xs text-foreground">{page} / {totalPages}</span>
-            <Button variant="outline" size="sm" className="btn-enterprise h-7 w-7 p-0" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
-              <ChevronRight className="h-3.5 w-3.5" />
+            <Button variant="outline" size="icon" className="btn-enterprise" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} aria-label="Next page">
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -429,6 +437,7 @@ interface SelectedRequestViewProps {
   actionPanel: "approve" | "reject" | "assign" | "resolve" | "start" | null;
   actionNote: string;
   actionLoading: boolean;
+  actionError: string | null;
   setActionNote: (v: string) => void;
   technicians: { id: string; name: string }[];
   selectedTechnicianId: string;
@@ -452,6 +461,7 @@ function SelectedRequestView({
   actionPanel,
   actionNote,
   actionLoading,
+  actionError,
   setActionNote,
   technicians,
   selectedTechnicianId,
@@ -512,6 +522,12 @@ function SelectedRequestView({
         </Button>
         <div className="flex items-center gap-2">{getActionButtons()}</div>
       </div>
+
+      {actionError && (
+        <div role="alert" className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+          <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" /> {actionError}
+        </div>
+      )}
 
       {actionPanel && (
         <div className="rounded-xl border border-border bg-card p-4">

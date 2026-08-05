@@ -406,6 +406,7 @@ export function AssetDetailsView({ asset, onBack }: AssetDetailsViewProps) {
             <button
               key={s.id}
               onClick={() => setActiveSection(s.id)}
+              aria-pressed={activeSection === s.id}
               className={`whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                 activeSection === s.id
                   ? "border-primary text-primary"
@@ -726,7 +727,7 @@ export function AssetDetailsView({ asset, onBack }: AssetDetailsViewProps) {
                         {doc.type.charAt(0).toUpperCase() + doc.type.slice(1)} · {doc.size} · {formatDate(doc.uploadedAt)}
                       </p>
                     </div>
-                    <button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary">
+                    <button type="button" className="flex h-8 w-8 items-center justify-center rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary" aria-label={`Download ${doc.name}`}>
                       <Download className="h-4 w-4" />
                     </button>
                   </div>

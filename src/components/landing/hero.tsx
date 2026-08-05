@@ -175,7 +175,7 @@ export function Hero() {
                       {[{ name: "Laptop #4821", dept: "Engineering" }, { name: "Projector #127", dept: "Marketing" }, { name: "Camera #89", dept: "Media" }].map((item) => (
                         <div key={item.name} className="flex items-center justify-between">
                           <span className="text-[10px] text-muted-foreground">{item.name}</span>
-                          <span className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-medium text-amber-600 dark:text-amber-400">{item.dept}</span>
+                          <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">{item.dept}</span>
                         </div>
                       ))}
                     </div>
@@ -186,7 +186,7 @@ export function Hero() {
                       {[{ action: "Asset allocated", time: "2m" }, { action: "Maintenance done", time: "5m" }, { action: "Audit passed", time: "8m" }].map((item) => (
                         <div key={item.action} className="flex items-center justify-between">
                           <span className="text-[10px] text-muted-foreground">{item.action}</span>
-                          <span className="text-[8px] text-muted-foreground/60">{item.time}</span>
+                          <span className="text-[10px] text-muted-foreground">{item.time}</span>
                         </div>
                       ))}
                     </div>

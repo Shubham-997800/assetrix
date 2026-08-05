@@ -117,7 +117,7 @@ export function ActiveSessions() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">{s.os ?? "Unknown OS"} · {s.deviceType ?? "Unknown"}</p>
-                  <p className="text-xs text-muted-foreground/60 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     <Globe className="inline h-3 w-3 mr-1" />{s.ipAddress ?? "—"} · {formatTime(s.lastActiveAt)}
                   </p>
                 </div>

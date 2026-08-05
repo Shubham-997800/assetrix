@@ -121,6 +121,7 @@ function AllocationsPage() {
               <button
                 key={t.id}
                 onClick={() => handleSetActiveTab(t.id)}
+                aria-pressed={activeTab === t.id}
                 className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === t.id
                     ? "border-primary text-primary"

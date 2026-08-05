@@ -119,11 +119,11 @@ const TimelineItem = React.memo(function TimelineItem({ entry }: { entry: Activi
             {entry.entity}
             {entry.entityId ? ` (${entry.entityId})` : ""}
           </span>
-          <span className="text-xs text-muted-foreground/60">
+          <span className="text-xs text-muted-foreground">
             {entry.userRole}
           </span>
         </div>
-        <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground/60">
+        <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Clock className="h-3 w-3" />
             {fmtTime(entry.createdAt)}
@@ -237,6 +237,7 @@ function LogsPage() {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
+                aria-pressed={isActive}
                 className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                   isActive
                     ? "border-primary text-primary"

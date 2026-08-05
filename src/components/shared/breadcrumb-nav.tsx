@@ -39,7 +39,8 @@ export function BreadcrumbNav() {
     <nav className="flex items-center gap-1 text-xs overflow-x-auto max-w-full scrollbar-none" aria-label="Breadcrumb">
       <Link
         href="/dashboard"
-        className="flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+        aria-label="Dashboard"
+        className="flex items-center gap-1 rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
       >
         <Home className="h-3.5 w-3.5" />
       </Link>
@@ -51,7 +52,7 @@ export function BreadcrumbNav() {
           ) : (
             <Link
               href={crumb.href}
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               {crumb.label}
             </Link>

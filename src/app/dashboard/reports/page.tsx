@@ -2,17 +2,19 @@
 
 import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, AlertCircle } from "lucide-react";
 import { ReportTabs } from "./_components/report-tabs";
 import { reportApi } from "@/lib/api";
 import type { ApiError } from "@/lib/api";
 
 function ReportsPage() {
   const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const handleExportAll = async () => {
     try {
       setExporting(true);
+      setExportError(null);
       const res = await reportApi.generate({ name: "All Assets Report", type: "ASSET", format: "CSV" });
       const reportId = (res.data as { report?: { id?: string } })?.report?.id;
       if (reportId) {
@@ -20,7 +22,7 @@ function ReportsPage() {
       }
     } catch (err) {
       const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to export reports");
+      setExportError(apiErr.message || "Failed to export reports");
     } finally {
       setExporting(false);
     }
@@ -39,6 +41,11 @@ function ReportsPage() {
           </Button>
         </div>
       </div>
+      {exportError && (
+        <div role="alert" className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+          <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" /> {exportError}
+        </div>
+      )}
       <ReportTabs />
     </div>
   );

@@ -107,7 +107,7 @@ export function ProfileHeader({ name, role, department, status, joinDate, initia
             </div>
           </div>
           <p className="mt-0.5 text-sm text-muted-foreground">{role} · {department}</p>
-          <p className="mt-1 text-xs text-muted-foreground/60">Member since {joinDate}</p>
+          <p className="mt-1 text-xs text-muted-foreground">Member since {joinDate}</p>
         </div>
 
         {/* Actions */}

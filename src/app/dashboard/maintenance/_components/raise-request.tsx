@@ -21,7 +21,7 @@ interface RaiseRequestFormProps {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 const labelCls = "text-xs font-medium text-foreground";
 
 export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) {
@@ -156,8 +156,9 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
           </div>
 
           <div className="sm:col-span-2">
-            <label className={labelCls}>Issue Title *</label>
+            <label className={labelCls} htmlFor="issue-title">Issue Title *</label>
             <input
+              id="issue-title"
               className={`${errors.title ? "border-destructive/50 focus:border-destructive" : ""} ${inputCls} mt-1.5`}
               placeholder="Brief title describing the problem"
               value={title}
@@ -171,8 +172,9 @@ export function RaiseRequestForm({ onSubmit, onCancel }: RaiseRequestFormProps) 
           </div>
 
           <div className="sm:col-span-2">
-            <label className={labelCls}>Issue Description *</label>
+            <label className={labelCls} htmlFor="issue-description">Issue Description *</label>
             <textarea
+              id="issue-description"
               className={`${errors.description ? "border-destructive/50 focus:border-destructive" : ""} ${inputCls} mt-1.5 resize-none`}
               rows={4}
               placeholder="Describe the issue in detail — what happened, when it started, error messages, etc."

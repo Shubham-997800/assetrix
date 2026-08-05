@@ -138,6 +138,7 @@ function ProfilePage() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
+                  aria-pressed={tab.isActive}
                   className={tab.className}
                 >
                   <tab.icon className="h-4 w-4" />

@@ -28,7 +28,7 @@ interface RegisterAssetFormProps {
 const CONDITIONS: AssetCondition[] = ["Excellent", "Good", "Fair", "Poor", "Damaged"];
 
 const inputCls =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 const inputErrorCls =
   "w-full rounded-lg border border-destructive/50 bg-background px-3 py-2 text-sm text-foreground outline-none transition-all focus:border-destructive focus:ring-2 focus:ring-destructive/20";
 const labelCls = "text-xs font-medium text-foreground";
@@ -252,8 +252,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className={labelCls}>Asset Name *</label>
+            <label className={labelCls} htmlFor="asset-name">Asset Name *</label>
             <input
+              id="asset-name"
               className={`${errors.name ? inputErrorCls : inputCls} mt-1.5`}
               placeholder="e.g. MacBook Pro 16-inch M3 Max"
               value={basicDetails.name}
@@ -268,8 +269,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             )}
           </div>
           <div className="sm:col-span-2">
-            <label className={labelCls}>Description</label>
+            <label className={labelCls} htmlFor="asset-description">Description</label>
             <textarea
+              id="asset-description"
               className={`${inputCls} mt-1.5 resize-none`}
               rows={2}
               placeholder="Brief description of the asset"
@@ -328,10 +330,11 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             )}
           </div>
           <div>
-            <label className={labelCls}>Location *</label>
+            <label className={labelCls} htmlFor="asset-location">Location *</label>
             <div className="relative mt-1.5">
               <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
+                id="asset-location"
                 list="asset-location-options"
                 className={`${errors.location ? inputErrorCls : inputCls} pl-9`}
                 placeholder="Enter or select location"
@@ -378,8 +381,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             <p className={descCls}>Auto-generated. Cannot be edited.</p>
           </div>
           <div>
-            <label className={labelCls}>Serial Number *</label>
+            <label className={labelCls} htmlFor="serial-number">Serial Number *</label>
             <input
+              id="serial-number"
               className={`${errors.serialNumber ? inputErrorCls : inputCls} mt-1.5`}
               placeholder="Manufacturer serial number"
               value={identification.serialNumber}
@@ -394,8 +398,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             )}
           </div>
           <div>
-            <label className={labelCls}>Manufacturer *</label>
+            <label className={labelCls} htmlFor="manufacturer">Manufacturer *</label>
             <input
+              id="manufacturer"
               className={`${errors.manufacturer ? inputErrorCls : inputCls} mt-1.5`}
               placeholder="e.g. Apple Inc."
               value={identification.manufacturer}
@@ -410,8 +415,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             )}
           </div>
           <div>
-            <label className={labelCls}>Model Number</label>
+            <label className={labelCls} htmlFor="model-number">Model Number</label>
             <input
+              id="model-number"
               className={inputCls + " mt-1.5"}
               placeholder="e.g. MBP16-M3M-36-1TB"
               value={identification.modelNumber}
@@ -421,8 +427,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             />
           </div>
           <div>
-            <label className={labelCls}>Barcode</label>
+            <label className={labelCls} htmlFor="barcode">Barcode</label>
             <input
+              id="barcode"
               className={inputCls + " mt-1.5"}
               placeholder="Barcode number"
               value={identification.barcode}
@@ -451,8 +458,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
-            <label className={labelCls}>Acquisition Date</label>
+            <label className={labelCls} htmlFor="acquisition-date">Acquisition Date</label>
             <input
+              id="acquisition-date"
               type="date"
               className={inputCls + " mt-1.5"}
               value={acquisition.date}
@@ -462,8 +470,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             />
           </div>
           <div>
-            <label className={labelCls}>Acquisition Cost ($)</label>
+            <label className={labelCls} htmlFor="acquisition-cost">Acquisition Cost ($)</label>
             <input
+              id="acquisition-cost"
               type="number"
               className={inputCls + " mt-1.5"}
               placeholder="0.00"
@@ -477,8 +486,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             <p className={descCls}>Used for reports and analytics only</p>
           </div>
           <div>
-            <label className={labelCls}>Vendor Name</label>
+            <label className={labelCls} htmlFor="vendor-name">Vendor Name</label>
             <input
+              id="vendor-name"
               className={inputCls + " mt-1.5"}
               placeholder="Supplier or vendor name"
               value={acquisition.vendor}
@@ -488,8 +498,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             />
           </div>
           <div>
-            <label className={labelCls}>Warranty Expiry</label>
+            <label className={labelCls} htmlFor="warranty-expiry">Warranty Expiry</label>
             <input
+              id="warranty-expiry"
               type="date"
               className={inputCls + " mt-1.5"}
               value={acquisition.warrantyExpiry}
@@ -499,8 +510,9 @@ export function RegisterAssetForm({ onSubmit, onCancel }: RegisterAssetFormProps
             />
           </div>
           <div>
-            <label className={labelCls}>Purchase Reference</label>
+            <label className={labelCls} htmlFor="purchase-reference">Purchase Reference</label>
             <input
+              id="purchase-reference"
               className={inputCls + " mt-1.5"}
               placeholder="e.g. PO-2026-0001"
               value={acquisition.purchaseRef}
